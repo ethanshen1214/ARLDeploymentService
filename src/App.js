@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import './App.css';
 import { Layout, Grid, Cell, DataTable, TableHeader } from 'react-mdl';
+import Form from './Components/form';
 const pipes = require('./API_Functions/pipelines.js');
 
 
@@ -10,74 +11,58 @@ const pipes = require('./API_Functions/pipelines.js');
         super(props);
         this.state = {
           pipelines: [],
-          str: "test",
+          authorized: false,
+          auth_key: 'zJLxDfYVS87Ar2NRp52K',
         }
       }
 
-      componentDidMount() {
-        pipes.getPipelinesForProject(18820410, 5,'zJLxDfYVS87Ar2NRp52K').then((res) => this.setState( {pipelines:res} ));
+      // componentDidMount() {
+      //   pipes.getPipelinesForProject(18820410, 5,'zJLxDfYVS87Ar2NRp52K').then((res) => this.setState( {pipelines:res} ));
+      // }
+
+      handleSubmit = () => {
+        pipes.getPipelinesForProject(18820410, 5, this.state.auth_key).then((res) => this.setState( {pipelines: res} ));
+        this.setState({authorized: true});
       }
 
       render () {
-        const projectData = [];
-        const commitData = [];
-        const deploymentDates = [];
-        projectData.push(<h2>Source Project</h2>)
-        commitData.push(<h2>Source Commit</h2>);
-        deploymentDates.push(<h2>Deployment Date</h2>);
+        if (this.state.authorized) {
+          const parsedPipelines = [];
 
-        const parsedPipelines = [];
+          for(let i = 0; i < this.state.pipelines.length; i++)
+          {
+            const tempPipeline = {
+              sourceProject: this.state.pipelines[i].web_url,
+              sourceCommit: this.state.pipelines[i].user.username,
+              deploymentDate: this.state.pipelines[i].created_at,
+            };
+            parsedPipelines.push(tempPipeline);
+          }
 
-        for(let i = 0; i < this.state.pipelines.length; i++)
-        {
-          // projectData.push(<p>{this.state.pipelines[i].web_url}</p>);
-          // commitData.push(<p>{this.state.pipelines[i].user.username}</p>);
-          // deploymentDates.push(<p>{this.state.pipelines[i].created_at}</p>);
-          const tempPipeline = {
-            sourceProject: this.state.pipelines[i].web_url,
-            sourceCommit: this.state.pipelines[i].user.username,
-            deploymentDate: this.state.pipelines[i].created_at,
-          };
-          parsedPipelines.push(tempPipeline);
+          return(
+              <div style={{height: '3200px', position: 'relative', marginLeft: '85px', marginRight: '85px'}}>
+                <div className = 'labels'>
+                  <h1>Current Pipelines</h1>
+                  <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
+                    <DataTable
+                      shadow={0}
+                      rows = {parsedPipelines}>
+                      <TableHeader name="sourceProject" tooltip="URL of pipeline">Source Project</TableHeader>
+                      <TableHeader name="sourceCommit" tooltip="Name of account that ran the pipeline">Source Commit</TableHeader>
+                      <TableHeader name="deploymentDate" tooltip="Date pipeline was created">Date of Deployment</TableHeader>
+                    </DataTable>      
+                  </div>         
+                </div>
+              </div>
+          );
         }
-
-
-        return(
-          <div style={{height: '3200px', position: 'relative', marginLeft: '85px', marginRight: '85px'}}>
-            {/* <Layout style = {{background: '#ffffff'}}>
-              <div className = 'labels'>
-                <h1>Current Pipelines</h1>
-                <Grid>
-                  <Cell col = {4}>
-                    <div>{projectData}</div>
-                  </Cell>
-                  <Cell col = {4}>
-                    <div>{commitData}</div>
-                  </Cell>
-                  <Cell col = {4}>
-                    <div>{deploymentDates}</div>
-                  </Cell>
-                </Grid>
-              </div>
-            </Layout> */}
-
-            <div className = 'labels'>
-              <h1>Current Pipelines</h1>
-              <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
-                <DataTable
-                  shadow={0}
-                  rows = {parsedPipelines}>
-                  <TableHeader name="sourceProject" tooltip="URL of pipeline">Source Project</TableHeader>
-                  <TableHeader name="sourceCommit" tooltip="Name of account that ran the pipeline">Source Commit</TableHeader>
-                  <TableHeader name="deploymentDate" tooltip="Date pipeline was created">Date of Deployment</TableHeader>
-                </DataTable>      
-              </div>
-                        
+        else {
+          return (
+            <div>
+              <Form submitHandler={this.handleSubmit}/>
             </div>
-            
-          </div>
-        );
+          );
+        }
       }
     }
-
     export default App;
