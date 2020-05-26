@@ -1,26 +1,28 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, {Component} from 'react';
+const pipes = require('./API_Functions/pipelines.js');
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+    class App extends Component {
 
-export default App;
+      constructor(props){
+        super(props);
+        this.state = {
+          pipelines: [],
+          str: "test",
+        }
+      }
+
+      componentDidMount() {
+        pipes.getPipelinesForProject(18820410, 5,'zJLxDfYVS87Ar2NRp52K').then((res) => this.setState( {pipelines:res} ));
+      }
+
+      render () {
+        return(
+          <div>
+            <h1>Pipelines</h1>
+            <p>{JSON.stringify(this.state.pipelines, null, 4)}</p>
+          </div>
+        );
+      }
+    }
+
+    export default App;
