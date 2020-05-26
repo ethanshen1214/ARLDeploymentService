@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
 import './App.css';
-import { Layout, Grid, Cell, DataTable, TableHeader } from 'react-mdl';
+import { Layout, Grid, Cell, DataTable, TableHeader, Card, CardTitle, CardText, CardActions, Button } from 'react-mdl';
 import Form from './Components/form';
-import { ButtonDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
+import { UncontrolledButtonDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 const pipes = require('./API_Functions/pipelines.js');
 
 
@@ -27,7 +27,7 @@ const pipes = require('./API_Functions/pipelines.js');
       // }
 
       handleSubmit = (value) => {
-        this.setState({authorized: true, auth_key: value}, () => pipes.getPipelinesForProject(18820410, 5, this.state.auth_key).then((res) => this.setState( {pipelines: res} )));
+        this.setState({authorized: true, auth_key: value}, () => pipes.getPipelinesForProject(18820410, 10, this.state.auth_key).then((res) => this.setState( {pipelines: res} )));
       }
 
       render () {
@@ -35,7 +35,7 @@ const pipes = require('./API_Functions/pipelines.js');
           const parsedPipelines = [];
           const parsedProjects = [];
           const parsedGroups = [];
-          
+
           for(let i = 0; i < 5; i++)
           {
             const tempProject = {
@@ -60,6 +60,7 @@ const pipes = require('./API_Functions/pipelines.js');
                   <h2>Projects in this group</h2>
                   <div>
                     <DataTable
+                      selectable
                       shadow={0}
                       rows = {parsedProjects}>
                       <TableHeader name="projectName" tooltip="Project Name">Project Name</TableHeader>
@@ -67,8 +68,8 @@ const pipes = require('./API_Functions/pipelines.js');
                   </div>         
                 </div>
                 <div className = 'labels'>
-                  <h2>Current Pipelines For This Project</h2>
-                  <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
+                  <h2>Pipeline Status</h2>
+                  <div /*style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}*/>
                     <DataTable
                       shadow={0}
                       rows = {parsedPipelines}>
@@ -83,9 +84,24 @@ const pipes = require('./API_Functions/pipelines.js');
         }
         else {
           return (
-            <div>
-              <Form submitHandler={this.handleSubmit}/>
+            <div className = 'labels'>
+              {/* <p>Please input a valid Personal Access Token from Gitlab to view project pipeline statuses</p>
+              <div style={{display: 'flex',alignItems: 'center',justifyContent: 'center',
+                height: '100px', position: 'relative', marginLeft: '85px', marginRight: '85px', marginTop: '8%'}}>
+                <Form submitHandler={this.handleSubmit}/>
+              </div> */}
+              <Card shadow={3} style={{width: '420px', height: '320px', margin: 'auto', marginTop: '8%'}}>
+                <CardTitle expand style={{color: '#fff', background: 'url(http://www.getmdl.io/assets/demos/dog.png) bottom right 15% no-repeat #46B6AC'}}></CardTitle>
+                <CardText>
+                  Please input a valid Personal Access Token from Gitlab to view project pipeline statuses. Or else.
+                </CardText>
+                <CardActions border>
+                  <Form submitHandler={this.handleSubmit}/>
+                </CardActions>
+              </Card>
+
             </div>
+
           );
         }
       }
