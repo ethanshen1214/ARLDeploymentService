@@ -47,7 +47,6 @@ exports.getPipelinesForProject = (projectId, historyLength, token) => {
         per_page: historyLength,
     };
     const url = `${path}?${querystring.stringify(options)}`;
-
     return request(url)
         .then((res) => JSON.parse(res.body))
         .then((body) => body

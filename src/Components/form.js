@@ -17,7 +17,7 @@ export default class Form extends React.Component {
     }
   
     handleSubmit = () => {
-        this.props.submitHandler();
+        this.props.submitHandler(this.state.value);
     }
   
     render() {

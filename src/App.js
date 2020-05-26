@@ -12,7 +12,7 @@ const pipes = require('./API_Functions/pipelines.js');
         this.state = {
           pipelines: [],
           authorized: false,
-          auth_key: 'zJLxDfYVS87Ar2NRp52K',
+          auth_key: '',
         }
       }
 
@@ -20,9 +20,9 @@ const pipes = require('./API_Functions/pipelines.js');
       //   pipes.getPipelinesForProject(18820410, 5,'zJLxDfYVS87Ar2NRp52K').then((res) => this.setState( {pipelines:res} ));
       // }
 
-      handleSubmit = () => {
+      handleSubmit = async (value) => {
+        await this.setState({authorized: true, auth_key: value});
         pipes.getPipelinesForProject(18820410, 5, this.state.auth_key).then((res) => this.setState( {pipelines: res} ));
-        this.setState({authorized: true});
       }
 
       render () {
