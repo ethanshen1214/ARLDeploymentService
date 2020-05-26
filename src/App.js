@@ -19,7 +19,6 @@ const pipes = require('./API_Functions/pipelines.js');
       }
 
       render () {
-
         const projectData = [];
         const commitData = [];
         const deploymentDates = [];
@@ -68,9 +67,9 @@ const pipes = require('./API_Functions/pipelines.js');
                 <DataTable
                   shadow={0}
                   rows = {parsedPipelines}>
-                  <TableHeader name="sourceProject" tooltip="The amazing material name">Source Project</TableHeader>
-                  <TableHeader name="sourceCommit" tooltip="Number of materials">Source Commit</TableHeader>
-                  <TableHeader name="deploymentDate" tooltip="Price pet unit">Date of Deployment</TableHeader>
+                  <TableHeader name="sourceProject" tooltip="URL of pipeline">Source Project</TableHeader>
+                  <TableHeader name="sourceCommit" tooltip="Name of account that ran the pipeline">Source Commit</TableHeader>
+                  <TableHeader name="deploymentDate" tooltip="Date pipeline was created">Date of Deployment</TableHeader>
                 </DataTable>      
               </div>
                         
