@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 export default class Form extends React.Component {
     static propTypes = {
         submitHandler: PropTypes.func,
+        formTitle: PropTypes.string,
     };
     
     constructor(props) {
@@ -24,7 +25,7 @@ export default class Form extends React.Component {
       return (
         <form onSubmit={this.handleSubmit}>
           <label>
-            Authorization Token:
+            {this.props.formTitle}
             <input type="text" value={this.state.value} onChange={this.handleChange} style = {{ marginLeft: '20px', marginRight: '20px'}}/>
           </label>
           <input type="submit" value="Submit" />
