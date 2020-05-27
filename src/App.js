@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import './App.css';
-import { Layout, Grid, Cell, DataTable, TableHeader, Card, CardTitle, CardText, CardActions, Button, Checkbox } from 'react-mdl';
+import { Layout, Grid, Cell, DataTable, TableHeader, Card, CardTitle, CardText, CardActions, RadioGroup, Radio } from 'react-mdl';
 import Form from './Components/form';
 const pipes = require('./API_Functions/pipelines.js');
 const fs = require('fs');
@@ -19,7 +19,7 @@ const fs = require('fs');
         }
       }
 
-      componentDidMount() {
+      componentDidMount() {   //on startup it checks to see if sessionStorage already has auth_key and/or project_id
         if (sessionStorage.getItem('auth_key') != null && sessionStorage.getItem('project_id') != null){
           this.setState({auth_key: sessionStorage.getItem('auth_key')}, () => pipes.getPipelinesForProject(sessionStorage.getItem('project_id'), 10, this.state.auth_key)
           .then((res) => {
@@ -32,48 +32,35 @@ const fs = require('fs');
         }
       }
 
-      handleAuthSubmit = (value) => {
+
+      handleAuthSubmit = (value) => {   //handler for submitting authentication token
         sessionStorage.setItem('auth_key', value);
         this.setState({authorized: true, auth_key: value});
       }
-      handleProjectSubmit = (value) => {
+      handleProjectSubmit = (value) => {  //handler for submitting project ID
         sessionStorage.setItem('project_id', value);
         pipes.getPipelinesForProject(value, 10, this.state.auth_key)
         .then((res) => {
-          if(typeof res != 'undefined'){this.setState( {pipelines: res} )}
+          if(typeof res != 'undefined'){this.setState( {pipelines: res} )}  //checks for invalid input
           else{alert('invalid project id')}
         })
       }
-      selectOne = (value) => {
-        this.setState({numPipelines: 1});
+      selectNumPipes = (e) => {  //handler for selecting number of pipelines to display
+        this.setState({numPipelines: parseInt(e.target.value)});
       }
-      selectFive = (value) => {
-        this.setState({numPipelines: 5});
-      }
-      selectTen = (value) => {
-        this.setState({numPipelines: 10});
-      }
+
+
 
       render () {
-        if (this.state.auth_key != '') {
+        if (this.state.auth_key != '') {    //if auth_key has been submitted, show main page
           const parsedPipelines = [];
-          const parsedProjects = [];
-          const parsedGroups = [];
-
-          for(let i = 0; i < 5; i++)
-          {
-            const tempProject = {
-              projectName: 'thisIsATestProject'
-            };
-            parsedProjects.push(tempProject);
-          }
 
           let displayPipes = this.state.pipelines.length;
-          if(this.state.pipelines.length >= this.state.numPipelines){
+          if(this.state.pipelines.length >= this.state.numPipelines){ //if the number of pipelines passed in is less than the default/selected amount
             displayPipes = this.state.numPipelines
           }
-          //for(let i = 0; i < this.state.pipelines.length; i++)
-          for(let i = 0; i < displayPipes; i++)
+
+          for(let i = 0; i < displayPipes; i++)     //parse through all the pipelines and get the required info
           {
             const tempPipeline = {
               sourceProject: this.state.pipelines[i].web_url,
@@ -81,26 +68,46 @@ const fs = require('fs');
               deploymentDate: this.state.pipelines[i].created_at,
               successStatus: this.state.pipelines[i].status,
             };
-            parsedPipelines.push(tempPipeline);
+            parsedPipelines.push(tempPipeline);   //add to pipelines array
+          }
+
+          let radioGroup;
+          if(this.state.numPipelines === 1){    //for re-rendering the radio buttons with the correct values
+            radioGroup = <RadioGroup container="ul" childContainer="li" name="demo2" value = '1' onChange ={this.selectNumPipes}>
+                              <Radio value= '1' >1</Radio>
+                              <Radio value= '5' >5</Radio>
+                              <Radio value= '10'>10</Radio>
+                          </RadioGroup>;
+          }
+          else if(this.state.numPipelines === 5){
+            radioGroup = <RadioGroup container="ul" childContainer="li" name="demo2" value = '5' onChange ={this.selectNumPipes}>
+                              <Radio value= '1' >1</Radio>
+                              <Radio value= '5' >5</Radio>
+                              <Radio value= '10'>10</Radio>
+                          </RadioGroup>;
+          }
+          else if(this.state.numPipelines === 10){
+            radioGroup = <RadioGroup container="ul" childContainer="li" name="demo2" value = '10' onChange ={this.selectNumPipes}>
+                              <Radio value= '1' >1</Radio>
+                              <Radio value= '5' >5</Radio>
+                              <Radio value= '10'>10</Radio>
+                          </RadioGroup>;
           }
 
           return(
-              <div style={{height: '3200px', position: 'relative', marginLeft: '85px', marginRight: '85px'}}>
+              <div style={{height: '900px', position: 'relative', marginLeft: '85px', marginRight: '85px'}}>
                 <div className = 'labels'>
                   <div>
-                    <Card shadow={3} style={{width: '420px', height: '50px', margin: 'auto', marginTop: '8%'}}>
+                    <Card shadow={3} style={{width: '420px', height: '250px', margin: 'auto', marginTop: '8%'}}>
                       <CardText>
                         Input Project ID here
                       </CardText>
                       <CardActions border>
                         <Form submitHandler={this.handleProjectSubmit} formTitle={'Project ID:'}/>
                         <CardText>Select the number of pipelines to display (default 5)</CardText>
-                        <Checkbox label = '1' onChange = {this.setOne}/>
-                        <Checkbox label = '5' onChange = {this.setFive}/>
-                        <Checkbox label = '10'onChange = {this.setTen}/>
+                        {radioGroup}
                       </CardActions>
                     </Card>
-                    
                   </div>         
                 </div>
                 <div className = 'labels'>
@@ -121,7 +128,7 @@ const fs = require('fs');
               </div>
           );
         }
-        else {
+        else {  //show startup page to enter auth key
           return (
             <div className = 'labels'>
               <Card shadow={3} style={{width: '420px', height: '320px', margin: 'auto', marginTop: '8%'}}>
