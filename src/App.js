@@ -3,7 +3,7 @@ import './App.css';
 import { Layout, Grid, Cell, DataTable, TableHeader, Card, CardTitle, CardText, CardActions, RadioGroup, Radio, IconButton } from 'react-mdl';
 import Form from './Components/form';
 const pipes = require('./API_Functions/pipelines.js');
-const fs = require('fs');
+const jobs = require('./API_Functions/jobs.js');
 const { apiUrl } = require('./lib/config.js');
 
 //zJLxDfYVS87Ar2NRp52K
@@ -38,6 +38,7 @@ const { apiUrl } = require('./lib/config.js');
         sessionStorage.setItem('auth_key', value);
         this.setState({ auth_key: value }); 
       }
+
       handleProjectSubmit = (value) => {  //handler for submitting project ID
         sessionStorage.setItem('project_id', value);
         pipes.getPipelinesForProject(value, 10, this.state.auth_key)
@@ -46,11 +47,38 @@ const { apiUrl } = require('./lib/config.js');
           else{alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token')}
         })
       }
+
       selectNumPipes = (e) => {  //handler for selecting number of pipelines to display
         this.setState({numPipelines: parseInt(e.target.value)});
       }
+
       downloadHandler = (e) => {
-        alert(e.target.title);
+        // let jobsArray;
+        // let artifactLink;
+        // let pipelineId = parseInt(e.target.title);
+        // jobs.getJobsByPipeline(sessionStorage.getItem('project_id'), pipelineId, this.state.auth_key, (err, jobData) => {
+        //   if (err) {
+        //     console.error(err);
+        //   } else {
+        //     jobsArray = jobData;
+        //     let lastJobId = jobsArray[0].id;
+        //     jobs.getArtifact(lastJobId, sessionStorage.getItem('project_id'), pipelineId, this.state.auth_key, (err, artifactData) => {
+        //       if(err) {
+        //         console.error(err);
+        //       } else {
+        //         artifactLink = artifactData;
+        //         alert(artifactLink);
+        //       }
+        //     });
+        //   }
+        // });
+        jobs.getArtifact(564204948, 18876221, 'zJLxDfYVS87Ar2NRp52K', (err, artifactData) => {
+          if (err) {
+            console.error(err);
+          } else {
+            alert(artifactData);
+          }
+        })
       }
 
 
