@@ -1,9 +1,10 @@
 import React, {Component} from 'react';
 import './App.css';
-import { Layout, Grid, Cell, DataTable, TableHeader, Card, CardTitle, CardText, CardActions, RadioGroup, Radio } from 'react-mdl';
+import { Layout, Grid, Cell, DataTable, TableHeader, Card, CardTitle, CardText, CardActions, RadioGroup, Radio, IconButton } from 'react-mdl';
 import Form from './Components/form';
 const pipes = require('./API_Functions/pipelines.js');
 const fs = require('fs');
+const { apiUrl } = require('./lib/config.js');
 
 //zJLxDfYVS87Ar2NRp52K
 //18820410
@@ -24,29 +25,32 @@ const fs = require('fs');
           this.setState({auth_key: sessionStorage.getItem('auth_key')}, () => pipes.getPipelinesForProject(sessionStorage.getItem('project_id'), 10, this.state.auth_key)
           .then((res) => {
             if(typeof res != 'undefined'){this.setState( {pipelines: res} )}
-            else{alert('invalid project id')}
+            else{alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token')}
           })
         )}
         else if(sessionStorage.getItem('auth_key') != null && sessionStorage.getItem('project_id') == null){
-          this.setState({authorized: true, auth_key: sessionStorage.getItem('auth_key')});
+          this.setState({ auth_key: sessionStorage.getItem('auth_key') });
         }
       }
 
 
       handleAuthSubmit = (value) => {   //handler for submitting authentication token
         sessionStorage.setItem('auth_key', value);
-        this.setState({authorized: true, auth_key: value});
+        this.setState({ auth_key: value }); 
       }
       handleProjectSubmit = (value) => {  //handler for submitting project ID
         sessionStorage.setItem('project_id', value);
         pipes.getPipelinesForProject(value, 10, this.state.auth_key)
         .then((res) => {
           if(typeof res != 'undefined'){this.setState( {pipelines: res} )}  //checks for invalid input
-          else{alert('invalid project id')}
+          else{alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token')}
         })
       }
       selectNumPipes = (e) => {  //handler for selecting number of pipelines to display
         this.setState({numPipelines: parseInt(e.target.value)});
+      }
+      downloadHandler = (e) => {
+        alert(e.target.title);
       }
 
 
@@ -67,6 +71,7 @@ const fs = require('fs');
               sourceCommit: this.state.pipelines[i].user.username,
               deploymentDate: this.state.pipelines[i].created_at,
               successStatus: this.state.pipelines[i].status,
+              downloadButton: <button title ={this.state.pipelines[i].id} onClick = {this.downloadHandler}>Download</button>,
             };
             parsedPipelines.push(tempPipeline);   //add to pipelines array
           }
@@ -122,6 +127,7 @@ const fs = require('fs');
                       <TableHeader name="sourceCommit" tooltip="Name of account that ran the pipeline">Source Commit</TableHeader>
                       <TableHeader name="deploymentDate" tooltip="Date pipeline was created">Date of Deployment</TableHeader>
                       <TableHeader name="successStatus" tooltip="Success/Failure">Status</TableHeader>
+                      <TableHeader name="downloadButton" tooltip="Click to download artifacts">Download Artifact</TableHeader>
                     </DataTable>
                   </div>         
                 </div>
