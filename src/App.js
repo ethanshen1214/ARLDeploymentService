@@ -2,8 +2,8 @@ import React, {Component} from 'react';
 import './App.css';
 import { Layout, Grid, Cell, DataTable, TableHeader, Card, CardTitle, CardText, CardActions, Button } from 'react-mdl';
 import Form from './Components/form';
-import { UncontrolledButtonDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 const pipes = require('./API_Functions/pipelines.js');
+const fs = require('fs');
 
 
     class App extends Component {
@@ -12,26 +12,23 @@ const pipes = require('./API_Functions/pipelines.js');
         super(props);
         this.state = {
           pipelines: [],
-          authorized: false,
           auth_key: '',
         }
       }
 
-      // componentDidMount() {
-      //   pipes.getPipelinesForProject(18820410, 5,'zJLxDfYVS87Ar2NRp52K').then((res) => this.setState( {pipelines:res} ));
-      // }
-
-      // handleSubmit = async (value) => {
-      //   await this.setState({authorized: true, auth_key: value});
-      //   pipes.getPipelinesForProject(18820410, 5, this.state.auth_key).then((res) => this.setState( {pipelines: res} ));
-      // }
+      componentDidMount() {
+        if (sessionStorage.getItem('auth_key') != null){
+          this.setState({auth_key: sessionStorage.getItem('auth_key')}, () => pipes.getPipelinesForProject(18820410, 10, this.state.auth_key).then((res) => this.setState( {pipelines: res} )));
+        }
+      }
 
       handleSubmit = (value) => {
+        sessionStorage.setItem('auth_key', value);
         this.setState({authorized: true, auth_key: value}, () => pipes.getPipelinesForProject(18820410, 10, this.state.auth_key).then((res) => this.setState( {pipelines: res} )));
       }
 
       render () {
-        if (this.state.authorized) {
+        if (this.state.auth_key != '') {
           const parsedPipelines = [];
           const parsedProjects = [];
           const parsedGroups = [];
