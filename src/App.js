@@ -17,21 +17,22 @@ const { apiUrl } = require('./lib/config.js');
           pipelines: [],
           auth_key: '',
           numPipelines: 5,
-          reloadFlag: false,
         }
       }
 
       componentDidMount() {   //on startup it checks to see if sessionStorage already has auth_key and/or project_id
-          //setInterval(this.setState({reloadFlag: !this.state.reloadFlag}, alert("interval alert")), 10000);
-
           if (sessionStorage.getItem('auth_key') != null && sessionStorage.getItem('project_id') != null){
-            this.setState({auth_key: sessionStorage.getItem('auth_key')}, () => pipes.getPipelinesForProject(sessionStorage.getItem('project_id'), 10, this.state.auth_key)
+            this.setState({auth_key: sessionStorage.getItem('auth_key')}, () => pipes.getPipelinesForProject(sessionStorage.getItem('project_id'), this.state.auth_key)
             .then((res) => {
-              if(typeof res != 'undefined'){this.setState( {pipelines: res} )}
-              else{alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token')}
-            })
-          )
-            this.timer = setInterval(()=> this.callAPI(), 3000);
+              if(typeof res != 'undefined'){
+                this.setState( {pipelines: res} )
+              } else{
+                clearInterval(this.timer);
+                this.timer = null;
+                alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token');
+              }
+            }));
+            this.timer = setInterval(()=> this.callAPI(), 3000); // resets the polling timer to account for timer clearing after page refresh
           }     
 
           else if(sessionStorage.getItem('auth_key') != null && sessionStorage.getItem('project_id') == null){
@@ -39,20 +40,23 @@ const { apiUrl } = require('./lib/config.js');
           }
       }
       
-      componentDidUpdate() {
+      componentWillUnmount() {
         clearInterval(this.timer);
         this.timer = null;
       }
 
       callAPI(){
-        pipes.getPipelinesForProject(sessionStorage.getItem('project_id'), 10, this.state.auth_key)
+        pipes.getPipelinesForProject(sessionStorage.getItem('project_id'), this.state.auth_key)
         .then((res) => {
-          if(typeof res != 'undefined'){this.setState( {pipelines: res} )}  //checks for invalid input
-          else{alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token')}
-        })
-        // alert("deez nuts");
+          if(typeof res != 'undefined'){ //checks for invalid input
+            this.setState( {pipelines: res} )
+          }
+          else{
+            clearInterval(this.timer);
+            this.timer = null;
+          }
+        });
       }
-
 
       handleAuthSubmit = (value) => {   //handler for submitting authentication token
         sessionStorage.setItem('auth_key', value);
@@ -61,11 +65,17 @@ const { apiUrl } = require('./lib/config.js');
 
       handleProjectSubmit = (value) => {  //handler for submitting project ID
         sessionStorage.setItem('project_id', value);
-        pipes.getPipelinesForProject(value, 10, this.state.auth_key)
-        .then((res) => {
-          if(typeof res != 'undefined'){this.setState( {pipelines: res} )}  //checks for invalid input
-          else{alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token')}
-        });
+        // pipes.getPipelinesForProject(value, this.state.auth_key)
+        // .then((res) => {
+        //   if(typeof res != 'undefined'){ //checks for invalid input
+        //     this.setState( {pipelines: res} )
+        //   } else{
+        //     clearInterval(this.timer);
+        //     this.timer = null;
+        //     // alert('SUBMIT Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token');
+        //   }
+        // });
+        // this.timer = setInterval(()=> this.callAPI(), 3000); // sets timer to poll gitlab api
       }
 
       selectNumPipes = (e) => {  //handler for selecting number of pipelines to display

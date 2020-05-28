@@ -40,11 +40,10 @@ const getPipeline = (projectId, pipelineId, token) => {
       .catch((err) => console.error('Failed to get pipeline ', err));
 };
   
-exports.getPipelinesForProject = (projectId, historyLength, token) => {
+exports.getPipelinesForProject = (projectId, token) => {
     const path = `${apiUrl}/projects/${projectId}/pipelines`;
     const options = {
         private_token: token,
-        per_page: historyLength,
     };
     const url = `${path}?${querystring.stringify(options)}`;
     return request(url)
