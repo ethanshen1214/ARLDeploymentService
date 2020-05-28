@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import './App.css';
-import { Layout, Grid, Cell, DataTable, TableHeader, Card, CardTitle, CardText, CardActions, RadioGroup, Radio, IconButton } from 'react-mdl';
+import { DataTable, TableHeader, Card, CardTitle, CardText, CardActions, RadioGroup, Radio, Spinner } from 'react-mdl';
 import Form from './Components/form';
 const pipes = require('./API_Functions/pipelines.js');
 const jobs = require('./API_Functions/jobs.js');
@@ -17,20 +17,40 @@ const { apiUrl } = require('./lib/config.js');
           pipelines: [],
           auth_key: '',
           numPipelines: 5,
+          reloadFlag: false,
         }
       }
 
       componentDidMount() {   //on startup it checks to see if sessionStorage already has auth_key and/or project_id
-        if (sessionStorage.getItem('auth_key') != null && sessionStorage.getItem('project_id') != null){
-          this.setState({auth_key: sessionStorage.getItem('auth_key')}, () => pipes.getPipelinesForProject(sessionStorage.getItem('project_id'), 10, this.state.auth_key)
-          .then((res) => {
-            if(typeof res != 'undefined'){this.setState( {pipelines: res} )}
-            else{alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token')}
-          })
-        )}
-        else if(sessionStorage.getItem('auth_key') != null && sessionStorage.getItem('project_id') == null){
-          this.setState({ auth_key: sessionStorage.getItem('auth_key') });
-        }
+          //setInterval(this.setState({reloadFlag: !this.state.reloadFlag}, alert("interval alert")), 10000);
+
+          if (sessionStorage.getItem('auth_key') != null && sessionStorage.getItem('project_id') != null){
+            this.setState({auth_key: sessionStorage.getItem('auth_key')}, () => pipes.getPipelinesForProject(sessionStorage.getItem('project_id'), 10, this.state.auth_key)
+            .then((res) => {
+              if(typeof res != 'undefined'){this.setState( {pipelines: res} )}
+              else{alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token')}
+            })
+          )
+            this.timer = setInterval(()=> this.callAPI(), 3000);
+          }     
+
+          else if(sessionStorage.getItem('auth_key') != null && sessionStorage.getItem('project_id') == null){
+            this.setState({ auth_key: sessionStorage.getItem('auth_key') });
+          }
+      }
+      
+      componentDidUpdate() {
+        clearInterval(this.timer);
+        this.timer = null;
+      }
+
+      callAPI(){
+        pipes.getPipelinesForProject(sessionStorage.getItem('project_id'), 10, this.state.auth_key)
+        .then((res) => {
+          if(typeof res != 'undefined'){this.setState( {pipelines: res} )}  //checks for invalid input
+          else{alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token')}
+        })
+        // alert("deez nuts");
       }
 
 
@@ -45,7 +65,7 @@ const { apiUrl } = require('./lib/config.js');
         .then((res) => {
           if(typeof res != 'undefined'){this.setState( {pipelines: res} )}  //checks for invalid input
           else{alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token')}
-        })
+        });
       }
 
       selectNumPipes = (e) => {  //handler for selecting number of pipelines to display
@@ -68,8 +88,6 @@ const { apiUrl } = require('./lib/config.js');
         //jobs.getArtifact(564204948, 18876221, 'zJLxDfYVS87Ar2NRp52K');
       }
 
-
-
       render () {
         if (this.state.auth_key != '') {    //if auth_key has been submitted, show main page
           const parsedPipelines = [];
@@ -88,7 +106,7 @@ const { apiUrl } = require('./lib/config.js');
                 sourceCommit: this.state.pipelines[i].user.username,
                 deploymentDate: this.state.pipelines[i].created_at,
                 successStatus: this.state.pipelines[i].status,
-                downloadButton: null
+                downloadButton: <Spinner/>
               };
               parsedPipelines.push(tempPipeline);   //add to pipelines array    
             }
