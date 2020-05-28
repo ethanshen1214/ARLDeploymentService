@@ -53,32 +53,19 @@ const { apiUrl } = require('./lib/config.js');
       }
 
       downloadHandler = (e) => {
-        // let jobsArray;
-        // let artifactLink;
-        // let pipelineId = parseInt(e.target.title);
-        // jobs.getJobsByPipeline(sessionStorage.getItem('project_id'), pipelineId, this.state.auth_key, (err, jobData) => {
-        //   if (err) {
-        //     console.error(err);
-        //   } else {
-        //     jobsArray = jobData;
-        //     let lastJobId = jobsArray[0].id;
-        //     jobs.getArtifact(lastJobId, sessionStorage.getItem('project_id'), pipelineId, this.state.auth_key, (err, artifactData) => {
-        //       if(err) {
-        //         console.error(err);
-        //       } else {
-        //         artifactLink = artifactData;
-        //         alert(artifactLink);
-        //       }
-        //     });
-        //   }
-        // });
-        jobs.getArtifact(564204948, 18876221, 'zJLxDfYVS87Ar2NRp52K', (err, artifactData) => {
+        let jobsArray;
+        let artifactLink;
+        let pipelineId = parseInt(e.target.title);
+        jobs.getJobsByPipeline(sessionStorage.getItem('project_id'), pipelineId, this.state.auth_key, (err, jobData) => {
           if (err) {
             console.error(err);
           } else {
-            alert(artifactData);
+            jobsArray = jobData;
+            let lastJobId = jobsArray[0].id;
+            jobs.getArtifact(lastJobId, sessionStorage.getItem('project_id'), this.state.auth_key);
           }
-        })
+        });
+        //jobs.getArtifact(564204948, 18876221, 'zJLxDfYVS87Ar2NRp52K');
       }
 
 
@@ -94,14 +81,28 @@ const { apiUrl } = require('./lib/config.js');
 
           for(let i = 0; i < displayPipes; i++)     //parse through all the pipelines and get the required info
           {
-            const tempPipeline = {
-              sourceProject: this.state.pipelines[i].web_url,
-              sourceCommit: this.state.pipelines[i].user.username,
-              deploymentDate: this.state.pipelines[i].created_at,
-              successStatus: this.state.pipelines[i].status,
-              downloadButton: <button title ={this.state.pipelines[i].id} onClick = {this.downloadHandler}>Download</button>,
-            };
-            parsedPipelines.push(tempPipeline);   //add to pipelines array
+            if(this.state.pipelines[i].status != 'success')
+            {
+              const tempPipeline = {
+                sourceProject: this.state.pipelines[i].web_url,
+                sourceCommit: this.state.pipelines[i].user.username,
+                deploymentDate: this.state.pipelines[i].created_at,
+                successStatus: this.state.pipelines[i].status,
+                downloadButton: null
+              };
+              parsedPipelines.push(tempPipeline);   //add to pipelines array    
+            }
+            else
+            {
+                const tempPipeline = {
+                sourceProject: this.state.pipelines[i].web_url,
+                sourceCommit: this.state.pipelines[i].user.username,
+                deploymentDate: this.state.pipelines[i].created_at,
+                successStatus: this.state.pipelines[i].status,
+                downloadButton: <button title ={this.state.pipelines[i].id} onClick = {this.downloadHandler}>Download</button>,
+              };     
+              parsedPipelines.push(tempPipeline);   //add to pipelines array       
+            }
           }
 
           let radioGroup;

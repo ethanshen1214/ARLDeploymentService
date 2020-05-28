@@ -1,5 +1,4 @@
 const https = require('https');
-const querystring = require('querystring');
 const { apiUrl } = require('../lib/config.js');
 
 exports.getJobsByPipeline = (projectId, pipelineId, key, callback) => {
@@ -34,24 +33,10 @@ exports.getJobsByPipeline = (projectId, pipelineId, key, callback) => {
   };
   
 
-exports.getArtifact = async (jobId, projectId, key, callback) => {
-    const path = `${apiUrl}/projects/${projectId}/jobs/${jobId}/artifacts/public`;
-    const token = `private_token=${key}`;
+exports.getArtifact = async (jobId, projectId, key) => {
+    const path = `${apiUrl}/projects/${projectId}/jobs/${jobId}/artifacts`;
+    const token = `?private_token=${key}`;
     const query = path + token;
 
-    https.get(query, (res) => {
-        let fullData = '';
-    
-        res.on('data', (d) => {
-          fullData += d;
-        });
-    
-        res.on('end', () => {
-          callback(null, fullData);
-        });
-    
-        res.on('error', (e) => {
-          callback(e, null);
-        });
-    });
+    window.open(query);
 };
