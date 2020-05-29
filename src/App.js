@@ -141,10 +141,8 @@ const { apiUrl } = require('./lib/config.js');
               <div style={{height: '900px', position: 'relative', marginLeft: '85px', marginRight: '85px'}}>
                 <div className = 'labels'>
                   <div>
-                    <Card shadow={3} style={{width: '420px', height: '250px', margin: 'auto', marginTop: '8%'}}>
-                      <CardText>
-                        Input Project ID here
-                      </CardText>
+                    <Card shadow={3} style={{width: '420px', height: '350px', margin: 'auto', marginTop: '8%'}}>
+                    <CardTitle expand style={{color: '#fff', background: 'url(http://www.getmdl.io/assets/demos/dog.png) bottom right 15% no-repeat #46B6AC'}}>Input Project ID</CardTitle>
                       <CardActions border>
                         <Form submitHandler={this.handleProjectSubmit} formTitle={'Project ID:'}/>
                         <CardText>Select the number of pipelines to display (default 5)</CardText>
