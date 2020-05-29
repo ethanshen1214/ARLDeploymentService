@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import './App.css';
 import { DataTable, TableHeader, Card, CardTitle, CardText, CardActions, RadioGroup, Radio, Spinner } from 'react-mdl';
 import Form from './Components/form';
+import Config from './lib/config.json';
 const pipes = require('./API_Functions/pipelines.js');
 const jobs = require('./API_Functions/jobs.js');
 const { apiUrl } = require('./lib/config.js');
@@ -15,14 +16,14 @@ const { apiUrl } = require('./lib/config.js');
         super(props);
         this.state = {
           pipelines: [],
-          auth_key: '',
+          auth_key: Config.auth_key,
           numPipelines: 5,
         }
       }
 
       componentDidMount() {   //on startup it checks to see if sessionStorage already has auth_key and/or project_id
-          if (sessionStorage.getItem('auth_key') != null && sessionStorage.getItem('project_id') != null){
-            this.setState({auth_key: sessionStorage.getItem('auth_key')}, () => pipes.getPipelinesForProject(sessionStorage.getItem('project_id'), this.state.auth_key)
+          if (sessionStorage.getItem('project_id') != null){
+            pipes.getPipelinesForProject(sessionStorage.getItem('project_id'), this.state.auth_key)
             .then((res) => {
               if(typeof res != 'undefined'){
                 this.setState( {pipelines: res} )
@@ -31,12 +32,8 @@ const { apiUrl } = require('./lib/config.js');
                 this.timer = null;
                 alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token');
               }
-            }));
+            });
             this.timer = setInterval(()=> this.callAPI(), 3000); // resets the polling timer to account for timer clearing after page refresh
-          }     
-
-          else if(sessionStorage.getItem('auth_key') != null && sessionStorage.getItem('project_id') == null){
-            this.setState({ auth_key: sessionStorage.getItem('auth_key') });
           }
       }
       
@@ -58,24 +55,8 @@ const { apiUrl } = require('./lib/config.js');
         });
       }
 
-      handleAuthSubmit = (value) => {   //handler for submitting authentication token
-        sessionStorage.setItem('auth_key', value);
-        this.setState({ auth_key: value }); 
-      }
-
       handleProjectSubmit = (value) => {  //handler for submitting project ID
         sessionStorage.setItem('project_id', value);
-        // pipes.getPipelinesForProject(value, this.state.auth_key)
-        // .then((res) => {
-        //   if(typeof res != 'undefined'){ //checks for invalid input
-        //     this.setState( {pipelines: res} )
-        //   } else{
-        //     clearInterval(this.timer);
-        //     this.timer = null;
-        //     // alert('SUBMIT Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token');
-        //   }
-        // });
-        // this.timer = setInterval(()=> this.callAPI(), 3000); // sets timer to poll gitlab api
       }
 
       selectNumPipes = (e) => {  //handler for selecting number of pipelines to display
@@ -189,22 +170,6 @@ const { apiUrl } = require('./lib/config.js');
                   </div>         
                 </div>
               </div>
-          );
-        }
-        else {  //show startup page to enter auth key
-          return (
-            <div className = 'labels'>
-              <Card shadow={3} style={{width: '420px', height: '320px', margin: 'auto', marginTop: '8%'}}>
-                <CardTitle expand style={{color: '#fff', background: 'url(http://www.getmdl.io/assets/demos/dog.png) bottom right 15% no-repeat #46B6AC'}}></CardTitle>
-                <CardText>
-                  Please input a valid Personal Access Token from Gitlab to view project pipeline statuses. Or else.
-                </CardText>
-                <CardActions border>
-                  <Form submitHandler={this.handleAuthSubmit} formTitle={'Authorization Token:'}/>
-                </CardActions>
-              </Card>
-            </div>
-
           );
         }
       }
