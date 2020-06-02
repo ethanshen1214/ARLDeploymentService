@@ -140,12 +140,14 @@ const jobs = require('./API_Functions/jobs.js');
           const parsedDeployments = [];
           for(let i = 0; i < this.state.deployments.deployed.length; i++)
           {
-            const tempDeployment = {
-              job: this.state.deployments.deployed[i].job,
-              project: this.state.deployments.deployed[i].project,
-              pipeline: this.state.deployments.deployed[i].pipeline,
-            };
-            parsedDeployments.push(tempDeployment);
+            if(this.state.deployments.deployed[i].project === sessionStorage.getItem('project_id')){
+              const tempDeployment = {
+                job: this.state.deployments.deployed[i].job,
+                project: this.state.deployments.deployed[i].project,
+                pipeline: this.state.deployments.deployed[i].pipeline,
+              };
+              parsedDeployments.push(tempDeployment);              
+            }
           }
 
           let radioGroup;
