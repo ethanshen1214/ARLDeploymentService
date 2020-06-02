@@ -1,12 +1,6 @@
-while getopts d: option
-do
-case "${option}"
-in
-d) DIR=${OPTARG};;
-esac
-done
-
 cd ..
 cd ..
 cd Deployments
-mkdir DIR
+mkdir $1
+cd $1
+curl -L --output artifacts.zip --header "$2" "$3"

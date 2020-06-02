@@ -33,10 +33,10 @@ exports.getJobsByPipeline = (projectId, pipelineId, key, callback) => {
   };
   
 
-exports.getArtifact = async (jobId, projectId, key) => {
+exports.getArtifactPath = async (jobId, projectId, key) => {
     const path = `${apiUrl}/projects/${projectId}/jobs/${jobId}/artifacts`;
-    const token = `?private_token=${key}`;
-    const query = path + token;
+    // const token = `?private_token=${key}`;
+    // const query = path + token;
 
-    window.open(query);
+    return path;
 };

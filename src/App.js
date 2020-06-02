@@ -3,9 +3,9 @@ import './App.css';
 import { DataTable, TableHeader, Card, CardTitle, CardText, CardActions, RadioGroup, Radio, Spinner } from 'react-mdl';
 import Form from './Components/form';
 import Config from './lib/config.json';
+import axios from 'axios';
 const pipes = require('./API_Functions/pipelines.js');
 const jobs = require('./API_Functions/jobs.js');
-const { apiUrl } = require('./lib/config.js');
 
 //zJLxDfYVS87Ar2NRp52K
 //18820410
@@ -64,18 +64,22 @@ const { apiUrl } = require('./lib/config.js');
       }
 
       downloadHandler = (e) => {
-        let jobsArray;
-        let artifactLink;
-        let pipelineId = parseInt(e.target.title);
-        jobs.getJobsByPipeline(sessionStorage.getItem('project_id'), pipelineId, this.state.auth_key, (err, jobData) => {
-          if (err) {
-            console.error(err);
-          } else {
-            jobsArray = jobData;
-            let lastJobId = jobsArray[0].id;
-            jobs.getArtifact(lastJobId, sessionStorage.getItem('project_id'), this.state.auth_key);
-          }
+        axios.post('http://localhost:8080/downloads', {
+          pipelineId: e.target.title,
+          projectId: sessionStorage.getItem('project_id'),
         });
+        // let jobsArray;
+        // let artifactLink;
+        // let pipelineId = parseInt(e.target.title);
+        // jobs.getJobsByPipeline(sessionStorage.getItem('project_id'), pipelineId, this.state.auth_key, (err, jobData) => {
+        //   if (err) {
+        //     console.error(err);
+        //   } else {
+        //     jobsArray = jobData;
+        //     let lastJobId = jobsArray[0].id;
+        //     jobs.getArtifact(lastJobId, sessionStorage.getItem('project_id'), this.state.auth_key);
+        //   }
+        // });
         //jobs.getArtifact(564204948, 18876221, 'zJLxDfYVS87Ar2NRp52K');
       }
 

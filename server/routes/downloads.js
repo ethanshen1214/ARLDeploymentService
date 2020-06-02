@@ -1,5 +1,7 @@
 var express = require('express');
 const { spawn } = require('child_process');
+const config = require('../../src/lib/config.json');
+const jobs = require('../../src/API_Functions/jobs.js');
 var router = express.Router();
 
 /* GET users listing. */
@@ -9,8 +11,25 @@ router.get('/', function(req, res, next) {
 
 /* Handles POST to route */
 router.post('/', function(req, res, next) {
-  spawn('sh', ['zip.sh', '-d', 'DIRECTORY'], {cwd: './downloadScripts'});
-  res.status(200).end();
+  let projectId = req.body.projectId;
+  let pipelineId = req.body.pipelineId;
+  let key = config.auth_key;
+
+  let header = `PRIVATE TOKEN: ${key}`;
+  jobs.getJobsByPipeline(projectId, pipelineId, key, (err, jobData) => {
+    if (err) {
+      console.error(err);
+      res.status(500).end();
+    } else {
+      let lastJobId = jobData[jobData.length-1].id;
+      jobs.getArtifactPath(lastJobId, projectId, key)
+      .then((path) => {
+        console.log('Gitlab API Call ' + header + " " + `${path}`);
+        spawn('sh', ['zip.sh', projectId, header, path], {cwd: './downloadScripts'});
+        res.status(200).end();
+      });
+    }
+  });
 });
 
 module.exports = router;
