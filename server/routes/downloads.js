@@ -9,7 +9,7 @@ router.get('/', function(req, res, next) {
 
 /* Handles POST to route */
 router.post('/', function(req, res, next) {
-  spawn('sh', ['zip.sh'], {cwd: './downloadScripts'});
+  spawn('sh', ['zip.sh', '-d', 'DIRECTORY'], {cwd: './downloadScripts'});
   res.status(200).end();
 });
 
