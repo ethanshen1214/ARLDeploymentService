@@ -15,7 +15,6 @@ router.post('/', function(req, res, next) {
   let pipelineId = req.body.pipelineId;
   let key = config.auth_key;
 
-  let header = `PRIVATE TOKEN: ${key}`;
   jobs.getJobsByPipeline(projectId, pipelineId, key, (err, jobData) => {
     if (err) {
       console.error(err);
@@ -23,9 +22,9 @@ router.post('/', function(req, res, next) {
     } else {
       let lastJobId = jobData[jobData.length-1].id;
       jobs.getArtifactPath(lastJobId, projectId, key)
-      .then((path) => {
-        console.log('Gitlab API Call ' + header + " " + `${path}`);
-        spawn('sh', ['zip.sh', projectId, header, path], {cwd: './downloadScripts'});
+      .then((query) => {
+        console.log('Gitlab API Call ' + query);
+        spawn('sh', ['zip.sh', projectId, query], {cwd: './downloadScripts'});
         res.status(200).end();
       });
     }
