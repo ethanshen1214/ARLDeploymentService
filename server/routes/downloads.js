@@ -28,19 +28,31 @@ router.post('/', function(req, res, next) {
         project: projectId,
         pipeline: pipelineId,
       }
-      deployed.push(tempJob);
+      if(deployed.length == 0){
+        deployed.push(tempJob);
+      }
+      else{
+        let duplicated = false;
+        for(let i = 0; i < deployed.length; i++)
+        {
+          if((deployed[i].job === tempJob.job && deployed[i].project === tempJob.project && deployed[i].pipeline === tempJob.pipeline)){
+            duplicated = true;
+          }
+        }
+        if(!duplicated){
+          deployed.push(tempJob);
+        }
+      }
+      
       jobs.getArtifactPath(lastJobId, projectId, key)
       .then((query) => {
         console.log('Gitlab API Call ' + query);
         spawn('sh', ['zip.sh', projectId, query], {cwd: './downloadScripts'});
         res.status(200).end();
       });
-      //console.log(JSON.stringify(deployed));
     }
   });
 });
 
 exports.router = router;
 exports.deployed = {deployed};
-//module.exports = router;
-//module.exports = {deployed};
