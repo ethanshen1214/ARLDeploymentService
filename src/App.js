@@ -18,7 +18,7 @@ const jobs = require('./API_Functions/jobs.js');
           pipelines: [],
           auth_key: Config.auth_key,
           numPipelines: 5,
-          deployments: [],
+          deployments: {deployed: []},
         }
       }
 
@@ -73,9 +73,7 @@ const jobs = require('./API_Functions/jobs.js');
 
         axios.get('http://localhost:8080/deployments')
         .then((res) => {
-          //alert(JSON.stringify(res));
           this.setState({deployments: res.data});
-          alert(JSON.stringify(this.state.deployments));
         })
         .catch((err) => {
           alert(err);
@@ -131,7 +129,7 @@ const jobs = require('./API_Functions/jobs.js');
             }
           }
           const parsedDeployments = [];
-          for(let i = 0; i < this.state.deployments.length; i++)
+          for(let i = 0; i < this.state.deployments.deployed.length; i++)
           {
             const tempDeployment = {
               job: this.state.deployments.deployed[i].job,
@@ -165,7 +163,7 @@ const jobs = require('./API_Functions/jobs.js');
           }
 
           return(
-              <div style={{height: '1200px', position: 'relative', marginLeft: '85px', marginRight: '85px'}}>
+              <div style={{height: '2000px', position: 'relative', marginLeft: '85px', marginRight: '85px'}}>
                 <div className = 'labels'>
                   <div>
                     <Card shadow={3} style={{width: '420px', height: '350px', margin: 'auto', marginTop: '8%'}}>
