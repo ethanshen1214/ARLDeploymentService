@@ -32,16 +32,16 @@ router.post('/', function(req, res, next) {
         deployed.push(tempJob);
       }
       else{
-        let duplicated = false;
+        //let duplicated = false;
         for(let i = 0; i < deployed.length; i++)
         {
-          if((deployed[i].job === tempJob.job && deployed[i].project === tempJob.project && deployed[i].pipeline === tempJob.pipeline)){
-            duplicated = true;
+          if((deployed[i].project === tempJob.project)){
+            deployed[i] = tempJob;
           }
         }
-        if(!duplicated){
-          deployed.push(tempJob);
-        }
+        // if(!duplicated){
+        //   deployed.push(tempJob);
+        // }
       }
       
       jobs.getArtifactPath(lastJobId, projectId, key)

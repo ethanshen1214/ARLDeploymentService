@@ -201,7 +201,7 @@ const jobs = require('./API_Functions/jobs.js');
                     </DataTable>
                   </div>
                   <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
-                    <h2>Current Deployments</h2>
+                    <h2>Most Recent Deployment</h2>
                   </div>
                   <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
                     <DataTable
