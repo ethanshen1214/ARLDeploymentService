@@ -8,6 +8,7 @@ var indexRouter = require('./routes/index');
 var downloads = require('./routes/downloads');
 var downloadsRouter = downloads.router;
 var deploymentsRouter = require('./routes/deployments');
+var hooksRouter = require('./routes/hooks');
 var cors = require('cors');
 
 var app = express();
@@ -26,6 +27,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/downloads', downloadsRouter);
 app.use('/deployments', deploymentsRouter);
+app.use('/hooks', hooksRouter)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
