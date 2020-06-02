@@ -54,14 +54,6 @@ const jobs = require('./API_Functions/jobs.js');
             this.timer = null;
           }
         });
-        axios.get('http://localhost:8080/deployments')
-        .then((res) => {
-          //alert(JSON.stringify(res));
-          this.setState({deployments: res});
-        })
-        .catch((err) => {
-          alert(err);
-        })
 
       }
 
@@ -78,6 +70,17 @@ const jobs = require('./API_Functions/jobs.js');
           pipelineId: e.target.title,
           projectId: sessionStorage.getItem('project_id'),
         });
+
+        axios.get('http://localhost:8080/deployments')
+        .then((res) => {
+          //alert(JSON.stringify(res));
+          this.setState({deployments: res.data});
+          alert(JSON.stringify(this.state.deployments));
+        })
+        .catch((err) => {
+          alert(err);
+        })
+
         // let jobsArray;
         // let artifactLink;
         // let pipelineId = parseInt(e.target.title);
@@ -127,6 +130,16 @@ const jobs = require('./API_Functions/jobs.js');
               parsedPipelines.push(tempPipeline);   //add to pipelines array       
             }
           }
+          const parsedDeployments = [];
+          for(let i = 0; i < this.state.deployments.length; i++)
+          {
+            const tempDeployment = {
+              job: this.state.deployments.deployed[i].job,
+              project: this.state.deployments.deployed[i].project,
+              pipeline: this.state.deployments.deployed[i].pipeline,
+            };
+            parsedDeployments.push(tempDeployment);
+          }
 
           let radioGroup;
           if(this.state.numPipelines === 1){    //for re-rendering the radio buttons with the correct values
@@ -152,7 +165,7 @@ const jobs = require('./API_Functions/jobs.js');
           }
 
           return(
-              <div style={{height: '900px', position: 'relative', marginLeft: '85px', marginRight: '85px'}}>
+              <div style={{height: '1200px', position: 'relative', marginLeft: '85px', marginRight: '85px'}}>
                 <div className = 'labels'>
                   <div>
                     <Card shadow={3} style={{width: '420px', height: '350px', margin: 'auto', marginTop: '8%'}}>
@@ -179,7 +192,19 @@ const jobs = require('./API_Functions/jobs.js');
                       <TableHeader name="successStatus" tooltip="Success/Failure">Status</TableHeader>
                       <TableHeader name="downloadButton" tooltip="Click to download artifacts">Download Artifact</TableHeader>
                     </DataTable>
-                  </div>         
+                  </div>
+                  <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
+                    <h2>Current Deployments</h2>
+                  </div>
+                  <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
+                    <DataTable
+                      shadow={0}
+                      rows = {parsedDeployments}>
+                      <TableHeader name="job" tooltip="Job ID">Job ID</TableHeader>
+                      <TableHeader name="project" tooltip="Project ID">Project ID</TableHeader>
+                      <TableHeader name="pipeline" tooltip="Pipeline ID">Pipeline ID</TableHeader>
+                    </DataTable>
+                  </div>   
                 </div>
               </div>
           );

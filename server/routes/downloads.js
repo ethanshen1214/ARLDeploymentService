@@ -35,8 +35,12 @@ router.post('/', function(req, res, next) {
         spawn('sh', ['zip.sh', projectId, query], {cwd: './downloadScripts'});
         res.status(200).end();
       });
+      //console.log(JSON.stringify(deployed));
     }
   });
 });
 
-module.exports = router;
+exports.router = router;
+exports.deployed = {deployed};
+//module.exports = router;
+//module.exports = {deployed};

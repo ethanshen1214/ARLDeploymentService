@@ -5,7 +5,8 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
-var downloadsRouter = require('./routes/downloads');
+var downloads = require('./routes/downloads');
+var downloadsRouter = downloads.router;
 var deploymentsRouter = require('./routes/deployments');
 var cors = require('cors');
 
