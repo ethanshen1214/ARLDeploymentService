@@ -4,6 +4,8 @@ const config = require('../../src/lib/config.json');
 const jobs = require('../../src/API_Functions/jobs.js');
 var router = express.Router();
 
+const deployed = [];
+
 /* GET users listing. */
 router.get('/', function(req, res, next) {
   res.send('respond with a resource');
@@ -21,6 +23,12 @@ router.post('/', function(req, res, next) {
       res.status(500).end();
     } else {
       let lastJobId = jobData[jobData.length-1].id;
+      const tempJob = {
+        job: lastJobId,
+        project: projectId,
+        pipeline: pipelineId,
+      }
+      deployed.push(tempJob);
       jobs.getArtifactPath(lastJobId, projectId, key)
       .then((query) => {
         console.log('Gitlab API Call ' + query);

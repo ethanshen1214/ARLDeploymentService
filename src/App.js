@@ -18,6 +18,7 @@ const jobs = require('./API_Functions/jobs.js');
           pipelines: [],
           auth_key: Config.auth_key,
           numPipelines: 5,
+          deployments: [],
         }
       }
 
@@ -53,6 +54,15 @@ const jobs = require('./API_Functions/jobs.js');
             this.timer = null;
           }
         });
+        axios.get('http://localhost:8080/deployments')
+        .then((res) => {
+          //alert(JSON.stringify(res));
+          this.setState({deployments: res});
+        })
+        .catch((err) => {
+          alert(err);
+        })
+
       }
 
       handleProjectSubmit = (value) => {  //handler for submitting project ID
