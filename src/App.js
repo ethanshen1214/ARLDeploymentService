@@ -54,7 +54,13 @@ const jobs = require('./API_Functions/jobs.js');
             this.timer = null;
           }
         });
-
+        axios.get('http://localhost:8080/deployments')
+        .then((res) => {
+          this.setState({deployments: res.data});
+        })
+        .catch((err) => {
+          alert(err);
+        })
       }
 
       handleProjectSubmit = (value) => {  //handler for submitting project ID
@@ -69,15 +75,18 @@ const jobs = require('./API_Functions/jobs.js');
         axios.post('http://localhost:8080/downloads', {
           pipelineId: e.target.title,
           projectId: sessionStorage.getItem('project_id'),
-        });
+        })
+        // .then(() => {
+        //   axios.get('http://localhost:8080/deployments')
+        //   .then((res) => {
+        //     this.setState({deployments: res.data});
+        //   })
+        //   .catch((err) => {
+        //     alert(err);
+        //   })
+        // });
 
-        axios.get('http://localhost:8080/deployments')
-        .then((res) => {
-          this.setState({deployments: res.data});
-        })
-        .catch((err) => {
-          alert(err);
-        })
+        
 
         // let jobsArray;
         // let artifactLink;
