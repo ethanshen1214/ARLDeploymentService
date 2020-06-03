@@ -32,6 +32,9 @@ const jobs = require('./API_Functions/jobs.js');
                 clearInterval(this.timer);
                 this.timer = null;
                 alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token');
+                axios.delete('http://localhost:8080/database/deleteData', {
+                  projectId: sessionStorage.getItem('project_id'),
+                })
               }
             });
             this.timer = setInterval(()=> this.callAPI(), 3000); // resets the polling timer to account for timer clearing after page refresh
@@ -65,6 +68,11 @@ const jobs = require('./API_Functions/jobs.js');
 
       handleProjectSubmit = (value) => {  //handler for submitting project ID
         sessionStorage.setItem('project_id', value);
+        axios.post('http://localhost:8080/database/putData', {
+          projectId: 18876221,
+          pipelineId: 0,
+          script: '',
+        });
       }
 
       selectNumPipes = (e) => {  //handler for selecting number of pipelines to display

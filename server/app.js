@@ -3,15 +3,26 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var mongoose = require('mongoose');
+var bodyParser = require('body-parser');
+var Data = require('./data');
+var cors = require('cors');
 
 var indexRouter = require('./routes/index');
 var downloads = require('./routes/downloads');
 var downloadsRouter = downloads.router;
 var deploymentsRouter = require('./routes/deployments');
 var hooksRouter = require('./routes/hooks');
-var cors = require('cors');
+var databaseRouter = require('./routes/database');
+
 
 var app = express();
+
+
+// (optional) only made for logging and
+// bodyParser, parses the request body to be a readable json format
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -27,7 +38,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/downloads', downloadsRouter);
 app.use('/deployments', deploymentsRouter);
-app.use('/hooks', hooksRouter)
+app.use('/hooks', hooksRouter);
+app.use('/database', databaseRouter);
+
+// const dbRoute = 'mongodb+srv://joemama:joemama@cluster0-vh0zy.gcp.mongodb.net/test?retryWrites=true&w=majority';
+// mongoose.connect(dbRoute, { useNewUrlParser: true });
+// let db = mongoose.connection;
+// db.once('open', () => console.log('connected to the database'));
+// db.on('error', console.error.bind(console, 'MongoDB connection error:'));// checks if connection with the database is successful
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
