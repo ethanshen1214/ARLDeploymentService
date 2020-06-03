@@ -19,6 +19,7 @@ const jobs = require('./API_Functions/jobs.js');
           auth_key: Config.auth_key,
           numPipelines: 5,
           deployments: {deployed: []},
+          currentDeployement: 0,
         }
       }
 
@@ -34,7 +35,7 @@ const jobs = require('./API_Functions/jobs.js');
                 alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token');
               }
             });
-            // this.timer = setInterval(()=> this.callAPI(), 3000); // resets the polling timer to account for timer clearing after page refresh
+            this.timer = setInterval(()=> this.pollAPI(), 3000); // resets the polling timer to account for timer clearing after page refresh
           }
       }
       
@@ -43,7 +44,7 @@ const jobs = require('./API_Functions/jobs.js');
         this.timer = null;
       }
 
-      callAPI(){
+      pollAPI(){
         pipes.getPipelinesForProject(sessionStorage.getItem('project_id'), this.state.auth_key)
         .then((res) => {
           if(typeof res != 'undefined'){ //checks for invalid input
@@ -54,9 +55,14 @@ const jobs = require('./API_Functions/jobs.js');
             this.timer = null;
           }
         });
-        axios.get('http://localhost:8080/deployments')
+        axios.get('http://localhost:8080/database/getData')
         .then((res) => {
-          this.setState({deployments: res.data});
+          for(let i = 0; i < res.data.data.length; i++){
+            if(res.data.data[i].projectId == sessionStorage.getItem('project_id')){
+              this.setState({ currentDeployment: res.data.data[i].pipelineId });
+              //alert(this.state.currentDeployement);
+            }
+          }
         })
         .catch((err) => {
           alert(err);
@@ -92,7 +98,7 @@ const jobs = require('./API_Functions/jobs.js');
             alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token');
           }
         });
-        // this.timer = setInterval(()=> this.callAPI(), 3000); // resets the polling timer to account for timer clearing after page refresh
+        this.timer = setInterval(()=> this.pollAPI(), 3000); // resets the polling timer to account for timer clearing after page refresh
       }
 
       selectNumPipes = (e) => {  //handler for selecting number of pipelines to display
@@ -104,31 +110,6 @@ const jobs = require('./API_Functions/jobs.js');
           pipelineId: e.target.title,
           projectId: sessionStorage.getItem('project_id'),
         })
-        // .then(() => {
-        //   axios.get('http://localhost:8080/deployments')
-        //   .then((res) => {
-        //     this.setState({deployments: res.data});
-        //   })
-        //   .catch((err) => {
-        //     alert(err);
-        //   })
-        // });
-
-        
-
-        // let jobsArray;
-        // let artifactLink;
-        // let pipelineId = parseInt(e.target.title);
-        // jobs.getJobsByPipeline(sessionStorage.getItem('project_id'), pipelineId, this.state.auth_key, (err, jobData) => {
-        //   if (err) {
-        //     console.error(err);
-        //   } else {
-        //     jobsArray = jobData;
-        //     let lastJobId = jobsArray[0].id;
-        //     jobs.getArtifact(lastJobId, sessionStorage.getItem('project_id'), this.state.auth_key);
-        //   }
-        // });
-        //jobs.getArtifact(564204948, 18876221, 'zJLxDfYVS87Ar2NRp52K');
       }
 
       render () {
@@ -233,12 +214,13 @@ const jobs = require('./API_Functions/jobs.js');
                   <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
                     <h2>Most Recent Deployment</h2>
                   </div>
+                  <p>{this.state.currentDeployement}</p>
                   <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
                     <DataTable
                       shadow={0}
-                      rows = {parsedDeployments}>
-                      <TableHeader name="job" tooltip="Job ID">Job ID</TableHeader>
-                      <TableHeader name="project" tooltip="Project ID">Project ID</TableHeader>
+                      rows = {[{pipeline: this.state.currentDeployement}]}/*{parsedDeployments}*/>
+                      {/* <TableHeader name="job" tooltip="Job ID">Job ID</TableHeader>
+                      <TableHeader name="project" tooltip="Project ID">Project ID</TableHeader> */}
                       <TableHeader name="pipeline" tooltip="Pipeline ID">Pipeline ID</TableHeader>
                     </DataTable>
                   </div>   
