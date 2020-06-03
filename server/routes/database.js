@@ -22,6 +22,7 @@ router.get('/getData', (req, res) => {
   // this is our update method
   // this method overwrites existing data in our database
 router.post('/updateData', (req, res) => {
+    console.log("Here");
     const { projectId, update } = req.body;
     Data.findByIdAndUpdate(projectId, update, (err) => {
       if (err) return res.json({ success: false, error: err });
@@ -42,15 +43,12 @@ router.delete('/deleteData', (req, res) => {
   // this is our create methid
   // this method adds new data in our database
 router.post('/putData', (req, res) => {
-    console.log('data added');
-  let data = new Data();
-    
-  
+    let data = new Data();
     const { projectId, pipelineId, script } = req.body;
     // let projectId = req.body.projectId;
     // let pipelineId = req.body.pipelineId;
     // let script = req.body.script;
-  
+
     if ((!projectId && projectId !== 0) || !script) {
       return res.json({
         success: false,

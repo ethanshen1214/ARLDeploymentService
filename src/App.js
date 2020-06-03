@@ -32,12 +32,9 @@ const jobs = require('./API_Functions/jobs.js');
                 clearInterval(this.timer);
                 this.timer = null;
                 alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token');
-                axios.delete('http://localhost:8080/database/deleteData', {
-                  projectId: sessionStorage.getItem('project_id'),
-                })
               }
             });
-            this.timer = setInterval(()=> this.callAPI(), 3000); // resets the polling timer to account for timer clearing after page refresh
+            // this.timer = setInterval(()=> this.callAPI(), 3000); // resets the polling timer to account for timer clearing after page refresh
           }
       }
       
@@ -68,11 +65,34 @@ const jobs = require('./API_Functions/jobs.js');
 
       handleProjectSubmit = (value) => {  //handler for submitting project ID
         sessionStorage.setItem('project_id', value);
-        axios.post('http://localhost:8080/database/putData', {
-          projectId: 18876221,
-          pipelineId: 0,
-          script: '',
+        
+        pipes.getPipelinesForProject(sessionStorage.getItem('project_id'), this.state.auth_key)
+        .then((res) => {
+          if(typeof res != 'undefined'){
+            this.setState( {pipelines: res} )
+            axios.get('http://localhost:8080/database/getData').then((res) => {
+              let inDatabase = false;
+              for (let i = 0; i < res.data.data.length; i++) {
+                if (res.data.data[i].projectId == value)
+                  inDatabase = true;
+              }
+              if (!inDatabase){
+                axios.post('http://localhost:8080/database/putData', {
+                  projectId: value,
+                  pipelineId: 0,
+                  script: 'placeholder',
+                });
+              }
+            });
+
+
+          } else{
+            clearInterval(this.timer);
+            this.timer = null;
+            alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token');
+          }
         });
+        // this.timer = setInterval(()=> this.callAPI(), 3000); // resets the polling timer to account for timer clearing after page refresh
       }
 
       selectNumPipes = (e) => {  //handler for selecting number of pipelines to display
