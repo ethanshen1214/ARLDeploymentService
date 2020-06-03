@@ -2,6 +2,7 @@ var express = require('express');
 const { spawn } = require('child_process');
 const config = require('../../src/lib/config.json');
 const jobs = require('../../src/API_Functions/jobs.js');
+const axios = require('axios');
 var router = express.Router();
 
 /* GET users listing. */
@@ -16,7 +17,8 @@ router.post('/', function(req, res, next) {
     let pipelineId = req.body.object_attributes.id;
     let key = config.auth_key;
 
-    jobs.getJobsByPipeline(projectId, pipelineId, key, (err, jobData) => {
+    axios.post('http://localhost:8080/database/updateData', {projectId: projectId, update: {pipelineId: pipelineId}})
+    .then(jobs.getJobsByPipeline(projectId, pipelineId, key, (err, jobData) => {
       if (err) {
         console.error(err);
         res.status(500).end();
@@ -29,7 +31,7 @@ router.post('/', function(req, res, next) {
           res.status(200).end();
         });
       }
-    });
+    }));
   }
 });
 
