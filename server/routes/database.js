@@ -6,6 +6,7 @@ var router = express.Router();
 
 const dbRoute = 'mongodb+srv://joemama:joemama@cluster0-vh0zy.gcp.mongodb.net/test?retryWrites=true&w=majority';
 mongoose.connect(dbRoute, { useNewUrlParser: true });
+mongoose.set('useFindAndModify', false);
 let db = mongoose.connection;
 db.once('open', () => console.log('connected to the database'));
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));// checks if connection with the database is successful
@@ -24,7 +25,7 @@ router.get('/getData', (req, res) => {
 router.post('/updateData', (req, res) => {
     console.log("Here");
     const { projectId, update } = req.body;
-    Data.findByIdAndUpdate(projectId, update, (err) => {
+    Data.findOneAndUpdate( {projectId: projectId}, update, (err) => {
       if (err) return res.json({ success: false, error: err });
       return res.json({ success: true });
     });
