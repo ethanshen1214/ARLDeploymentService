@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import './App.css';
 import { DataTable, TableHeader, Card, CardTitle, CardText, CardActions, RadioGroup, Radio, Spinner } from 'react-mdl';
 import Form from './Components/form';
+import Script from './Components/scriptInput';
 import Config from './lib/config.json';
 import axios from 'axios';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
@@ -113,6 +114,19 @@ const socket = new W3CWebSocket('ws://localhost:8080');
           }
         });
         // this.timer = setInterval(()=> this.pollAPI(), 3000); // resets the polling timer to account for timer clearing after page refresh
+      }
+      handleScriptSubmit = (value) => {
+        axios.get('http://localhost:8080/database/getData').then((res) => {
+          let tempId = '';
+          for (let i = 0; i < res.data.data.length; i++) {
+            if (res.data.data[i].projectId == sessionStorage.getItem('project_id')){
+              tempId = res.data.data[i]._id;
+            }
+          }
+          axios.post('http://localhost:8080/database/updateData', {
+            _id: tempId,script: value
+          });
+        });
       }
 
       selectNumPipes = (e) => {  //handler for selecting number of pipelines to display
@@ -231,13 +245,17 @@ const socket = new W3CWebSocket('ws://localhost:8080');
                   </div>
                   <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
                     <DataTable
-                      shadow={0}
-                      rows = {[{pipeline: this.state.currentDeployment}]}/*{parsedDeployments}*/>
-                      {/* <TableHeader name="job" tooltip="Job ID">Job ID</TableHeader>
-                      <TableHeader name="project" tooltip="Project ID">Project ID</TableHeader> */}
-                      <TableHeader name="pipeline" tooltip="Pipeline ID">Pipeline ID</TableHeader>
+                          shadow={0}
+                          rows = {[{pipeline: this.state.currentDeployment}]}/*{parsedDeployments}*/>
+                          <TableHeader name="pipeline" tooltip="Pipeline ID">Pipeline ID</TableHeader>
                     </DataTable>
-                  </div>   
+                  </div>
+                  <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
+                    <p>Enter deployment script below:</p>                    
+                  </div>
+                  <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
+                    <Script submitHandler={this.handleScriptSubmit} formTitle={''} height = {300} width = {300}/>                    
+                  </div>
                 </div>
               </div>
           );
