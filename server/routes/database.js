@@ -45,9 +45,6 @@ router.delete('/deleteData', (req, res) => {
 router.post('/putData', (req, res) => {
     let data = new Data();
     const { projectId, pipelineId, script } = req.body;
-    // let projectId = req.body.projectId;
-    // let pipelineId = req.body.pipelineId;
-    // let script = req.body.script;
 
     if ((!projectId && projectId !== 0) || !script) {
       return res.json({

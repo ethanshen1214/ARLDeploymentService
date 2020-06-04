@@ -5,7 +5,6 @@ var router = express.Router();
 
 router.get('/', (req, res, next) => {
     res.send(deployments);
-    //console.log(JSON.stringify(deployments));
 })
 
 module.exports = router;

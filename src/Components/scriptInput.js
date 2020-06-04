@@ -26,7 +26,7 @@ export default class Form extends React.Component {
   
     render() {
       return (
-        <form onSubmit={this.handleSubmit} style = {{marginLeft: '20px'}}>
+        <form onSubmit={this.handleSubmit} style = {{marginLeft: '20px', marginTop: '10px'}}>
           <div>
             <label>{this.props.formTitle}</label>
           </div>

@@ -23,7 +23,6 @@ const socket = new W3CWebSocket('ws://localhost:8080');
           pipelines: [],
           auth_key: Config.auth_key,
           numPipelines: 5,
-          deployments: {deployed: []},
           currentDeployment: 0,
         }
       }
@@ -146,18 +145,6 @@ const socket = new W3CWebSocket('ws://localhost:8080');
                 downloadButton: <button title ={this.state.pipelines[i].id} onClick = {this.downloadHandler}>Download</button>,
               };     
               parsedPipelines.push(tempPipeline);   //add to pipelines array       
-            }
-          }
-          const parsedDeployments = [];
-          for(let i = 0; i < this.state.deployments.deployed.length; i++)
-          {
-            if(this.state.deployments.deployed[i].project === sessionStorage.getItem('project_id')){
-              const tempDeployment = {
-                job: this.state.deployments.deployed[i].job,
-                project: this.state.deployments.deployed[i].project,
-                pipeline: this.state.deployments.deployed[i].pipeline,
-              };
-              parsedDeployments.push(tempDeployment);              
             }
           }
 
