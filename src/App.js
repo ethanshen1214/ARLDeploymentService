@@ -19,7 +19,7 @@ const jobs = require('./API_Functions/jobs.js');
           auth_key: Config.auth_key,
           numPipelines: 5,
           deployments: {deployed: []},
-          currentDeployement: 0,
+          currentDeployment: 0,
         }
       }
 
@@ -214,11 +214,10 @@ const jobs = require('./API_Functions/jobs.js');
                   <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
                     <h2>Most Recent Deployment</h2>
                   </div>
-                  <p>{this.state.currentDeployement}</p>
                   <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
                     <DataTable
                       shadow={0}
-                      rows = {[{pipeline: this.state.currentDeployement}]}/*{parsedDeployments}*/>
+                      rows = {[{pipeline: this.state.currentDeployment}]}/*{parsedDeployments}*/>
                       {/* <TableHeader name="job" tooltip="Job ID">Job ID</TableHeader>
                       <TableHeader name="project" tooltip="Project ID">Project ID</TableHeader> */}
                       <TableHeader name="pipeline" tooltip="Pipeline ID">Pipeline ID</TableHeader>
