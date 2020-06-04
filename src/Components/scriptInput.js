@@ -29,11 +29,6 @@ export default class Form extends React.Component {
         <form onSubmit={this.handleSubmit}>
           <label>
             {this.props.formTitle}
-            {/* <input 
-              type="text" 
-              value={this.state.value} 
-              onChange={this.handleChange} 
-              style = {{ marginLeft: '20px', marginRight: '20px', height: this.props.height, width: this.props.width}}/> */}
             <textarea
               type="text" 
               value={this.state.value} 

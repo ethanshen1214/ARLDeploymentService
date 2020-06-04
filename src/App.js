@@ -102,11 +102,16 @@ const jobs = require('./API_Functions/jobs.js');
         this.timer = setInterval(()=> this.pollAPI(), 3000); // resets the polling timer to account for timer clearing after page refresh
       }
       handleScriptSubmit = (value) => {
-        alert(value);
-        axios.post('http://localhost:8080/database/updateData', {
-          projectId: value,
-          pipelineId: 0,
-          script: 'placeholder',
+        axios.get('http://localhost:8080/database/getData').then((res) => {
+          let tempId = '';
+          for (let i = 0; i < res.data.data.length; i++) {
+            if (res.data.data[i].projectId == sessionStorage.getItem('project_id')){
+              tempId = res.data.data[i]._id;
+            }
+          }
+          axios.post('http://localhost:8080/database/updateData', {
+            _id: tempId,script: value
+          });
         });
       }
 

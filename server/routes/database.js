@@ -23,9 +23,9 @@ router.get('/getData', (req, res) => {
   // this is our update method
   // this method overwrites existing data in our database
 router.post('/updateData', (req, res) => {
-    console.log("Here");
-    const { projectId, update } = req.body;
-    Data.findOneAndUpdate( {projectId: projectId}, update, (err) => {
+    //console.log(req.body._id);
+    const { id, update } = req.body;
+    Data.findOneAndUpdate( {_id: req.body._id}, {script: req.body.script}, (err) => {
       if (err) return res.json({ success: false, error: err });
       return res.json({ success: true });
     });
