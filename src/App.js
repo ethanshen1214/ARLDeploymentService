@@ -116,17 +116,18 @@ const socket = new W3CWebSocket('ws://localhost:8080');
         // this.timer = setInterval(()=> this.pollAPI(), 3000); // resets the polling timer to account for timer clearing after page refresh
       }
       handleScriptSubmit = (value) => {
-        axios.get('http://localhost:8080/database/getData').then((res) => {
-          let tempId = '';
-          for (let i = 0; i < res.data.data.length; i++) {
-            if (res.data.data[i].projectId == sessionStorage.getItem('project_id')){
-              tempId = res.data.data[i]._id;
-            }
-          }
-          axios.post('http://localhost:8080/database/updateData', {
-            _id: tempId,script: value
-          });
-        });
+        // axios.get('http://localhost:8080/database/getData').then((res) => {
+        //   let tempId = '';
+        //   for (let i = 0; i < res.data.data.length; i++) {
+        //     if (res.data.data[i].projectId == sessionStorage.getItem('project_id')){
+        //       tempId = res.data.data[i]._id;
+        //     }
+        //   }
+        //   axios.post('http://localhost:8080/database/updateData', {
+        //     _id: tempId,script: value
+        //   });
+        // });
+        axios.post('http://localhost:8080/database/updateData', {projectId: sessionStorage.getItem('project_id'), update: {script: value}});
       }
 
       selectNumPipes = (e) => {  //handler for selecting number of pipelines to display
