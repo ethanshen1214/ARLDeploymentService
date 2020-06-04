@@ -49,7 +49,6 @@ router.post('/', function(req, res, next) {
       
       jobs.getArtifactPath(lastJobId, projectId, key)
       .then((query) => {
-        console.log('Gitlab API Call ' + query);
         spawn('sh', ['zip.sh', projectId, query], {cwd: './downloadScripts'});
         res.status(200).end();
       });

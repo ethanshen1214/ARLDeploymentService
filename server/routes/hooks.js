@@ -1,8 +1,10 @@
-var express = require('express');
+const express = require('express');
 const { spawn } = require('child_process');
 const config = require('../../src/lib/config.json');
 const jobs = require('../../src/API_Functions/jobs.js');
 const axios = require('axios');
+const { sendPipelineUpdate } = require('../bin/sockets')
+
 var router = express.Router();
 
 /* GET users listing. */
@@ -26,8 +28,11 @@ router.post('/', function(req, res, next) {
         let lastJobId = jobData[jobData.length-1].id;
         jobs.getArtifactPath(lastJobId, projectId, key)
         .then((query) => {
-          console.log('Gitlab API Call ' + query);
           spawn('sh', ['zip.sh', projectId, query], {cwd: './downloadScripts'});
+          sendPipelineUpdate({
+            projectId: projectId,
+            pipelineId: pipelineId
+          });
           res.status(200).end();
         });
       }

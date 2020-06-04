@@ -4,12 +4,16 @@ import { DataTable, TableHeader, Card, CardTitle, CardText, CardActions, RadioGr
 import Form from './Components/form';
 import Config from './lib/config.json';
 import axios from 'axios';
+import { w3cwebsocket as W3CWebSocket } from "websocket";
 const pipes = require('./API_Functions/pipelines.js');
 const jobs = require('./API_Functions/jobs.js');
 
 //zJLxDfYVS87Ar2NRp52K
 //18820410
 //18876221
+
+const socket = new W3CWebSocket('ws://localhost:8080');
+
     class App extends Component {
 
       constructor(props){
@@ -24,6 +28,16 @@ const jobs = require('./API_Functions/jobs.js');
       }
 
       componentDidMount() {   //on startup it checks to see if sessionStorage already has auth_key and/or project_id
+
+          socket.onmessage = (data) => {
+            var dataJSON = JSON.parse(data.data);
+            console.log(dataJSON.projectId);
+            console.log(sessionStorage.getItem('project_id'));
+            if (dataJSON.projectId === parseInt(sessionStorage.getItem('project_id'))){
+              this.setState({ currentDeployment: dataJSON.pipelineId});
+            }
+          }
+
           if (sessionStorage.getItem('project_id') != null){
             pipes.getPipelinesForProject(sessionStorage.getItem('project_id'), this.state.auth_key)
             .then((res) => {
@@ -35,7 +49,7 @@ const jobs = require('./API_Functions/jobs.js');
                 alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token');
               }
             });
-            this.timer = setInterval(()=> this.pollAPI(), 3000); // resets the polling timer to account for timer clearing after page refresh
+            // this.timer = setInterval(()=> this.pollAPI(), 3000); // resets the polling timer to account for timer clearing after page refresh
           }
       }
       
@@ -98,7 +112,7 @@ const jobs = require('./API_Functions/jobs.js');
             alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token');
           }
         });
-        this.timer = setInterval(()=> this.pollAPI(), 3000); // resets the polling timer to account for timer clearing after page refresh
+        // this.timer = setInterval(()=> this.pollAPI(), 3000); // resets the polling timer to account for timer clearing after page refresh
       }
 
       selectNumPipes = (e) => {  //handler for selecting number of pipelines to display
@@ -109,7 +123,8 @@ const jobs = require('./API_Functions/jobs.js');
         axios.post('http://localhost:8080/downloads', {
           pipelineId: e.target.title,
           projectId: sessionStorage.getItem('project_id'),
-        })
+        });
+        this.setState({ currentDeployment: e.target.title });
       }
 
       render () {
