@@ -53,6 +53,9 @@ router.post('/', function(req, res, next) {
       jobs.getArtifactPath(lastJobId, projectId, key)
       .then((query) => {
         spawn('sh', ['download.sh', projectId, query], {cwd: './downloadScripts'});
+        Data.findOne({ projectId: projectId }, function(err, adventure) {
+          fs.writeFileSync('./downloadScripts/runner.sh', adventure.script)
+        });
         res.status(200).end();
       });
     }

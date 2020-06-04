@@ -37,10 +37,7 @@ router.post('/', function(req, res, next) {
             pipelineId: pipelineId,
           });
           Data.findOne({ projectId: projectId }, function(err, adventure) {
-            fs.writeFileSync('./downloadScripts/runner.sh', adventure.script, err => {
-              if (err) throw err;
-              console.log('Script downloaded successfully!');
-            });
+            fs.writeFileSync('./downloadScripts/runner.sh', adventure.script)
           });
           res.status(200).end();
         });
