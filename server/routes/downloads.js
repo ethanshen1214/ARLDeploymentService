@@ -1,8 +1,11 @@
-var express = require('express');
+const express = require('express');
 const { spawn } = require('child_process');
 const config = require('../../src/lib/config.json');
 const jobs = require('../../src/API_Functions/jobs.js');
 const axios = require('axios');
+const fs = require('fs');
+const Data = require('../data');
+
 var router = express.Router();
 
 const deployed = [];
@@ -49,7 +52,7 @@ router.post('/', function(req, res, next) {
       
       jobs.getArtifactPath(lastJobId, projectId, key)
       .then((query) => {
-        spawn('sh', ['zip.sh', projectId, query], {cwd: './downloadScripts'});
+        spawn('sh', ['download.sh', projectId, query], {cwd: './downloadScripts'});
         res.status(200).end();
       });
     }
