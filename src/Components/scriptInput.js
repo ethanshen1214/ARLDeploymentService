@@ -26,17 +26,22 @@ export default class Form extends React.Component {
   
     render() {
       return (
-        <form onSubmit={this.handleSubmit}>
-          <label>
-            {this.props.formTitle}
-            <textarea
-              type="text" 
-              value={this.state.value} 
-              onChange={this.handleChange} 
-              style = {{ marginLeft: '20px', marginRight: '20px', height: this.props.height, width: this.props.width}}
-              />
-          </label>
-          <input type="submit" value="Submit" />
+        <form onSubmit={this.handleSubmit} style = {{marginLeft: '20px', marginTop: '10px'}}>
+          <div>
+            <label>{this.props.formTitle}</label>
+          </div>
+          <div>
+              <textarea
+                type="text" 
+                value={this.state.value} 
+                onChange={this.handleChange} 
+                style = {{ marginRight: '20px', height: this.props.height, width: this.props.width}}
+                />
+          </div>
+          <div>
+            <input type="submit" value="Submit" />
+          </div>
+          
         </form>
       );
     }

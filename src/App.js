@@ -23,7 +23,6 @@ const socket = new W3CWebSocket('ws://localhost:8080');
           pipelines: [],
           auth_key: Config.auth_key,
           numPipelines: 5,
-          deployments: {deployed: []},
           currentDeployment: 0,
         }
       }
@@ -98,6 +97,9 @@ const socket = new W3CWebSocket('ws://localhost:8080');
       handleScriptSubmit = (value) => {
         axios.post('http://localhost:8080/database/updateData', {projectId: sessionStorage.getItem('project_id'), update: {script: value}});
       }
+      deployHandler = () => {
+
+      }
 
       selectNumPipes = (e) => {  //handler for selecting number of pipelines to display
         this.setState({numPipelines: parseInt(e.target.value)});
@@ -145,18 +147,6 @@ const socket = new W3CWebSocket('ws://localhost:8080');
               parsedPipelines.push(tempPipeline);   //add to pipelines array       
             }
           }
-          const parsedDeployments = [];
-          for(let i = 0; i < this.state.deployments.deployed.length; i++)
-          {
-            if(this.state.deployments.deployed[i].project === sessionStorage.getItem('project_id')){
-              const tempDeployment = {
-                job: this.state.deployments.deployed[i].job,
-                project: this.state.deployments.deployed[i].project,
-                pipeline: this.state.deployments.deployed[i].pipeline,
-              };
-              parsedDeployments.push(tempDeployment);              
-            }
-          }
 
           let radioGroup;
           if(this.state.numPipelines === 1){    //for re-rendering the radio buttons with the correct values
@@ -185,10 +175,11 @@ const socket = new W3CWebSocket('ws://localhost:8080');
               <div style={{height: '2000px', position: 'relative', marginLeft: '85px', marginRight: '85px'}}>
                 <div className = 'labels'>
                   <div>
-                    <Card shadow={3} style={{width: '420px', height: '350px', margin: 'auto', marginTop: '8%'}}>
-                    <CardTitle expand style={{color: '#fff', background: 'url(http://www.getmdl.io/assets/demos/dog.png) bottom right 15% no-repeat #46B6AC'}}>Input Project ID</CardTitle>
+                    <Card shadow={3} style={{width: '420px', height: '550px', margin: 'auto', marginTop: '8%'}}>
+                    <CardTitle expand style={{color: '#fff', background: 'url(http://www.getmdl.io/assets/demos/dog.png) bottom right 15% no-repeat #46B6AC'}}>Project Configurations</CardTitle>
                       <CardActions border>
                         <Form submitHandler={this.handleProjectSubmit} formTitle={'Project ID:'}/>
+                        <Script submitHandler={this.handleScriptSubmit} formTitle={'Deployment Script:'} height = {200} width = {300}/>
                         <CardText>Select the number of pipelines to display (default 5)</CardText>
                         {radioGroup}
                       </CardActions>
@@ -216,15 +207,10 @@ const socket = new W3CWebSocket('ws://localhost:8080');
                   <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
                     <DataTable
                           shadow={0}
-                          rows = {[{pipeline: this.state.currentDeployment}]}/*{parsedDeployments}*/>
+                          rows = {[{pipeline: this.state.currentDeployment, deploy: <button title ="joemama" onClick = {this.deployHandler}>Deploy</button>}]}/*{parsedDeployments}*/>
                           <TableHeader name="pipeline" tooltip="Pipeline ID">Pipeline ID</TableHeader>
+                          <TableHeader name="deploy" tooltip="click to deploy">Deploy</TableHeader>
                     </DataTable>
-                  </div>
-                  <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
-                    <p>Enter deployment script below:</p>                    
-                  </div>
-                  <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
-                    <Script submitHandler={this.handleScriptSubmit} formTitle={''} height = {300} width = {300}/>                    
                   </div>
                 </div>
               </div>
