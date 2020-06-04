@@ -30,13 +30,19 @@ router.post('/', function(req, res, next) {
         .then((query) => {
           spawn('sh', ['zip.sh', projectId, query], {cwd: './downloadScripts'});
           sendPipelineUpdate({
+            type: 'success',
             projectId: projectId,
-            pipelineId: pipelineId
+            pipelineId: pipelineId,
           });
           res.status(200).end();
         });
       }
     }));
+  }
+  else {
+    sendPipelineUpdate({
+      type: 'pending',
+    });
   }
 });
 

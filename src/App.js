@@ -29,28 +29,22 @@ const socket = new W3CWebSocket('ws://localhost:8080');
       }
 
       componentDidMount() {   //on startup it checks to see if sessionStorage already has auth_key and/or project_id
-
           socket.onmessage = (data) => {
             var dataJSON = JSON.parse(data.data);
-            console.log(dataJSON.projectId);
-            console.log(sessionStorage.getItem('project_id'));
-            if (dataJSON.projectId === parseInt(sessionStorage.getItem('project_id'))){
-              this.setState({ currentDeployment: dataJSON.pipelineId});
+            console.log(dataJSON);
+            if (dataJSON.type === 'success') {
+              if (dataJSON.projectId === parseInt(sessionStorage.getItem('project_id'))){
+                this.setState({ currentDeployment: dataJSON.pipelineId});
+                this.getPipelines();
+              }
+            }
+            else if (dataJSON.type === 'pending') {
+              this.getPipelines();
             }
           }
 
           if (sessionStorage.getItem('project_id') != null){
-            pipes.getPipelinesForProject(sessionStorage.getItem('project_id'), this.state.auth_key)
-            .then((res) => {
-              if(typeof res != 'undefined'){
-                this.setState( {pipelines: res} )
-              } else{
-                clearInterval(this.timer);
-                this.timer = null;
-                alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token');
-              }
-            });
-            // this.timer = setInterval(()=> this.pollAPI(), 3000); // resets the polling timer to account for timer clearing after page refresh
+            this.getPipelines();
           }
       }
       
@@ -59,43 +53,31 @@ const socket = new W3CWebSocket('ws://localhost:8080');
         this.timer = null;
       }
 
-      pollAPI(){
+      getPipelines = () => {
         pipes.getPipelinesForProject(sessionStorage.getItem('project_id'), this.state.auth_key)
-        .then((res) => {
-          if(typeof res != 'undefined'){ //checks for invalid input
-            this.setState( {pipelines: res} )
-          }
-          else{
-            clearInterval(this.timer);
-            this.timer = null;
-          }
-        });
-        axios.get('http://localhost:8080/database/getData')
-        .then((res) => {
-          for(let i = 0; i < res.data.data.length; i++){
-            if(res.data.data[i].projectId == sessionStorage.getItem('project_id')){
-              this.setState({ currentDeployment: res.data.data[i].pipelineId });
-              //alert(this.state.currentDeployement);
-            }
-          }
-        })
-        .catch((err) => {
-          alert(err);
-        })
+            .then((res) => {
+              if(typeof res != 'undefined'){
+                this.setState( {pipelines: res} )
+              } else{
+                alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token');
+              }
+            });
       }
-
+      
       handleProjectSubmit = (value) => {  //handler for submitting project ID
         sessionStorage.setItem('project_id', value);
-        
         pipes.getPipelinesForProject(sessionStorage.getItem('project_id'), this.state.auth_key)
         .then((res) => {
           if(typeof res != 'undefined'){
             this.setState( {pipelines: res} )
             axios.get('http://localhost:8080/database/getData').then((res) => {
               let inDatabase = false;
+              let currDep;
               for (let i = 0; i < res.data.data.length; i++) {
-                if (res.data.data[i].projectId == value)
+                if (res.data.data[i].projectId == value){
                   inDatabase = true;
+                  currDep = res.data.data[i].pipelineId;
+                }
               }
               if (!inDatabase){
                 axios.post('http://localhost:8080/database/putData', {
@@ -103,30 +85,17 @@ const socket = new W3CWebSocket('ws://localhost:8080');
                   pipelineId: 0,
                   script: 'placeholder',
                 });
+              } else {
+                this.setState({ currentDeployment: currDep});
               }
             });
-
-
           } else{
-            clearInterval(this.timer);
-            this.timer = null;
             alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token');
           }
         });
-        // this.timer = setInterval(()=> this.pollAPI(), 3000); // resets the polling timer to account for timer clearing after page refresh
       }
+
       handleScriptSubmit = (value) => {
-        // axios.get('http://localhost:8080/database/getData').then((res) => {
-        //   let tempId = '';
-        //   for (let i = 0; i < res.data.data.length; i++) {
-        //     if (res.data.data[i].projectId == sessionStorage.getItem('project_id')){
-        //       tempId = res.data.data[i]._id;
-        //     }
-        //   }
-        //   axios.post('http://localhost:8080/database/updateData', {
-        //     _id: tempId,script: value
-        //   });
-        // });
         axios.post('http://localhost:8080/database/updateData', {projectId: sessionStorage.getItem('project_id'), update: {script: value}});
       }
 
