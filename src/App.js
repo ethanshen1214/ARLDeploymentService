@@ -25,7 +25,7 @@ const socket = new W3CWebSocket('ws://localhost:8080');
           auth_key: Config.auth_key,
           numPipelines: 5,
           currentDeployment: 0,
-          script: '',
+          script: 'placeholder',
           projectName: '',
           allDeployments: [],
         }
@@ -118,7 +118,6 @@ const socket = new W3CWebSocket('ws://localhost:8080');
                 projects.getProjectName(sessionStorage.getItem('project_id'), this.state.auth_key, (err, data) => {
                   sessionStorage.setItem('project_name', data);
                   this.setState({projectName: data});
-                  //console.log(sessionStorage.getItem('project_name'))
                   axios.post('http://localhost:8080/database/putData', {
                     projectId: value,
                     pipelineId: 0,
@@ -157,7 +156,6 @@ const socket = new W3CWebSocket('ws://localhost:8080');
           projectId: sessionStorage.getItem('project_id'),
         });
         this.setState({ currentDeployment: e.target.title });
-        //;
       }
 
       render () {
@@ -234,6 +232,7 @@ const socket = new W3CWebSocket('ws://localhost:8080');
                   </div>         
                 </div>
                 <div className = 'labels'>
+                  
                   <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
                     <h2>Pipeline Status For {sessionStorage.getItem('project_name')}</h2>
                   </div>
