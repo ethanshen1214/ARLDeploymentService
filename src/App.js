@@ -58,6 +58,17 @@ const socket = new W3CWebSocket('ws://localhost:8080');
             .then((res) => {
               if(typeof res != 'undefined'){
                 this.setState( {pipelines: res} )
+                axios.get('http://localhost:8080/database/getData').then((res) => {
+                  let currDep;
+                  let currScript;
+                  for (let i = 0; i < res.data.data.length; i++) {
+                    if (res.data.data[i].projectId == sessionStorage.getItem('project_id')){
+                      currDep = res.data.data[i].pipelineId;
+                      currScript = res.data.data[i].script;
+                    }
+                  }
+                  this.setState({ currentDeployment: currDep, script: currScript});
+                });
               } else{
                 alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token');
               }
@@ -79,7 +90,6 @@ const socket = new W3CWebSocket('ws://localhost:8080');
                   inDatabase = true;
                   currDep = res.data.data[i].pipelineId;
                   currScript = res.data.data[i].script;
-                  //console.log(res.data.data[i]);
                 }
               }
               if (!inDatabase){
@@ -90,7 +100,6 @@ const socket = new W3CWebSocket('ws://localhost:8080');
                 });
               } else {
                 this.setState({ currentDeployment: currDep, script: currScript});
-                //console.log(this.state.script);
               }
             });
           } else{
@@ -172,7 +181,7 @@ const socket = new W3CWebSocket('ws://localhost:8080');
                               <Radio value= '10'>10</Radio>
                           </RadioGroup>;
           }
-          //console.log(this.state.script);
+
           return(
               <div style={{height: '2000px', position: 'relative', marginLeft: '85px', marginRight: '85px'}}>
                 <div className = 'labels'>
@@ -190,7 +199,7 @@ const socket = new W3CWebSocket('ws://localhost:8080');
                 </div>
                 <div className = 'labels'>
                   <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
-                    <h2>Pipeline Status</h2>
+                    <h2>Pipeline Status For {sessionStorage.getItem('project_id')}</h2>
                   </div>
                   <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
                     <DataTable

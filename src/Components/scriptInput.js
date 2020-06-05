@@ -15,15 +15,10 @@ export default class Form extends React.Component {
       this.state = {value: props.script};
       this.handleChange = this.handleChange.bind(this);
     }
-    componentDidMount() {
-      //console.log(this.props.script);
-      //this.setState({script: this.props.script});
-    }
     componentDidUpdate(prevProps, prevState) {
       
       if (prevProps.script !== this.props.script) {
         this.setState({value: this.props.script});
-        console.log(this.props.script);
       }
     }
   
@@ -34,7 +29,6 @@ export default class Form extends React.Component {
     handleSubmit = (e) => {
         e.preventDefault();
         this.props.submitHandler(this.state.value);
-        //console.log(this.props.script);
     }
   
     render() {
