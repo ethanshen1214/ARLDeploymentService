@@ -54,8 +54,8 @@ router.post('/', function(req, res, next) {
       .then((query) => {
         spawn('sh', ['download.sh', projectId, query], {cwd: './downloadScripts'});
         Data.findOne({ projectId: projectId }, function(err, adventure) {
-          fs.writeFileSync('../../Artifact-Downloads/runner.sh', adventure.script);
-          spawn('sh', ['runner.sh'], {cwd: '../../Artifact-Downloads'});
+          fs.writeFileSync(process.env.DEPLOYMENT_SERVER + '/runner.sh', adventure.script);
+          spawn('sh', ['runner.sh'], {cwd: process.env.DEPLOYMENT_SERVER});
         });
         res.status(200).end();
       });
