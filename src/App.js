@@ -8,6 +8,7 @@ import axios from 'axios';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 const pipes = require('./API_Functions/pipelines.js');
 const jobs = require('./API_Functions/jobs.js');
+const projects = require('./API_Functions/projects.js');
 
 //zJLxDfYVS87Ar2NRp52K
 //18820410
@@ -25,6 +26,7 @@ const socket = new W3CWebSocket('ws://localhost:8080');
           numPipelines: 5,
           currentDeployment: 0,
           script: '',
+          projectName: '',
         }
       }
 
@@ -105,6 +107,12 @@ const socket = new W3CWebSocket('ws://localhost:8080');
           } else{
             alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token');
           }
+        })
+        .then(() => {
+          projects.getProjectName(sessionStorage.getItem('project_id'), this.state.auth_key, (err, data) => {
+            sessionStorage.setItem('project_name', data);
+            this.setState({projectName: data});
+          })
         });
       }
 
@@ -190,7 +198,7 @@ const socket = new W3CWebSocket('ws://localhost:8080');
                     <CardTitle expand style={{color: '#fff', background: 'url(http://www.getmdl.io/assets/demos/dog.png) bottom right 15% no-repeat #46B6AC'}}>Project Configurations</CardTitle>
                       <CardActions border>
                         <Form submitHandler={this.handleProjectSubmit} formTitle={'Project ID:'}/>
-                        <Script submitHandler={this.handleScriptSubmit} formTitle={'Current Deployment Script For This Project:'} height = {200} width = {300} script = {this.state.script}/>
+                        <Script submitHandler={this.handleScriptSubmit} formTitle={'Current Deployment Script For '+sessionStorage.getItem('project_name')+':'} height = {200} width = {300} script = {this.state.script}/>
                         <CardText>Select the number of pipelines to display (default 5)</CardText>
                         {radioGroup}
                       </CardActions>
@@ -199,7 +207,7 @@ const socket = new W3CWebSocket('ws://localhost:8080');
                 </div>
                 <div className = 'labels'>
                   <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
-                    <h2>Pipeline Status For {sessionStorage.getItem('project_id')}</h2>
+                    <h2>Pipeline Status For {sessionStorage.getItem('project_name')}</h2>
                   </div>
                   <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
                     <DataTable
