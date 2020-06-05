@@ -46,7 +46,7 @@ export default class Form extends React.Component {
                 />
           </div>
           <div>
-            <input type="submit" value="Submit" />
+            <input type="submit" value="Save Changes" />
           </div>
           
         </form>

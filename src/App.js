@@ -27,32 +27,50 @@ const socket = new W3CWebSocket('ws://localhost:8080');
           currentDeployment: 0,
           script: '',
           projectName: '',
+          allDeployments: [],
         }
       }
 
       componentDidMount() {   //on startup it checks to see if sessionStorage already has auth_key and/or project_id
           socket.onmessage = (data) => {
             var dataJSON = JSON.parse(data.data);
-            console.log(dataJSON);
             if (dataJSON.type === 'success') {
               if (dataJSON.projectId === parseInt(sessionStorage.getItem('project_id'))){
                 this.setState({ currentDeployment: dataJSON.pipelineId});
                 this.getPipelines();
+                this.getDeployments();
               }
             }
             else if (dataJSON.type === 'pending') {
               this.getPipelines();
+              this.getDeployments();
             }
           }
 
           if (sessionStorage.getItem('project_id') != null){
             this.getPipelines();
+            this.getDeployments();
           }
       }
       
       componentWillUnmount() {
         clearInterval(this.timer);
         this.timer = null;
+      }
+
+      getDeployments = () => {      //populates the state array that holds all the current deployments in the database
+        const currDeployments = [];
+        axios.get('http://localhost:8080/database/getData').then((res) => {
+          for(let i = 0; i < res.data.data.length; i++){
+            const tempDeployment = {
+              projectName: res.data.data[i].projectName,
+              projectId: res.data.data[i].projectId,
+              pipelineId: res.data.data[i].pipelineId,
+            };
+            currDeployments.push(tempDeployment);
+          }
+        });
+        this.setState({allDeployments: currDeployments})
       }
 
       getPipelines = () => {
@@ -87,6 +105,7 @@ const socket = new W3CWebSocket('ws://localhost:8080');
               let inDatabase = false;
               let currDep;
               let currScript;
+
               for (let i = 0; i < res.data.data.length; i++) {
                 if (res.data.data[i].projectId == value){
                   inDatabase = true;
@@ -95,12 +114,26 @@ const socket = new W3CWebSocket('ws://localhost:8080');
                 }
               }
               if (!inDatabase){
-                axios.post('http://localhost:8080/database/putData', {
-                  projectId: value,
-                  pipelineId: 0,
-                  script: 'placeholder',
-                });
+                //gets the project name of the current project
+                projects.getProjectName(sessionStorage.getItem('project_id'), this.state.auth_key, (err, data) => {
+                  sessionStorage.setItem('project_name', data);
+                  this.setState({projectName: data});
+                  //console.log(sessionStorage.getItem('project_name'))
+                  axios.post('http://localhost:8080/database/putData', {
+                    projectId: value,
+                    pipelineId: 0,
+                    script: 'placeholder',
+                    projectName: data,
+                  })
+                  .then(() => this.getDeployments());
+                  
+                })
+
               } else {
+                projects.getProjectName(sessionStorage.getItem('project_id'), this.state.auth_key, (err, data) => {
+                  sessionStorage.setItem('project_name', data);
+                  this.setState({projectName: data});
+                })
                 this.setState({ currentDeployment: currDep, script: currScript});
               }
             });
@@ -108,12 +141,6 @@ const socket = new W3CWebSocket('ws://localhost:8080');
             alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token');
           }
         })
-        .then(() => {
-          projects.getProjectName(sessionStorage.getItem('project_id'), this.state.auth_key, (err, data) => {
-            sessionStorage.setItem('project_name', data);
-            this.setState({projectName: data});
-          })
-        });
       }
 
       handleScriptSubmit = (value) => {
@@ -130,6 +157,7 @@ const socket = new W3CWebSocket('ws://localhost:8080');
           projectId: sessionStorage.getItem('project_id'),
         });
         this.setState({ currentDeployment: e.target.title });
+        //;
       }
 
       render () {
@@ -221,13 +249,20 @@ const socket = new W3CWebSocket('ws://localhost:8080');
                     </DataTable>
                   </div>
                   <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
-                    <h2>Most Recent Deployment</h2>
+                    <h2>Most Recent Deployment For {sessionStorage.getItem('project_name')}</h2>
                   </div>
                   <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
                     <DataTable
                           shadow={0}
                           rows = {[{pipeline: this.state.currentDeployment}]}/*{parsedDeployments}*/>
                           <TableHeader name="pipeline" tooltip="Pipeline ID">Pipeline ID</TableHeader>
+                    </DataTable>
+                    <DataTable
+                          shadow={0}
+                          rows = {this.state.allDeployments}>
+                          <TableHeader name="projectName" tooltip="Project Name">Project Name</TableHeader>
+                          <TableHeader name="projectId" tooltip="Project ID">Project ID</TableHeader>
+                          <TableHeader name="pipelineId" tooltip="Pipeline ID">Pipeline ID</TableHeader>
                     </DataTable>
                   </div>
                 </div>

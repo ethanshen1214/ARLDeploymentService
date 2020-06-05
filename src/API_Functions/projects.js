@@ -17,10 +17,7 @@ exports.getProjectName = (projectId, key, callback) => {
         const parsedData = JSON.parse(fullData);
         const name = parsedData.name;
         callback(null, name);
-      });
-  
-      res.on('error', (e) => {
-        callback(e, null);
+        //return name;
       });
     });
   };
