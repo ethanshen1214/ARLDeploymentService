@@ -1,8 +1,8 @@
 cd ..
 cd ..
 cd ..
-mkdir Deployment-Downloads
-cd Deployment-Downloads
+mkdir Artifact-Downloads
+cd Artifact-Downloads
 mkdir $1
 cd $1
 curl -L --output artifacts.zip "$2"

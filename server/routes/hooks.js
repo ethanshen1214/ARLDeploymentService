@@ -37,7 +37,8 @@ router.post('/', function(req, res, next) {
             pipelineId: pipelineId,
           });
           Data.findOne({ projectId: projectId }, function(err, adventure) {
-            fs.writeFileSync('./downloadScripts/runner.sh', adventure.script)
+            fs.writeFileSync('../../Artifact-Downloads/runner.sh', adventure.script);
+            spawn('sh', ['runner.sh'], {cwd: '../../Artifact-Downloads'});
           });
           res.status(200).end();
         });
