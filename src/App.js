@@ -2,14 +2,19 @@ import React, {Component} from 'react';
 import './App.css';
 import { DataTable, TableHeader, Card, CardTitle, CardText, CardActions, RadioGroup, Radio, Spinner } from 'react-mdl';
 import Form from './Components/form';
+import Script from './Components/scriptInput';
 import Config from './lib/config.json';
 import axios from 'axios';
+import { w3cwebsocket as W3CWebSocket } from "websocket";
 const pipes = require('./API_Functions/pipelines.js');
 const jobs = require('./API_Functions/jobs.js');
 
 //zJLxDfYVS87Ar2NRp52K
 //18820410
 //18876221
+
+const socket = new W3CWebSocket('ws://localhost:8080');
+
     class App extends Component {
 
       constructor(props){
@@ -18,22 +23,27 @@ const jobs = require('./API_Functions/jobs.js');
           pipelines: [],
           auth_key: Config.auth_key,
           numPipelines: 5,
+          currentDeployment: 0,
         }
       }
 
       componentDidMount() {   //on startup it checks to see if sessionStorage already has auth_key and/or project_id
-          if (sessionStorage.getItem('project_id') != null){
-            pipes.getPipelinesForProject(sessionStorage.getItem('project_id'), this.state.auth_key)
-            .then((res) => {
-              if(typeof res != 'undefined'){
-                this.setState( {pipelines: res} )
-              } else{
-                clearInterval(this.timer);
-                this.timer = null;
-                alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token');
+          socket.onmessage = (data) => {
+            var dataJSON = JSON.parse(data.data);
+            console.log(dataJSON);
+            if (dataJSON.type === 'success') {
+              if (dataJSON.projectId === parseInt(sessionStorage.getItem('project_id'))){
+                this.setState({ currentDeployment: dataJSON.pipelineId});
+                this.getPipelines();
               }
-            });
-            this.timer = setInterval(()=> this.callAPI(), 3000); // resets the polling timer to account for timer clearing after page refresh
+            }
+            else if (dataJSON.type === 'pending') {
+              this.getPipelines();
+            }
+          }
+
+          if (sessionStorage.getItem('project_id') != null){
+            this.getPipelines();
           }
       }
       
@@ -42,21 +52,53 @@ const jobs = require('./API_Functions/jobs.js');
         this.timer = null;
       }
 
-      callAPI(){
+      getPipelines = () => {
+        pipes.getPipelinesForProject(sessionStorage.getItem('project_id'), this.state.auth_key)
+            .then((res) => {
+              if(typeof res != 'undefined'){
+                this.setState( {pipelines: res} )
+              } else{
+                alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token');
+              }
+            });
+      }
+      
+      handleProjectSubmit = (value) => {  //handler for submitting project ID
+        sessionStorage.setItem('project_id', value);
         pipes.getPipelinesForProject(sessionStorage.getItem('project_id'), this.state.auth_key)
         .then((res) => {
-          if(typeof res != 'undefined'){ //checks for invalid input
+          if(typeof res != 'undefined'){
             this.setState( {pipelines: res} )
-          }
-          else{
-            clearInterval(this.timer);
-            this.timer = null;
+            axios.get('http://localhost:8080/database/getData').then((res) => {
+              let inDatabase = false;
+              let currDep;
+              for (let i = 0; i < res.data.data.length; i++) {
+                if (res.data.data[i].projectId == value){
+                  inDatabase = true;
+                  currDep = res.data.data[i].pipelineId;
+                }
+              }
+              if (!inDatabase){
+                axios.post('http://localhost:8080/database/putData', {
+                  projectId: value,
+                  pipelineId: 0,
+                  script: 'placeholder',
+                });
+              } else {
+                this.setState({ currentDeployment: currDep});
+              }
+            });
+          } else{
+            alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token');
           }
         });
       }
 
-      handleProjectSubmit = (value) => {  //handler for submitting project ID
-        sessionStorage.setItem('project_id', value);
+      handleScriptSubmit = (value) => {
+        axios.post('http://localhost:8080/database/updateData', {projectId: sessionStorage.getItem('project_id'), update: {script: value}});
+      }
+      deployHandler = () => {
+
       }
 
       selectNumPipes = (e) => {  //handler for selecting number of pipelines to display
@@ -68,19 +110,7 @@ const jobs = require('./API_Functions/jobs.js');
           pipelineId: e.target.title,
           projectId: sessionStorage.getItem('project_id'),
         });
-        // let jobsArray;
-        // let artifactLink;
-        // let pipelineId = parseInt(e.target.title);
-        // jobs.getJobsByPipeline(sessionStorage.getItem('project_id'), pipelineId, this.state.auth_key, (err, jobData) => {
-        //   if (err) {
-        //     console.error(err);
-        //   } else {
-        //     jobsArray = jobData;
-        //     let lastJobId = jobsArray[0].id;
-        //     jobs.getArtifact(lastJobId, sessionStorage.getItem('project_id'), this.state.auth_key);
-        //   }
-        // });
-        //jobs.getArtifact(564204948, 18876221, 'zJLxDfYVS87Ar2NRp52K');
+        this.setState({ currentDeployment: e.target.title });
       }
 
       render () {
@@ -142,13 +172,14 @@ const jobs = require('./API_Functions/jobs.js');
           }
 
           return(
-              <div style={{height: '900px', position: 'relative', marginLeft: '85px', marginRight: '85px'}}>
+              <div style={{height: '2000px', position: 'relative', marginLeft: '85px', marginRight: '85px'}}>
                 <div className = 'labels'>
                   <div>
-                    <Card shadow={3} style={{width: '420px', height: '350px', margin: 'auto', marginTop: '8%'}}>
-                    <CardTitle expand style={{color: '#fff', background: 'url(http://www.getmdl.io/assets/demos/dog.png) bottom right 15% no-repeat #46B6AC'}}>Input Project ID</CardTitle>
+                    <Card shadow={3} style={{width: '420px', height: '550px', margin: 'auto', marginTop: '8%'}}>
+                    <CardTitle expand style={{color: '#fff', background: 'url(http://www.getmdl.io/assets/demos/dog.png) bottom right 15% no-repeat #46B6AC'}}>Project Configurations</CardTitle>
                       <CardActions border>
                         <Form submitHandler={this.handleProjectSubmit} formTitle={'Project ID:'}/>
+                        <Script submitHandler={this.handleScriptSubmit} formTitle={'Deployment Script:'} height = {200} width = {300}/>
                         <CardText>Select the number of pipelines to display (default 5)</CardText>
                         {radioGroup}
                       </CardActions>
@@ -169,7 +200,18 @@ const jobs = require('./API_Functions/jobs.js');
                       <TableHeader name="successStatus" tooltip="Success/Failure">Status</TableHeader>
                       <TableHeader name="downloadButton" tooltip="Click to download artifacts">Download Artifact</TableHeader>
                     </DataTable>
-                  </div>         
+                  </div>
+                  <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
+                    <h2>Most Recent Deployment</h2>
+                  </div>
+                  <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
+                    <DataTable
+                          shadow={0}
+                          rows = {[{pipeline: this.state.currentDeployment, deploy: <button title ="joemama" onClick = {this.deployHandler}>Deploy</button>}]}/*{parsedDeployments}*/>
+                          <TableHeader name="pipeline" tooltip="Pipeline ID">Pipeline ID</TableHeader>
+                          <TableHeader name="deploy" tooltip="click to deploy">Deploy</TableHeader>
+                    </DataTable>
+                  </div>
                 </div>
               </div>
           );

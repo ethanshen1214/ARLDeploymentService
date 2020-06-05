@@ -1,8 +1,14 @@
-var express = require('express');
+const express = require('express');
 const { spawn } = require('child_process');
 const config = require('../../src/lib/config.json');
 const jobs = require('../../src/API_Functions/jobs.js');
+const axios = require('axios');
+const fs = require('fs');
+const Data = require('../data');
+
 var router = express.Router();
+
+const deployed = [];
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -15,21 +21,46 @@ router.post('/', function(req, res, next) {
   let pipelineId = req.body.pipelineId;
   let key = config.auth_key;
 
-  let header = `PRIVATE TOKEN: ${key}`;
-  jobs.getJobsByPipeline(projectId, pipelineId, key, (err, jobData) => {
+  axios.post('http://localhost:8080/database/updateData', {projectId: projectId, update: {pipelineId: pipelineId}})
+  .then(jobs.getJobsByPipeline(projectId, pipelineId, key, (err, jobData) => {
     if (err) {
       console.error(err);
       res.status(500).end();
     } else {
       let lastJobId = jobData[jobData.length-1].id;
+      const tempJob = {
+        job: lastJobId,
+        project: projectId,
+        pipeline: pipelineId,
+      }
+      if(deployed.length == 0){
+        deployed.push(tempJob);
+      }
+      else{
+        let alreadyInTheArray = false;
+        for(let i = 0; i < deployed.length; i++)
+        {
+          if((deployed[i].project === tempJob.project)){
+            deployed[i] = tempJob;
+            alreadyInTheArray = true;
+          }
+        }
+        if(!alreadyInTheArray){
+          deployed.push(tempJob);
+        }
+      }
+      
       jobs.getArtifactPath(lastJobId, projectId, key)
-      .then((path) => {
-        console.log('Gitlab API Call ' + header + " " + `${path}`);
-        spawn('sh', ['zip.sh', projectId, header, path], {cwd: './downloadScripts'});
+      .then((query) => {
+        spawn('sh', ['download.sh', projectId, query], {cwd: './downloadScripts'});
+        Data.findOne({ projectId: projectId }, function(err, adventure) {
+          fs.writeFileSync('./downloadScripts/runner.sh', adventure.script)
+        });
         res.status(200).end();
       });
     }
-  });
+  }));
 });
 
-module.exports = router;
+exports.router = router;
+exports.deployed = {deployed};

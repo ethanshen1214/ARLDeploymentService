@@ -5,6 +5,8 @@ export default class Form extends React.Component {
     static propTypes = {
         submitHandler: PropTypes.func,
         formTitle: PropTypes.string,
+        height: PropTypes.number,
+        width: PropTypes.number,
     };
     
     constructor(props) {
@@ -25,11 +27,21 @@ export default class Form extends React.Component {
     render() {
       return (
         <form onSubmit={this.handleSubmit} style = {{marginLeft: '20px', marginTop: '10px'}}>
-          <label>
-            {this.props.formTitle}
-            <input type="text" value={this.state.value} onChange={this.handleChange} style = {{ marginLeft: '20px', marginRight: '20px'}}/>
-          </label>
-          <input type="submit" value="Submit" />
+          <div>
+            <label>{this.props.formTitle}</label>
+          </div>
+          <div>
+              <textarea
+                type="text" 
+                value={this.state.value} 
+                onChange={this.handleChange} 
+                style = {{ marginRight: '20px', height: this.props.height, width: this.props.width}}
+                />
+          </div>
+          <div>
+            <input type="submit" value="Submit" />
+          </div>
+          
         </form>
       );
     }
