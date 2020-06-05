@@ -7,12 +7,24 @@ export default class Form extends React.Component {
         formTitle: PropTypes.string,
         height: PropTypes.number,
         width: PropTypes.number,
+        script: PropTypes.string,
     };
     
     constructor(props) {
       super(props);
-      this.state = {value: ''};
+      this.state = {value: props.script};
       this.handleChange = this.handleChange.bind(this);
+    }
+    componentDidMount() {
+      //console.log(this.props.script);
+      //this.setState({script: this.props.script});
+    }
+    componentDidUpdate(prevProps, prevState) {
+      
+      if (prevProps.script !== this.props.script) {
+        this.setState({value: this.props.script});
+        console.log(this.props.script);
+      }
     }
   
     handleChange(event) {
@@ -22,6 +34,7 @@ export default class Form extends React.Component {
     handleSubmit = (e) => {
         e.preventDefault();
         this.props.submitHandler(this.state.value);
+        //console.log(this.props.script);
     }
   
     render() {

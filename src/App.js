@@ -24,6 +24,7 @@ const socket = new W3CWebSocket('ws://localhost:8080');
           auth_key: Config.auth_key,
           numPipelines: 5,
           currentDeployment: 0,
+          script: '',
         }
       }
 
@@ -72,10 +73,13 @@ const socket = new W3CWebSocket('ws://localhost:8080');
             axios.get('http://localhost:8080/database/getData').then((res) => {
               let inDatabase = false;
               let currDep;
+              let currScript;
               for (let i = 0; i < res.data.data.length; i++) {
                 if (res.data.data[i].projectId == value){
                   inDatabase = true;
                   currDep = res.data.data[i].pipelineId;
+                  currScript = res.data.data[i].script;
+                  //console.log(res.data.data[i]);
                 }
               }
               if (!inDatabase){
@@ -85,7 +89,8 @@ const socket = new W3CWebSocket('ws://localhost:8080');
                   script: 'placeholder',
                 });
               } else {
-                this.setState({ currentDeployment: currDep});
+                this.setState({ currentDeployment: currDep, script: currScript});
+                //console.log(this.state.script);
               }
             });
           } else{
@@ -96,9 +101,6 @@ const socket = new W3CWebSocket('ws://localhost:8080');
 
       handleScriptSubmit = (value) => {
         axios.post('http://localhost:8080/database/updateData', {projectId: sessionStorage.getItem('project_id'), update: {script: value}});
-      }
-      deployHandler = () => {
-
       }
 
       selectNumPipes = (e) => {  //handler for selecting number of pipelines to display
@@ -142,7 +144,7 @@ const socket = new W3CWebSocket('ws://localhost:8080');
                 sourceCommit: this.state.pipelines[i].user.username,
                 deploymentDate: this.state.pipelines[i].created_at,
                 successStatus: this.state.pipelines[i].status,
-                downloadButton: <button title ={this.state.pipelines[i].id} onClick = {this.downloadHandler}>Download</button>,
+                downloadButton: <button title ={this.state.pipelines[i].id} onClick = {this.downloadHandler}>Deploy</button>,
               };     
               parsedPipelines.push(tempPipeline);   //add to pipelines array       
             }
@@ -170,16 +172,16 @@ const socket = new W3CWebSocket('ws://localhost:8080');
                               <Radio value= '10'>10</Radio>
                           </RadioGroup>;
           }
-
+          //console.log(this.state.script);
           return(
               <div style={{height: '2000px', position: 'relative', marginLeft: '85px', marginRight: '85px'}}>
                 <div className = 'labels'>
                   <div>
-                    <Card shadow={3} style={{width: '420px', height: '550px', margin: 'auto', marginTop: '8%'}}>
+                    <Card shadow={3} style={{width: '420px', height: '600px', margin: 'auto', marginTop: '8%'}}>
                     <CardTitle expand style={{color: '#fff', background: 'url(http://www.getmdl.io/assets/demos/dog.png) bottom right 15% no-repeat #46B6AC'}}>Project Configurations</CardTitle>
                       <CardActions border>
                         <Form submitHandler={this.handleProjectSubmit} formTitle={'Project ID:'}/>
-                        <Script submitHandler={this.handleScriptSubmit} formTitle={'Deployment Script:'} height = {200} width = {300}/>
+                        <Script submitHandler={this.handleScriptSubmit} formTitle={'Current Deployment Script For This Project:'} height = {200} width = {300} script = {this.state.script}/>
                         <CardText>Select the number of pipelines to display (default 5)</CardText>
                         {radioGroup}
                       </CardActions>
@@ -198,7 +200,7 @@ const socket = new W3CWebSocket('ws://localhost:8080');
                       <TableHeader name="sourceCommit" tooltip="Name of account that ran the pipeline">Source Commit</TableHeader>
                       <TableHeader name="deploymentDate" tooltip="Date pipeline was created">Date of Deployment</TableHeader>
                       <TableHeader name="successStatus" tooltip="Success/Failure">Status</TableHeader>
-                      <TableHeader name="downloadButton" tooltip="Click to download artifacts">Download Artifact</TableHeader>
+                      <TableHeader name="downloadButton" tooltip="Click to download artifacts and deploy">Deploy</TableHeader>
                     </DataTable>
                   </div>
                   <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
@@ -207,9 +209,8 @@ const socket = new W3CWebSocket('ws://localhost:8080');
                   <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
                     <DataTable
                           shadow={0}
-                          rows = {[{pipeline: this.state.currentDeployment, deploy: <button title ="joemama" onClick = {this.deployHandler}>Deploy</button>}]}/*{parsedDeployments}*/>
+                          rows = {[{pipeline: this.state.currentDeployment}]}/*{parsedDeployments}*/>
                           <TableHeader name="pipeline" tooltip="Pipeline ID">Pipeline ID</TableHeader>
-                          <TableHeader name="deploy" tooltip="click to deploy">Deploy</TableHeader>
                     </DataTable>
                   </div>
                 </div>
