@@ -69,8 +69,9 @@ const socket = new W3CWebSocket('ws://localhost:8080');
             };
             currDeployments.push(tempDeployment);
           }
+          this.setState({allDeployments: currDeployments})
         });
-        this.setState({allDeployments: currDeployments})
+        
       }
 
       getPipelines = () => {
@@ -156,6 +157,9 @@ const socket = new W3CWebSocket('ws://localhost:8080');
           projectId: sessionStorage.getItem('project_id'),
         });
         this.setState({ currentDeployment: e.target.title });
+      }
+      refreshHandler = () => {
+        window.location.reload();
       }
 
       render () {
@@ -248,13 +252,16 @@ const socket = new W3CWebSocket('ws://localhost:8080');
                     </DataTable>
                   </div>
                   <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
-                    <h2>Most Recent Deployment For {sessionStorage.getItem('project_name')}</h2>
+                    <h2>Current Deployment Info</h2>
+                  </div>
+                  <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center', marginBottom: '15px'}}>
+                    <button onClick = {this.refreshHandler}>Refresh</button>
                   </div>
                   <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
                     <DataTable
                           shadow={0}
                           rows = {[{pipeline: this.state.currentDeployment}]}/*{parsedDeployments}*/>
-                          <TableHeader name="pipeline" tooltip="Pipeline ID">Pipeline ID</TableHeader>
+                          <TableHeader name="pipeline" tooltip="Pipeline ID">Current Deployment for This Project</TableHeader>
                     </DataTable>
                     <DataTable
                           shadow={0}
