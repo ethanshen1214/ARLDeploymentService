@@ -123,6 +123,7 @@ const socket = new W3CWebSocket('ws://localhost:8080');
               this.setState({projectName: data, currentDeployment: currDep, script: currScript});
             })
           }
+          this.loadData();
         } catch (err) {
           console.log(err);
         }
