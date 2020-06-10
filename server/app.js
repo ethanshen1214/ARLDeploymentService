@@ -11,7 +11,6 @@ var cors = require('cors');
 var indexRouter = require('./routes/index');
 var downloads = require('./routes/downloads');
 var downloadsRouter = downloads.router;
-var deploymentsRouter = require('./routes/deployments');
 var hooksRouter = require('./routes/hooks');
 var databaseRouter = require('./routes/database');
 
@@ -37,7 +36,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/downloads', downloadsRouter);
-app.use('/deployments', deploymentsRouter);
 app.use('/hooks', hooksRouter);
 app.use('/database', databaseRouter);
 

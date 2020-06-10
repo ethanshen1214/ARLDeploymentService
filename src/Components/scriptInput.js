@@ -7,12 +7,19 @@ export default class Form extends React.Component {
         formTitle: PropTypes.string,
         height: PropTypes.number,
         width: PropTypes.number,
+        script: PropTypes.string,
     };
     
     constructor(props) {
       super(props);
-      this.state = {value: ''};
+      this.state = {value: props.script};
       this.handleChange = this.handleChange.bind(this);
+    }
+    componentDidUpdate(prevProps, prevState) {
+      
+      if (prevProps.script !== this.props.script) {
+        this.setState({value: this.props.script});
+      }
     }
   
     handleChange(event) {
@@ -39,7 +46,7 @@ export default class Form extends React.Component {
                 />
           </div>
           <div>
-            <input type="submit" value="Submit" />
+            <input type="submit" value="Save Changes" />
           </div>
           
         </form>

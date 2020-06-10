@@ -8,6 +8,7 @@ import axios from 'axios';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 const pipes = require('./API_Functions/pipelines.js');
 const jobs = require('./API_Functions/jobs.js');
+const projects = require('./API_Functions/projects.js');
 
 //zJLxDfYVS87Ar2NRp52K
 //18820410
@@ -24,26 +25,31 @@ const socket = new W3CWebSocket('ws://localhost:8080');
           auth_key: Config.auth_key,
           numPipelines: 5,
           currentDeployment: 0,
+          script: 'placeholder',
+          projectName: '',
+          allDeployments: [],
         }
       }
 
       componentDidMount() {   //on startup it checks to see if sessionStorage already has auth_key and/or project_id
           socket.onmessage = (data) => {
             var dataJSON = JSON.parse(data.data);
-            console.log(dataJSON);
             if (dataJSON.type === 'success') {
               if (dataJSON.projectId === parseInt(sessionStorage.getItem('project_id'))){
                 this.setState({ currentDeployment: dataJSON.pipelineId});
                 this.getPipelines();
+                this.getDeployments();
               }
             }
             else if (dataJSON.type === 'pending') {
               this.getPipelines();
+              this.getDeployments();
             }
           }
 
           if (sessionStorage.getItem('project_id') != null){
             this.getPipelines();
+            this.getDeployments();
           }
       }
       
@@ -52,11 +58,38 @@ const socket = new W3CWebSocket('ws://localhost:8080');
         this.timer = null;
       }
 
+      getDeployments = () => {      //populates the state array that holds all the current deployments in the database
+        const currDeployments = [];
+        axios.get('http://localhost:8080/database/getData').then((res) => {
+          for(let i = 0; i < res.data.data.length; i++){
+            const tempDeployment = {
+              projectName: res.data.data[i].projectName,
+              projectId: res.data.data[i].projectId,
+              pipelineId: res.data.data[i].pipelineId,
+            };
+            currDeployments.push(tempDeployment);
+          }
+          this.setState({allDeployments: currDeployments})
+        });
+        
+      }
+
       getPipelines = () => {
         pipes.getPipelinesForProject(sessionStorage.getItem('project_id'), this.state.auth_key)
             .then((res) => {
               if(typeof res != 'undefined'){
                 this.setState( {pipelines: res} )
+                axios.get('http://localhost:8080/database/getData').then((res) => {
+                  let currDep;
+                  let currScript;
+                  for (let i = 0; i < res.data.data.length; i++) {
+                    if (res.data.data[i].projectId == sessionStorage.getItem('project_id')){
+                      currDep = res.data.data[i].pipelineId;
+                      currScript = res.data.data[i].script;
+                    }
+                  }
+                  this.setState({ currentDeployment: currDep, script: currScript});
+                });
               } else{
                 alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token');
               }
@@ -72,33 +105,46 @@ const socket = new W3CWebSocket('ws://localhost:8080');
             axios.get('http://localhost:8080/database/getData').then((res) => {
               let inDatabase = false;
               let currDep;
+              let currScript;
+
               for (let i = 0; i < res.data.data.length; i++) {
                 if (res.data.data[i].projectId == value){
                   inDatabase = true;
                   currDep = res.data.data[i].pipelineId;
+                  currScript = res.data.data[i].script;
                 }
               }
               if (!inDatabase){
-                axios.post('http://localhost:8080/database/putData', {
-                  projectId: value,
-                  pipelineId: 0,
-                  script: 'placeholder',
-                });
+                //gets the project name of the current project
+                projects.getProjectName(sessionStorage.getItem('project_id'), this.state.auth_key, (err, data) => {
+                  sessionStorage.setItem('project_name', data);
+                  this.setState({projectName: data});
+                  axios.post('http://localhost:8080/database/putData', {
+                    projectId: value,
+                    pipelineId: 0,
+                    script: 'placeholder',
+                    projectName: data,
+                  })
+                  .then(() => this.getDeployments());
+                  
+                })
+
               } else {
-                this.setState({ currentDeployment: currDep});
+                projects.getProjectName(sessionStorage.getItem('project_id'), this.state.auth_key, (err, data) => {
+                  sessionStorage.setItem('project_name', data);
+                  this.setState({projectName: data});
+                })
+                this.setState({ currentDeployment: currDep, script: currScript});
               }
             });
           } else{
             alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token');
           }
-        });
+        })
       }
 
       handleScriptSubmit = (value) => {
         axios.post('http://localhost:8080/database/updateData', {projectId: sessionStorage.getItem('project_id'), update: {script: value}});
-      }
-      deployHandler = () => {
-
       }
 
       selectNumPipes = (e) => {  //handler for selecting number of pipelines to display
@@ -111,6 +157,9 @@ const socket = new W3CWebSocket('ws://localhost:8080');
           projectId: sessionStorage.getItem('project_id'),
         });
         this.setState({ currentDeployment: e.target.title });
+      }
+      refreshHandler = () => {
+        window.location.reload();
       }
 
       render () {
@@ -142,7 +191,7 @@ const socket = new W3CWebSocket('ws://localhost:8080');
                 sourceCommit: this.state.pipelines[i].user.username,
                 deploymentDate: this.state.pipelines[i].created_at,
                 successStatus: this.state.pipelines[i].status,
-                downloadButton: <button title ={this.state.pipelines[i].id} onClick = {this.downloadHandler}>Download</button>,
+                downloadButton: <button title ={this.state.pipelines[i].id} onClick = {this.downloadHandler}>Deploy</button>,
               };     
               parsedPipelines.push(tempPipeline);   //add to pipelines array       
             }
@@ -175,11 +224,11 @@ const socket = new W3CWebSocket('ws://localhost:8080');
               <div style={{height: '2000px', position: 'relative', marginLeft: '85px', marginRight: '85px'}}>
                 <div className = 'labels'>
                   <div>
-                    <Card shadow={3} style={{width: '420px', height: '550px', margin: 'auto', marginTop: '8%'}}>
+                    <Card shadow={3} style={{width: '420px', height: '600px', margin: 'auto', marginTop: '8%'}}>
                     <CardTitle expand style={{color: '#fff', background: 'url(http://www.getmdl.io/assets/demos/dog.png) bottom right 15% no-repeat #46B6AC'}}>Project Configurations</CardTitle>
                       <CardActions border>
                         <Form submitHandler={this.handleProjectSubmit} formTitle={'Project ID:'}/>
-                        <Script submitHandler={this.handleScriptSubmit} formTitle={'Deployment Script:'} height = {200} width = {300}/>
+                        <Script submitHandler={this.handleScriptSubmit} formTitle={'Current Deployment Script For '+sessionStorage.getItem('project_name')+':'} height = {200} width = {300} script = {this.state.script}/>
                         <CardText>Select the number of pipelines to display (default 5)</CardText>
                         {radioGroup}
                       </CardActions>
@@ -187,8 +236,9 @@ const socket = new W3CWebSocket('ws://localhost:8080');
                   </div>         
                 </div>
                 <div className = 'labels'>
+                  
                   <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
-                    <h2>Pipeline Status</h2>
+                    <h2>Pipeline Status For {sessionStorage.getItem('project_name')}</h2>
                   </div>
                   <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
                     <DataTable
@@ -198,18 +248,27 @@ const socket = new W3CWebSocket('ws://localhost:8080');
                       <TableHeader name="sourceCommit" tooltip="Name of account that ran the pipeline">Source Commit</TableHeader>
                       <TableHeader name="deploymentDate" tooltip="Date pipeline was created">Date of Deployment</TableHeader>
                       <TableHeader name="successStatus" tooltip="Success/Failure">Status</TableHeader>
-                      <TableHeader name="downloadButton" tooltip="Click to download artifacts">Download Artifact</TableHeader>
+                      <TableHeader name="downloadButton" tooltip="Click to download artifacts and deploy">Deploy</TableHeader>
                     </DataTable>
                   </div>
                   <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
-                    <h2>Most Recent Deployment</h2>
+                    <h2>Current Deployment Info</h2>
+                  </div>
+                  <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center', marginBottom: '15px'}}>
+                    <button onClick = {this.refreshHandler}>Refresh</button>
                   </div>
                   <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
                     <DataTable
                           shadow={0}
-                          rows = {[{pipeline: this.state.currentDeployment, deploy: <button title ="joemama" onClick = {this.deployHandler}>Deploy</button>}]}/*{parsedDeployments}*/>
-                          <TableHeader name="pipeline" tooltip="Pipeline ID">Pipeline ID</TableHeader>
-                          <TableHeader name="deploy" tooltip="click to deploy">Deploy</TableHeader>
+                          rows = {[{pipeline: this.state.currentDeployment}]}/*{parsedDeployments}*/>
+                          <TableHeader name="pipeline" tooltip="Pipeline ID">Current Deployment for This Project</TableHeader>
+                    </DataTable>
+                    <DataTable
+                          shadow={0}
+                          rows = {this.state.allDeployments}>
+                          <TableHeader name="projectName" tooltip="Project Name">Project Name</TableHeader>
+                          <TableHeader name="projectId" tooltip="Project ID">Project ID</TableHeader>
+                          <TableHeader name="pipelineId" tooltip="Pipeline ID">Pipeline ID</TableHeader>
                     </DataTable>
                   </div>
                 </div>
