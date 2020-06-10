@@ -4,6 +4,8 @@ const config = require('../../src/lib/config.json');
 const jobs = require('../../src/API_Functions/jobs.js');
 const axios = require('axios');
 const { sendPipelineUpdate } = require('../bin/sockets')
+const fs = require('fs');
+const Data = require('../data');
 
 var router = express.Router();
 
@@ -28,15 +30,25 @@ router.post('/', function(req, res, next) {
         let lastJobId = jobData[jobData.length-1].id;
         jobs.getArtifactPath(lastJobId, projectId, key)
         .then((query) => {
-          spawn('sh', ['zip.sh', projectId, query], {cwd: './downloadScripts'});
+          spawn('sh', ['download.sh', projectId, query], {cwd: './downloadScripts'});
           sendPipelineUpdate({
+            type: 'success',
             projectId: projectId,
-            pipelineId: pipelineId
+            pipelineId: pipelineId,
+          });
+          Data.findOne({ projectId: projectId }, function(err, adventure) {
+            fs.writeFileSync('../../Artifact-Downloads/runner.sh', adventure.script);
+            spawn('sh', ['runner.sh'], {cwd: process.env.DEPLOYMENT_SERVER});
           });
           res.status(200).end();
         });
       }
     }));
+  }
+  else {
+    sendPipelineUpdate({
+      type: 'pending',
+    });
   }
 });
 

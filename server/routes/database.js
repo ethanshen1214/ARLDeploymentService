@@ -24,6 +24,7 @@ router.get('/getData', (req, res) => {
   // this method overwrites existing data in our database
 router.post('/updateData', (req, res) => {
     const { projectId, update } = req.body;
+    console.log(update);
     Data.findOneAndUpdate( {projectId: projectId}, update, (err) => {
       if (err) return res.json({ success: false, error: err });
       return res.json({ success: true });
@@ -44,10 +45,7 @@ router.delete('/deleteData', (req, res) => {
   // this method adds new data in our database
 router.post('/putData', (req, res) => {
     let data = new Data();
-    const { projectId, pipelineId, script } = req.body;
-    // let projectId = req.body.projectId;
-    // let pipelineId = req.body.pipelineId;
-    // let script = req.body.script;
+    const { projectId, pipelineId, script, projectName } = req.body;
 
     if ((!projectId && projectId !== 0) || !script) {
       return res.json({
@@ -58,6 +56,7 @@ router.post('/putData', (req, res) => {
     data.script = script;
     data.projectId = projectId;
     data.pipelineId = pipelineId;
+    data.projectName = projectName;
     data.save((err) => {
       if (err) return res.json({ success: false, error: err });
       return res.json({ success: true });
