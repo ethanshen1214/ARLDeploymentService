@@ -88,7 +88,7 @@ class App extends Component {
       sessionStorage.setItem('project_id', value);
 
       const result = await pipes.getPipelinesForProject(sessionStorage.getItem('project_id'), this.state.auth_key);
-      if (result !== 'undefined') {
+      if (typeof result != 'undefined') {
         var currName;
         projects.getProjectName(sessionStorage.getItem('project_id'), this.state.auth_key, async (err, data) => {
           sessionStorage.setItem('project_name', data);
