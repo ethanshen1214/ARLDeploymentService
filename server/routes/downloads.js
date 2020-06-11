@@ -36,7 +36,7 @@ router.post('/', function(req, res, next) {
       
       jobs.getArtifactPath(lastJobId, projectId, key)
       .then((query) => {
-        spawn('sh', ['download.sh', projectId, query], {cwd: './downloadScripts'});
+        spawn('sh', ['download.sh', projectId, query], {cwd: './server/downloadScripts'});
         Data.findOne({ projectId: projectId }, function(err, adventure) {
           fs.writeFileSync(process.env.DEPLOYMENT_SERVER + '/runner.sh', adventure.script);
           spawn('sh', ['runner.sh'], {cwd: process.env.DEPLOYMENT_SERVER});
