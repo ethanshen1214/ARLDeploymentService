@@ -44,23 +44,20 @@ router.delete('/deleteData', (req, res) => {
   // this is our create methid
   // this method adds new data in our database
 router.post('/putData', (req, res) => {
-    let data = new Data();
-    const { projectId, pipelineId, script, projectName } = req.body;
-
-    if ((!projectId && projectId !== 0) || !script) {
-      return res.json({
-        success: false,
-        error: 'INVALID INPUTS',
-      });
-    }
-    data.script = script;
-    data.projectId = projectId;
-    data.pipelineId = pipelineId;
-    data.projectName = projectName;
-    data.save((err) => {
-      if (err) return res.json({ success: false, error: err });
+  let data = new Data();
+  const { projectId, pipelineId, script, projectName } = req.body;
+  Data.findOne( {projectId}, (err, project) => {
+    if (project === null) {
+      data.script = script;
+      data.projectId = projectId;
+      data.pipelineId = pipelineId;
+      data.projectName = projectName;
+      data.save();
       return res.json({ success: true });
-    });
+    } else {
+      return res.json({ success: false });
+    }
+  });
 });
 
 module.exports = router;
