@@ -53,6 +53,7 @@ router.post('/putData', (req, res) => {
       data.pipelineId = pipelineId;
       data.projectName = projectName;
       data.save();
+
       return res.json({ success: true });
     } else {
       return res.json({ success: false });
