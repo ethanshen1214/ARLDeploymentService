@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React from 'react';
 import PropTypes from "prop-types";
 
 export default class Form extends React.Component {
@@ -20,6 +20,7 @@ export default class Form extends React.Component {
     handleSubmit = (e) => {
         e.preventDefault();
         this.props.submitHandler(this.state.value);
+        this.setState({ value: '' });
     }
   
     render() {

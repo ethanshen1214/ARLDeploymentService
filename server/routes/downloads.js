@@ -21,8 +21,9 @@ router.post('/', function(req, res, next) {
   let pipelineId = req.body.pipelineId;
   let key = config.auth_key;
 
-  axios.post('http://localhost:8080/database/updateData', {projectId: projectId, update: {pipelineId: pipelineId}})
-  .then(jobs.getJobsByPipeline(projectId, pipelineId, key, (err, jobData) => {
+  
+  jobs.getJobsByPipeline(projectId, pipelineId, key, (err, jobData) => {
+    console.log('Here')
     if (err) {
       console.error(err);
       res.status(500).end();
@@ -60,7 +61,7 @@ router.post('/', function(req, res, next) {
         res.status(200).end();
       });
     }
-  }));
+  });
 });
 
 exports.router = router;
