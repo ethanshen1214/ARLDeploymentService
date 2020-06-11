@@ -61,6 +61,7 @@ class App extends Component {
         projectName: response.data.data[i].projectName,
         projectId: response.data.data[i].projectId,
         pipelineId: response.data.data[i].pipelineId,
+        selectProjectButton: <button title ={response.data.data[i].projectId} onClick = {this.selectProjectHandler}>Load</button>,
       };
       currDeployments.push(tempDeployment);
     }
@@ -128,6 +129,14 @@ class App extends Component {
       pipelineId: e.target.title,
       projectId: sessionStorage.getItem('project_id'),
     });
+  }
+
+  selectProjectHandler = (e) => {
+    sessionStorage.setItem('project_id', e.target.title);
+    projects.getProjectName(sessionStorage.getItem('project_id'), this.state.auth_key, async (err, data) => {
+      sessionStorage.setItem('project_name', data)
+      this.loadData();
+    })
   }
 
   render () {
@@ -237,6 +246,7 @@ class App extends Component {
                     <TableHeader name="projectName" tooltip="Project Name">Project Name</TableHeader>
                     <TableHeader name="projectId" tooltip="Project ID">Project ID</TableHeader>
                     <TableHeader name="pipelineId" tooltip="Pipeline ID">Pipeline ID</TableHeader>
+                    <TableHeader name="selectProjectButton" tooltip="Click to change the working project">Load Project</TableHeader>
               </DataTable>
             </div>
           </div>
