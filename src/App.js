@@ -61,6 +61,7 @@ class App extends Component {
         projectName: response.data.data[i].projectName,
         projectId: response.data.data[i].projectId,
         pipelineId: response.data.data[i].pipelineId,
+        selectProjectButton: <button title ={response.data.data[i].projectId} onClick = {this.selectProjectHandler}>Load</button>,
       };
       currDeployments.push(tempDeployment);
     }
@@ -130,6 +131,14 @@ class App extends Component {
     });
   }
 
+  selectProjectHandler = (e) => {
+    sessionStorage.setItem('project_id', e.target.title);
+    projects.getProjectName(sessionStorage.getItem('project_id'), this.state.auth_key, async (err, data) => {
+      sessionStorage.setItem('project_name', data)
+      this.loadData();
+    })
+  }
+
   render () {
     const parsedPipelines = [];
 
@@ -142,10 +151,11 @@ class App extends Component {
     {
       if(this.state.pipelines[i].status !== 'success')
       {
+        let date = new Date(this.state.pipelines[i].created_at);
         const tempPipeline = {
           sourceProject: this.state.pipelines[i].web_url,
           sourceCommit: this.state.pipelines[i].user.username,
-          deploymentDate: this.state.pipelines[i].created_at,
+          deploymentDate: date.toString(),
           successStatus: this.state.pipelines[i].status,
           downloadButton: <Spinner/>
         };
@@ -153,10 +163,11 @@ class App extends Component {
       }
       else
       {
-          const tempPipeline = {
+        let date = new Date(this.state.pipelines[i].created_at);
+        const tempPipeline = {
           sourceProject: this.state.pipelines[i].web_url,
           sourceCommit: this.state.pipelines[i].user.username,
-          deploymentDate: this.state.pipelines[i].created_at,
+          deploymentDate: date.toString(),
           successStatus: this.state.pipelines[i].status,
           downloadButton: <button title ={this.state.pipelines[i].id} onClick = {this.downloadHandler}>Deploy</button>,
         };     
@@ -188,7 +199,7 @@ class App extends Component {
     }
 
     return(
-        <div style={{height: '2000px', position: 'relative', marginLeft: '85px', marginRight: '85px'}}>
+        <div style={{height: '1800px', position: 'relative', marginLeft: '85px', marginRight: '85px'}}>
           <div className = 'labels'>
             <div>
               <Card shadow={3} style={{width: '420px', height: '600px', margin: 'auto', marginTop: '8%'}}>
@@ -200,7 +211,7 @@ class App extends Component {
                   {radioGroup}
                 </CardActions>
               </Card>
-            </div>         
+            </div>
           </div>
           <div className = 'labels'>
             
@@ -224,15 +235,18 @@ class App extends Component {
             <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
               <DataTable
                     shadow={0}
-                    rows = {[{pipeline: this.state.currentDeployment}]}/*{parsedDeployments}*/>
+                    rows = {[{pipeline: this.state.currentDeployment}]}
+                    style = {{marginRight: '30px'}}>
                     <TableHeader name="pipeline" tooltip="Pipeline ID">Current Deployment for This Project</TableHeader>
               </DataTable>
               <DataTable
                     shadow={0}
-                    rows = {this.state.allDeployments}>
+                    rows = {this.state.allDeployments}
+                    style = {{marginLeft: '30px'}}>
                     <TableHeader name="projectName" tooltip="Project Name">Project Name</TableHeader>
                     <TableHeader name="projectId" tooltip="Project ID">Project ID</TableHeader>
                     <TableHeader name="pipelineId" tooltip="Pipeline ID">Pipeline ID</TableHeader>
+                    <TableHeader name="selectProjectButton" tooltip="Click to change the working project">Load Project</TableHeader>
               </DataTable>
             </div>
           </div>

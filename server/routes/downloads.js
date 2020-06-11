@@ -8,7 +8,6 @@ const Data = require('../data');
 
 var router = express.Router();
 
-const deployed = [];
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -34,22 +33,6 @@ router.post('/', function(req, res, next) {
         project: projectId,
         pipeline: pipelineId,
       }
-      if(deployed.length == 0){
-        deployed.push(tempJob);
-      }
-      else{
-        let alreadyInTheArray = false;
-        for(let i = 0; i < deployed.length; i++)
-        {
-          if((deployed[i].project === tempJob.project)){
-            deployed[i] = tempJob;
-            alreadyInTheArray = true;
-          }
-        }
-        if(!alreadyInTheArray){
-          deployed.push(tempJob);
-        }
-      }
       
       jobs.getArtifactPath(lastJobId, projectId, key)
       .then((query) => {
@@ -65,4 +48,3 @@ router.post('/', function(req, res, next) {
 });
 
 exports.router = router;
-exports.deployed = {deployed};
