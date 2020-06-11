@@ -12,5 +12,7 @@ const DataSchema = new Schema(
   { timestamps: true }
 );
 
+DataSchema.index({"projectId": 1}, {unique: true});
+
 // export the new Schema so we could modify it using Node.js
 module.exports = mongoose.model("Data", DataSchema);
