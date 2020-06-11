@@ -130,10 +130,6 @@ class App extends Component {
     });
   }
 
-  refreshHandler = () => {
-    window.location.reload();
-  }
-
   render () {
     const parsedPipelines = [];
 
@@ -224,9 +220,6 @@ class App extends Component {
             </div>
             <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
               <h2>Current Deployment Info</h2>
-            </div>
-            <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center', marginBottom: '15px'}}>
-              <button onClick = {this.refreshHandler}>Refresh</button>
             </div>
             <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
               <DataTable
