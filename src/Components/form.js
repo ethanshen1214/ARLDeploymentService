@@ -20,6 +20,7 @@ export default class Form extends React.Component {
     handleSubmit = (e) => {
         e.preventDefault();
         this.props.submitHandler(this.state.value);
+        this.setState({ value: '' });
     }
   
     render() {

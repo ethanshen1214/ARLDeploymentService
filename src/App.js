@@ -51,6 +51,7 @@ class App extends Component {
   }
 
   loadData = async () => {
+    console.log('\n---------------------- loadData ---------------------- ');
     const response = await axios.get('http://localhost:8080/database/getData');
     const result = await pipes.getPipelinesForProject(sessionStorage.getItem('project_id'), this.state.auth_key);
 
@@ -119,11 +120,14 @@ class App extends Component {
   }
 
   downloadHandler = (e) => {
+    axios.post('http://localhost:8080/database/updateData', {projectId: sessionStorage.getItem('project_id'), update: {pipelineId: e.target.title}})
+    .then(() => {
+      this.loadData();
+    });
     axios.post('http://localhost:8080/downloads', {
       pipelineId: e.target.title,
       projectId: sessionStorage.getItem('project_id'),
     });
-    this.setState({ currentDeployment: e.target.title });
   }
 
   refreshHandler = () => {
