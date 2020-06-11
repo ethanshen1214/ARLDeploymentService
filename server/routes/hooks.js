@@ -1,7 +1,7 @@
 const express = require('express');
 const { spawn } = require('child_process');
-const config = require('../../src/lib/config.json');
-const jobs = require('../../src/API_Functions/jobs.js');
+const config = require('../../ui/src/lib/config.json');
+const jobs = require('../../ui/src/API_Functions/jobs.js');
 const axios = require('axios');
 const { sendPipelineUpdate } = require('../bin/sockets')
 const fs = require('fs');
@@ -30,7 +30,7 @@ router.post('/', function(req, res, next) {
         let lastJobId = jobData[jobData.length-1].id;
         jobs.getArtifactPath(lastJobId, projectId, key)
         .then((query) => {
-          spawn('sh', ['download.sh', projectId, query], {cwd: './server/downloadScripts'});
+          spawn('sh', ['download.sh', projectId, query], {cwd: './downloadScripts'});
           sendPipelineUpdate({
             type: 'success',
             projectId: projectId,

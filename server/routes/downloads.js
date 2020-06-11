@@ -1,7 +1,7 @@
 const express = require('express');
 const { spawn } = require('child_process');
-const config = require('../../src/lib/config.json');
-const jobs = require('../../src/API_Functions/jobs.js');
+const config = require('../../ui/src/lib/config.json');
+const jobs = require('../../ui/src/API_Functions/jobs.js');
 const axios = require('axios');
 const fs = require('fs');
 const Data = require('../data');
@@ -36,7 +36,7 @@ router.post('/', function(req, res, next) {
       
       jobs.getArtifactPath(lastJobId, projectId, key)
       .then((query) => {
-        spawn('sh', ['download.sh', projectId, query], {cwd: './server/downloadScripts'});
+        spawn('sh', ['download.sh', projectId, query], {cwd: './downloadScripts'});
         Data.findOne({ projectId: projectId }, function(err, adventure) {
           fs.writeFileSync(process.env.DEPLOYMENT_SERVER + '/runner.sh', adventure.script);
           spawn('sh', ['runner.sh'], {cwd: process.env.DEPLOYMENT_SERVER});
