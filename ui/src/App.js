@@ -50,12 +50,15 @@ class App extends Component {
 
   loadData = async () => {
     const projectsResponse = await projects.getProjects(this.state.auth_key);
+    const response = await axios.get(`${apiEndpointUrl}/database/getData`);
+    const responseArray = Array.from(response.data.data);
+    const mappedPipelines = new Map(responseArray.map(obj => [obj.projectId, obj.pipelineId]));
+
     const currProjects = [];
     for(let i = 0; i< projectsResponse.length; i++){
-      const response = await axios.post(`${apiEndpointUrl}/database/getOne`, {projectId: projectsResponse[i].id});
+      const mappedPipeline = mappedPipelines[projectsResponse[i].id];
       if(projectsResponse[i].id == sessionStorage.getItem('project_id')){
         if(response.data.data !== null && response.data.data.pipelineId !== 0){
-          console.log(response.data.data)
           const tempProject = {
             name: projectsResponse[i].name,
             id: projectsResponse[i].id,
@@ -76,7 +79,6 @@ class App extends Component {
       }
       else{
         if(response.data.data !== null && response.data.data.pipelineId !== 0){
-          console.log(response.data.data)
           const tempProject = {
             name: projectsResponse[i].name,
             id: projectsResponse[i].id,
@@ -97,9 +99,7 @@ class App extends Component {
       }
 
     }
-    console.log(currProjects);
     console.log('\n---------------------- loadData ---------------------- ');
-    const response = await axios.get(`${apiEndpointUrl}/database/getData`);
     const result = await pipes.getPipelinesForProject(sessionStorage.getItem('project_id'), this.state.auth_key);
     
     let currDep;
