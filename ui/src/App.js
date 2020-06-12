@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import './App.css';
-import { DataTable, TableHeader, Card, CardTitle, CardText, CardActions, RadioGroup, Radio, Spinner } from 'react-mdl';
+import { DataTable, TableHeader, Card, CardTitle, CardText, CardActions, RadioGroup, Radio, Spinner, Chip } from 'react-mdl';
 import Form from './Components/form';
 import Script from './Components/scriptInput';
 import axios from 'axios';
@@ -38,7 +38,7 @@ class App extends Component {
         var dataJSON = JSON.parse(data.data);
         if (dataJSON.type === 'success') {
           if (dataJSON.projectId === parseInt(sessionStorage.getItem('project_id'))){
-            this.setState({ currentDeployment: dataJSON.pipelineId});
+            this.setState({ currentDeployment: dataJSON.pipelineId });
             this.loadData();
           }
         }
@@ -53,6 +53,8 @@ class App extends Component {
   }
 
   loadData = async () => {
+    const deeznuts = await projects.getProjects(this.state.auth_key);
+    console.log(deeznuts);
     console.log('\n---------------------- loadData ---------------------- ');
     const response = await axios.get(`${apiEndpointUrl}/database/getData`);
     const result = await pipes.getPipelinesForProject(sessionStorage.getItem('project_id'), this.state.auth_key);
@@ -165,15 +167,31 @@ class App extends Component {
       }
       else
       {
-        let date = new Date(this.state.pipelines[i].created_at);
-        const tempPipeline = {
-          sourceProject: this.state.pipelines[i].web_url,
-          sourceCommit: this.state.pipelines[i].user.username,
-          deploymentDate: date.toString(),
-          successStatus: this.state.pipelines[i].status,
-          downloadButton: <button title ={this.state.pipelines[i].id} onClick = {this.downloadHandler}>Deploy</button>,
-        };     
-        parsedPipelines.push(tempPipeline);   //add to pipelines array       
+        if(this.state.currentDeployment === this.state.pipelines[i].id)
+        {
+          let date = new Date(this.state.pipelines[i].created_at);
+          const tempPipeline = {
+            sourceProject: this.state.pipelines[i].web_url,
+            sourceCommit: this.state.pipelines[i].user.username,
+            deploymentDate: date.toString(),
+            successStatus: this.state.pipelines[i].status,
+            downloadButton: <Chip style={{background: '#16d719'}}>Deployed</Chip>
+          };     
+          parsedPipelines.push(tempPipeline);   //add to pipelines array
+        }
+        else
+        {
+          let date = new Date(this.state.pipelines[i].created_at);
+          const tempPipeline = {
+            sourceProject: this.state.pipelines[i].web_url,
+            sourceCommit: this.state.pipelines[i].user.username,
+            deploymentDate: date.toString(),
+            successStatus: this.state.pipelines[i].status,
+            downloadButton: <button title ={this.state.pipelines[i].id} onClick = {this.downloadHandler}>Deploy</button>,
+          };     
+          parsedPipelines.push(tempPipeline);   //add to pipelines array            
+        }
+     
       }
     }
 
@@ -213,6 +231,7 @@ class App extends Component {
                   {radioGroup}
                 </CardActions>
               </Card>
+              
             </div>
           </div>
           <div className = 'labels'>
@@ -237,14 +256,7 @@ class App extends Component {
             <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
               <DataTable
                     shadow={0}
-                    rows = {[{pipeline: this.state.currentDeployment}]}
-                    style = {{marginRight: '30px'}}>
-                    <TableHeader name="pipeline" tooltip="Pipeline ID">Current Deployment for This Project</TableHeader>
-              </DataTable>
-              <DataTable
-                    shadow={0}
-                    rows = {this.state.allDeployments}
-                    style = {{marginLeft: '30px'}}>
+                    rows = {this.state.allDeployments}>
                     <TableHeader name="projectName" tooltip="Project Name">Project Name</TableHeader>
                     <TableHeader name="projectId" tooltip="Project ID">Project ID</TableHeader>
                     <TableHeader name="pipelineId" tooltip="Pipeline ID">Pipeline ID</TableHeader>

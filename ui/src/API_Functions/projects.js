@@ -19,4 +19,4 @@ exports.getProjectName = (projectId, key, callback) => {
         callback(null, name);
       });
     });
-  };
+};
