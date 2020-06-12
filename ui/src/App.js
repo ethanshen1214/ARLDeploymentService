@@ -56,13 +56,13 @@ class App extends Component {
 
     const currProjects = [];
     for(let i = 0; i< projectsResponse.length; i++){
-      const mappedPipeline = mappedPipelines[projectsResponse[i].id];
+      const mappedPipeline = mappedPipelines.get(projectsResponse[i].id);
       if(projectsResponse[i].id == sessionStorage.getItem('project_id')){
-        if(response.data.data !== null && response.data.data.pipelineId !== 0){
+        if(typeof mappedPipeline !== 'undefined' && mappedPipeline !== 0){
           const tempProject = {
             name: projectsResponse[i].name,
             id: projectsResponse[i].id,
-            pipelineId: response.data.data.pipelineId,
+            pipelineId: mappedPipeline,
             selectProjectButton: <Chip style={{background: '#16d719', height: '20px'}}></Chip>
           }
           currProjects.push(tempProject);        
@@ -78,11 +78,11 @@ class App extends Component {
         }     
       }
       else{
-        if(response.data.data !== null && response.data.data.pipelineId !== 0){
+        if(typeof mappedPipeline !== 'undefined' && mappedPipeline !== 0){
           const tempProject = {
             name: projectsResponse[i].name,
             id: projectsResponse[i].id,
-            pipelineId: response.data.data.pipelineId,
+            pipelineId: mappedPipeline,
             selectProjectButton: <button title={projectsResponse[i].id} onClick = {this.selectProjectHandler}>Load</button>
           }
           currProjects.push(tempProject);        

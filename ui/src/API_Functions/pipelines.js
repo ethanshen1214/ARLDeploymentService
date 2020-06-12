@@ -44,6 +44,7 @@ exports.getPipelinesForProject = (projectId, token) => {
     const path = `${apiUrl}/projects/${projectId}/pipelines`;
     const options = {
         private_token: token,
+        defaultHistoryLength: 10,
     };
     const url = `${path}?${querystring.stringify(options)}`;
     return request(url)
