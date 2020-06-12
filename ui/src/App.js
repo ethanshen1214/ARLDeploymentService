@@ -45,10 +45,7 @@ class App extends Component {
           this.loadData();
         }
       }
-
-      if (sessionStorage.getItem('project_id') != null){
-        this.loadData();
-      }
+      this.loadData();
   }
 
   loadData = async () => {
@@ -56,25 +53,49 @@ class App extends Component {
     const currProjects = [];
     for(let i = 0; i< projectsResponse.length; i++){
       const response = await axios.post(`${apiEndpointUrl}/database/getOne`, {projectId: projectsResponse[i].id});
-      if(response.data.data !== null && response.data.data.pipelineId !== 0){
-        console.log(response.data.data)
-        const tempProject = {
-          name: projectsResponse[i].name,
-          id: projectsResponse[i].id,
-          pipelineId: response.data.data.pipelineId,
-          selectProjectButton: <button title={projectsResponse[i].id} onClick = {this.selectProjectHandler}>Load</button>
+      if(projectsResponse[i].id == sessionStorage.getItem('project_id')){
+        if(response.data.data !== null && response.data.data.pipelineId !== 0){
+          console.log(response.data.data)
+          const tempProject = {
+            name: projectsResponse[i].name,
+            id: projectsResponse[i].id,
+            pipelineId: response.data.data.pipelineId,
+            selectProjectButton: <Chip style={{background: '#16d719', height: '20px'}}></Chip>
+          }
+          currProjects.push(tempProject);        
         }
-        currProjects.push(tempProject);        
+        else{
+          const tempProject = {
+            name: projectsResponse[i].name,
+            id: projectsResponse[i].id,
+            pipelineId: 'no deployment',
+            selectProjectButton: <Chip style={{background: '#16d719', height: '20px'}}></Chip>
+          }
+          currProjects.push(tempProject);  
+        }     
       }
       else{
-        const tempProject = {
-          name: projectsResponse[i].name,
-          id: projectsResponse[i].id,
-          pipelineId: 'no deployment',
-          selectProjectButton: <button title={projectsResponse[i].id} onClick = {this.selectProjectHandler}>Load</button>
+        if(response.data.data !== null && response.data.data.pipelineId !== 0){
+          console.log(response.data.data)
+          const tempProject = {
+            name: projectsResponse[i].name,
+            id: projectsResponse[i].id,
+            pipelineId: response.data.data.pipelineId,
+            selectProjectButton: <button title={projectsResponse[i].id} onClick = {this.selectProjectHandler}>Load</button>
+          }
+          currProjects.push(tempProject);        
         }
-        currProjects.push(tempProject);  
+        else{
+          const tempProject = {
+            name: projectsResponse[i].name,
+            id: projectsResponse[i].id,
+            pipelineId: 'no deployment',
+            selectProjectButton: <button title={projectsResponse[i].id} onClick = {this.selectProjectHandler}>Load</button>
+          }
+          currProjects.push(tempProject);  
+        }        
       }
+
     }
     console.log(currProjects);
     console.log('\n---------------------- loadData ---------------------- ');
@@ -95,7 +116,7 @@ class App extends Component {
       this.setState({ pipelines: result, currentDeployment: currDep, script: currScript, projectName: currName, allProjects: currProjects} );
     } else{
       this.setState({ allProjects: currProjects });
-      alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token');
+      //alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token');
     }
   }
   
@@ -243,8 +264,8 @@ class App extends Component {
                   </DataTable> 
                 </Cell>
                 <Cell col = {6}>
-                  <Card shadow={3} style={{width: '420px', height: '600px', margin: 'auto', marginTop: '3%'}}>
-                    <CardTitle expand style={{color: '#fff', background: 'url(http://www.getmdl.io/assets/demos/dog.png) bottom right 15% no-repeat #46B6AC'}}>Project Configurations</CardTitle>
+                  <Card shadow={3} style={{width: '420px', height: '430px', margin: 'auto', marginTop: '3%'}}>
+                    {/* <CardTitle expand style={{color: '#fff', background: 'url(http://www.getmdl.io/assets/demos/dog.png) bottom right 15% no-repeat #46B6AC'}}>Project Configurations</CardTitle> */}
                     <CardActions border>
                       <Script submitHandler={this.handleScriptSubmit} formTitle={'Current Deployment Script For '+sessionStorage.getItem('project_name')+':'} height = {200} width = {300} script = {this.state.script}/>
                       <CardText>Select the number of pipelines to display (default 5)</CardText>
