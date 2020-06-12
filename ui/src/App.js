@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import './App.css';
-import { DataTable, TableHeader, Card, CardTitle, CardText, CardActions, RadioGroup, Radio, Spinner, Chip } from 'react-mdl';
-import Form from './Components/form';
+import { DataTable, TableHeader, Card, CardTitle, CardText, CardActions, RadioGroup, Radio, Spinner, Chip, Grid, Cell } from 'react-mdl';
 import Script from './Components/scriptInput';
 import axios from 'axios';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
@@ -25,10 +24,10 @@ class App extends Component {
       pipelines: [],
       auth_key: process.env.REACT_APP_AUTH_KEY,
       numPipelines: 5,
-      currentDeployment: 0,
+      currentDeployment: 'no deployment',
       script: 'placeholder',
       projectName: '',
-      allDeployments: [],
+      allProjects: [],
     }
   }
 
@@ -53,22 +52,34 @@ class App extends Component {
   }
 
   loadData = async () => {
-    const deeznuts = await projects.getProjects(this.state.auth_key);
-    console.log(deeznuts);
+    const projectsResponse = await projects.getProjects(this.state.auth_key);
+    const currProjects = [];
+    for(let i = 0; i< projectsResponse.length; i++){
+      const response = await axios.post(`${apiEndpointUrl}/database/getOne`, {projectId: projectsResponse[i].id});
+      if(response.data.data !== null && response.data.data.pipelineId !== 0){
+        console.log(response.data.data)
+        const tempProject = {
+          name: projectsResponse[i].name,
+          id: projectsResponse[i].id,
+          pipelineId: response.data.data.pipelineId,
+          selectProjectButton: <button title={projectsResponse[i].id} onClick = {this.selectProjectHandler}>Load</button>
+        }
+        currProjects.push(tempProject);        
+      }
+      else{
+        const tempProject = {
+          name: projectsResponse[i].name,
+          id: projectsResponse[i].id,
+          pipelineId: 'no deployment',
+          selectProjectButton: <button title={projectsResponse[i].id} onClick = {this.selectProjectHandler}>Load</button>
+        }
+        currProjects.push(tempProject);  
+      }
+    }
+    console.log(currProjects);
     console.log('\n---------------------- loadData ---------------------- ');
     const response = await axios.get(`${apiEndpointUrl}/database/getData`);
     const result = await pipes.getPipelinesForProject(sessionStorage.getItem('project_id'), this.state.auth_key);
-
-    const currDeployments = [];
-    for(let i = 0; i < response.data.data.length; i++){
-      const tempDeployment = {
-        projectName: response.data.data[i].projectName,
-        projectId: response.data.data[i].projectId,
-        pipelineId: response.data.data[i].pipelineId,
-        selectProjectButton: <button title ={response.data.data[i].projectId} onClick = {this.selectProjectHandler}>Load</button>,
-      };
-      currDeployments.push(tempDeployment);
-    }
     
     let currDep;
     let currScript;
@@ -81,9 +92,9 @@ class App extends Component {
           currName = response.data.data[i].projectName;
         }
       }
-      this.setState({ pipelines: result, allDeployments: currDeployments, currentDeployment: currDep, script: currScript, projectName: currName} );
+      this.setState({ pipelines: result, currentDeployment: currDep, script: currScript, projectName: currName, allProjects: currProjects} );
     } else{
-      this.setState({ allDeployments: currDeployments });
+      this.setState({ allProjects: currProjects });
       alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token');
     }
   }
@@ -136,11 +147,7 @@ class App extends Component {
   }
 
   selectProjectHandler = (e) => {
-    sessionStorage.setItem('project_id', e.target.title);
-    projects.getProjectName(sessionStorage.getItem('project_id'), this.state.auth_key, async (err, data) => {
-      sessionStorage.setItem('project_name', data)
-      this.loadData();
-    })
+    this.handleProjectSubmit(e.target.title);
   }
 
   render () {
@@ -221,21 +228,34 @@ class App extends Component {
     return(
         <div style={{height: '1800px', position: 'relative', marginLeft: '85px', marginRight: '85px'}}>
           <div className = 'labels'>
+            <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}><h1>GitLab Deployment Util</h1></div>
             <div>
-              <Card shadow={3} style={{width: '420px', height: '600px', margin: 'auto', marginTop: '8%'}}>
-              <CardTitle expand style={{color: '#fff', background: 'url(http://www.getmdl.io/assets/demos/dog.png) bottom right 15% no-repeat #46B6AC'}}>Project Configurations</CardTitle>
-                <CardActions border>
-                  <Form submitHandler={this.handleProjectSubmit} formTitle={'Project ID:'}/>
-                  <Script submitHandler={this.handleScriptSubmit} formTitle={'Current Deployment Script For '+sessionStorage.getItem('project_name')+':'} height = {200} width = {300} script = {this.state.script}/>
-                  <CardText>Select the number of pipelines to display (default 5)</CardText>
-                  {radioGroup}
-                </CardActions>
-              </Card>
-              
+              <Grid>
+                <Cell col = {6}>
+                  <DataTable
+                        shadow={3}
+                        rows = {this.state.allProjects}
+                        style={{ margin: 'auto', marginTop: '3%'}}>
+                        <TableHeader name="name" tooltip="Project Name">Project Name</TableHeader>
+                        <TableHeader name="id" tooltip="Project ID">Project ID</TableHeader>
+                        <TableHeader name="pipelineId" tooltip="Currently deployed pipeline">Current Deployment</TableHeader>
+                        <TableHeader name="selectProjectButton" tooltip="Click to change the working project">Load Project</TableHeader>
+                  </DataTable> 
+                </Cell>
+                <Cell col = {6}>
+                  <Card shadow={3} style={{width: '420px', height: '600px', margin: 'auto', marginTop: '3%'}}>
+                    <CardTitle expand style={{color: '#fff', background: 'url(http://www.getmdl.io/assets/demos/dog.png) bottom right 15% no-repeat #46B6AC'}}>Project Configurations</CardTitle>
+                    <CardActions border>
+                      <Script submitHandler={this.handleScriptSubmit} formTitle={'Current Deployment Script For '+sessionStorage.getItem('project_name')+':'} height = {200} width = {300} script = {this.state.script}/>
+                      <CardText>Select the number of pipelines to display (default 5)</CardText>
+                      {radioGroup}
+                    </CardActions>
+                  </Card>
+                </Cell>
+              </Grid>
             </div>
           </div>
           <div className = 'labels'>
-            
             <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
               <h2>Pipeline Status For {sessionStorage.getItem('project_name')}</h2>
             </div>
@@ -248,19 +268,6 @@ class App extends Component {
                 <TableHeader name="deploymentDate" tooltip="Date pipeline was created">Date of Deployment</TableHeader>
                 <TableHeader name="successStatus" tooltip="Success/Failure">Status</TableHeader>
                 <TableHeader name="downloadButton" tooltip="Click to download artifacts and deploy">Deploy</TableHeader>
-              </DataTable>
-            </div>
-            <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
-              <h2>Current Deployment Info</h2>
-            </div>
-            <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
-              <DataTable
-                    shadow={0}
-                    rows = {this.state.allDeployments}>
-                    <TableHeader name="projectName" tooltip="Project Name">Project Name</TableHeader>
-                    <TableHeader name="projectId" tooltip="Project ID">Project ID</TableHeader>
-                    <TableHeader name="pipelineId" tooltip="Pipeline ID">Pipeline ID</TableHeader>
-                    <TableHeader name="selectProjectButton" tooltip="Click to change the working project">Load Project</TableHeader>
               </DataTable>
             </div>
           </div>

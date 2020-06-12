@@ -18,12 +18,18 @@ router.get('/getData', (req, res) => {
       return res.json({ success: true, data: data });
     });
 });
+router.post('/getOne', (req, res) => {
+  const { projectId } = req.body;
+  Data.findOne({projectId: projectId}, (err, data) => {
+    if(err) return res.json({ success: false, error: err });
+    return res.json({ success: true, data: data });
+  })
+});
   
   // this is our update method
   // this method overwrites existing data in our database
 router.post('/updateData', (req, res) => {
     const { projectId, update } = req.body;
-    console.log(update);
     Data.findOneAndUpdate( {projectId: projectId}, update, (err) => {
       if (err) return res.json({ success: false, error: err });
       return res.json({ success: true });
