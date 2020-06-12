@@ -1,6 +1,6 @@
+require('dotenv').config();
 const express = require('express');
 const { spawn } = require('child_process');
-const config = require('../../ui/src/lib/config.json');
 const jobs = require('../../ui/src/API_Functions/jobs.js');
 const axios = require('axios');
 const { sendPipelineUpdate } = require('../bin/sockets')
@@ -19,7 +19,7 @@ router.post('/', function(req, res, next) {
   if (req.body.builds[req.body.builds.length-1].finished_at !== null){
     let projectId = req.body.project.id;
     let pipelineId = req.body.object_attributes.id;
-    let key = config.auth_key;
+    let key = process.env.AUTH_KEY;
 
     axios.post('http://localhost:8080/database/updateData', {projectId: projectId, update: {pipelineId: pipelineId}})
     .then(jobs.getJobsByPipeline(projectId, pipelineId, key, (err, jobData) => {
@@ -49,6 +49,7 @@ router.post('/', function(req, res, next) {
     sendPipelineUpdate({
       type: 'pending',
     });
+    res.status(200).end();
   }
 });
 

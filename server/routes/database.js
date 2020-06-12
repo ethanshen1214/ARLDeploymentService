@@ -3,7 +3,7 @@ var mongoose = require('mongoose');
 var Data = require('../data');
 var router = express.Router();
 
-const dbRoute = 'mongodb+srv://joemama:joemama@cluster0-vh0zy.gcp.mongodb.net/test?retryWrites=true&w=majority';
+const dbRoute = process.env.DATABASE_URL;
 mongoose.connect(dbRoute, { useNewUrlParser: true });
 mongoose.set('useFindAndModify', false);
 let db = mongoose.connection;

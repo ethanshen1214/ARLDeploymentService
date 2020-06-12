@@ -1,8 +1,7 @@
+require('dotenv').config();
 const express = require('express');
 const { spawn } = require('child_process');
-const config = require('../../ui/src/lib/config.json');
 const jobs = require('../../ui/src/API_Functions/jobs.js');
-const axios = require('axios');
 const fs = require('fs');
 const Data = require('../data');
 
@@ -18,11 +17,10 @@ router.get('/', function(req, res, next) {
 router.post('/', function(req, res, next) {
   let projectId = req.body.projectId;
   let pipelineId = req.body.pipelineId;
-  let key = config.auth_key;
+  let key = process.env.AUTH_KEY;
 
   
   jobs.getJobsByPipeline(projectId, pipelineId, key, (err, jobData) => {
-    console.log('Here')
     if (err) {
       console.error(err);
       res.status(500).end();

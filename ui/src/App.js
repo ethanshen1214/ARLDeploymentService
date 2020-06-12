@@ -3,7 +3,6 @@ import './App.css';
 import { DataTable, TableHeader, Card, CardTitle, CardText, CardActions, RadioGroup, Radio, Spinner } from 'react-mdl';
 import Form from './Components/form';
 import Script from './Components/scriptInput';
-import Config from './lib/config.json';
 import axios from 'axios';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 const pipes = require('./API_Functions/pipelines.js');
@@ -13,7 +12,10 @@ const projects = require('./API_Functions/projects.js');
 //18820410
 //18876221
 
-const socket = new W3CWebSocket('ws://localhost:8080');
+const webSocketUrl = process.env.REACT_APP_WEBSOCKET_ENDPOINT_URL || 'ws://localhost:8080';
+const apiEndpointUrl = process.env.REACT_APP_API_ENDPOINT_URL || 'http://localhost:8080';
+
+const socket = new W3CWebSocket(webSocketUrl);
 
 class App extends Component {
 
@@ -21,7 +23,7 @@ class App extends Component {
     super(props);
     this.state = {
       pipelines: [],
-      auth_key: Config.auth_key,
+      auth_key: process.env.REACT_APP_AUTH_KEY,
       numPipelines: 5,
       currentDeployment: 0,
       script: 'placeholder',
@@ -52,7 +54,7 @@ class App extends Component {
 
   loadData = async () => {
     console.log('\n---------------------- loadData ---------------------- ');
-    const response = await axios.get('http://localhost:8080/database/getData');
+    const response = await axios.get(`${apiEndpointUrl}/database/getData`);
     const result = await pipes.getPipelinesForProject(sessionStorage.getItem('project_id'), this.state.auth_key);
 
     const currDeployments = [];
@@ -95,7 +97,7 @@ class App extends Component {
           sessionStorage.setItem('project_name', data);
           currName = data;
 
-          await axios.post('http://localhost:8080/database/putData', {
+          await axios.post(`${apiEndpointUrl}/database/putData`, {
             projectId: value,
             pipelineId: 0,
             script: 'placeholder',
@@ -113,7 +115,7 @@ class App extends Component {
   }
 
   handleScriptSubmit = (value) => {
-    axios.post('http://localhost:8080/database/updateData', {projectId: sessionStorage.getItem('project_id'), update: {script: value}});
+    axios.post(`${apiEndpointUrl}/database/updateData`, {projectId: sessionStorage.getItem('project_id'), update: {script: value}});
   }
 
   selectNumPipes = (e) => {  //handler for selecting number of pipelines to display
@@ -121,11 +123,11 @@ class App extends Component {
   }
 
   downloadHandler = (e) => {
-    axios.post('http://localhost:8080/database/updateData', {projectId: sessionStorage.getItem('project_id'), update: {pipelineId: e.target.title}})
+    axios.post(`${apiEndpointUrl}/database/updateData`, {projectId: sessionStorage.getItem('project_id'), update: {pipelineId: e.target.title}})
     .then(() => {
       this.loadData();
     });
-    axios.post('http://localhost:8080/downloads', {
+    axios.post(`${apiEndpointUrl}/downloads`, {
       pipelineId: e.target.title,
       projectId: sessionStorage.getItem('project_id'),
     });
