@@ -1,5 +1,4 @@
 var express = require('express');
-const config = require('../../src/lib/config.json');
 var mongoose = require('mongoose');
 var Data = require('../data');
 var router = express.Router();
