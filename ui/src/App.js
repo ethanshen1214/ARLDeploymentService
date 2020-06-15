@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import './App.css';
-import { DataTable, TableHeader, Card, CardTitle, CardText, CardActions, RadioGroup, Radio, Spinner, Chip, Grid, Cell } from 'react-mdl';
+import { DataTable, TableHeader, Card, CardText, CardActions, RadioGroup, Radio, Spinner, Chip, Grid, Cell } from 'react-mdl';
 import Script from './Components/scriptInput';
 import axios from 'axios';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
@@ -256,31 +256,34 @@ class App extends Component {
     }
 
     return(
-        <div style={{height: '1300px', position: 'relative', marginLeft: '85px', marginRight: '85px'}}>
+        <div style={{height: '1300px', width: '1000px', margin: 'auto'}}>
           <div className = 'labels'>
             <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}><h1>GitLab Deployment Util</h1></div>
             <div>
               <Grid>
                 <Cell col = {7} className = 'table'>
-                  <input
-                    type="text"
-                    placeholder="Search"
-                    value={this.state.searchTerm}
-                    onChange={this.handleProjectSearch} 
-                  />
-                  <DataTable
-                        shadow={0}
-                        rows = {this.state.searchResults}
-                        style={{ margin: 'auto', marginTop: '3%'}}>
-                        <TableHeader name="name" tooltip="Project Name">Project Name</TableHeader>
-                        <TableHeader name="id" tooltip="Project ID">Project ID</TableHeader>
-                        <TableHeader name="pipelineId" tooltip="Currently deployed pipeline">Current Deployment</TableHeader>
-                        <TableHeader name="selectProjectButton" tooltip="Click to change the working project">Load Project</TableHeader>
-                  </DataTable> 
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="Search"
+                      value={this.state.searchTerm}
+                      onChange={this.handleProjectSearch} 
+                      style = {{marginTop: '10px'}}
+                    />
+                    <DataTable
+                          shadow={0}
+                          rows = {this.state.searchResults}
+                          style = {{marginTop: '10px'}}>
+                          <TableHeader name="name" tooltip="Project Name">Project Name</TableHeader>
+                          <TableHeader name="id" tooltip="Project ID">Project ID</TableHeader>
+                          <TableHeader name="pipelineId" tooltip="Currently deployed pipeline">Current Deployment</TableHeader>
+                          <TableHeader name="selectProjectButton" tooltip="Click to change the working project">Load Project</TableHeader>
+                    </DataTable> 
+                  </div>
+                  
                 </Cell>
                 <Cell col = {5}>
                   <Card shadow={3} style={{width: '420px', height: '430px', margin: 'auto', marginTop: '3%'}}>
-                    {/* <CardTitle expand style={{color: '#fff', background: 'url(http://www.getmdl.io/assets/demos/dog.png) bottom right 15% no-repeat #46B6AC'}}>Project Configurations</CardTitle> */}
                     <CardActions border>
                       <Script submitHandler={this.handleScriptSubmit} formTitle={'Current Deployment Script For '+sessionStorage.getItem('project_name')+':'} height = {200} width = {300} script = {this.state.script}/>
                       <CardText>Select the number of pipelines to display (default 5)</CardText>
