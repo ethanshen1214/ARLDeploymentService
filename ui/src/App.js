@@ -15,6 +15,7 @@ const webSocketUrl = process.env.REACT_APP_WEBSOCKET_ENDPOINT_URL || 'ws://local
 const apiEndpointUrl = process.env.REACT_APP_API_ENDPOINT_URL || 'http://localhost:8080';
 
 const socket = new W3CWebSocket(webSocketUrl);
+let baseSearchState;
 
 class App extends Component {
 
@@ -27,11 +28,12 @@ class App extends Component {
       currentDeployment: 'no deployment',
       script: 'placeholder',
       projectName: '',
-      allProjects: [],
+      searchResults: [],
+      searchTerm: "",
     }
   }
 
-  componentDidMount() {   //on startup it checks to see if sessionStorage already has auth_key and/or project_id
+  async componentDidMount() {   //on startup it checks to see if sessionStorage already has auth_key and/or project_id
       // establishes websocket connection to the server
       socket.onmessage = (data) => {
         var dataJSON = JSON.parse(data.data);
@@ -49,20 +51,20 @@ class App extends Component {
   }
 
   loadData = async () => {
-    const projectsResponse = await projects.getProjects(this.state.auth_key); // get an array of all the projects associated with a user
+    const gitLabProjects = await projects.getProjects(this.state.auth_key); // get an array of all the projects associated with a user
     const response = await axios.get(`${apiEndpointUrl}/database/getData`); // get the data already logged in the database
     const responseArray = Array.from(response.data.data);
     const mappedPipelines = new Map(responseArray.map(obj => [obj.projectId, obj.pipelineId])); // create map for projectId to currently deployed pipelineId for faster matching
 
     // create list of possibly deployable projects to display to user
     const currProjects = [];
-    for(let i = 0; i< projectsResponse.length; i++){
-      const mappedPipeline = mappedPipelines.get(projectsResponse[i].id);
-      if(projectsResponse[i].id == sessionStorage.getItem('project_id')){
+    for(let i = 0; i< gitLabProjects.length; i++){
+      const mappedPipeline = mappedPipelines.get(gitLabProjects[i].id);
+      if(gitLabProjects[i].id == sessionStorage.getItem('project_id')){
         if(typeof mappedPipeline !== 'undefined' && mappedPipeline !== 0){
           const tempProject = {
-            name: projectsResponse[i].name,
-            id: projectsResponse[i].id,
+            name: gitLabProjects[i].name,
+            id: gitLabProjects[i].id,
             pipelineId: mappedPipeline,
             selectProjectButton: <Chip style={{background: '#16d719', height: '20px'}}></Chip>
           }
@@ -70,8 +72,8 @@ class App extends Component {
         }
         else{
           const tempProject = {
-            name: projectsResponse[i].name,
-            id: projectsResponse[i].id,
+            name: gitLabProjects[i].name,
+            id: gitLabProjects[i].id,
             pipelineId: 'no deployment',
             selectProjectButton: <Chip style={{background: '#16d719', height: '20px'}}></Chip>
           }
@@ -81,25 +83,25 @@ class App extends Component {
       else{
         if(typeof mappedPipeline !== 'undefined' && mappedPipeline !== 0){
           const tempProject = {
-            name: projectsResponse[i].name,
-            id: projectsResponse[i].id,
+            name: gitLabProjects[i].name,
+            id: gitLabProjects[i].id,
             pipelineId: mappedPipeline,
-            selectProjectButton: <button title={projectsResponse[i].id} onClick = {this.selectProjectHandler}>Load</button>
+            selectProjectButton: <button title={gitLabProjects[i].id} onClick = {this.selectProjectHandler}>Load</button>
           }
           currProjects.push(tempProject);        
         }
         else{
           const tempProject = {
-            name: projectsResponse[i].name,
-            id: projectsResponse[i].id,
+            name: gitLabProjects[i].name,
+            id: gitLabProjects[i].id,
             pipelineId: 'no deployment',
-            selectProjectButton: <button title={projectsResponse[i].id} onClick = {this.selectProjectHandler}>Load</button>
+            selectProjectButton: <button title={gitLabProjects[i].id} onClick = {this.selectProjectHandler}>Load</button>
           }
           currProjects.push(tempProject);  
         }        
-      }
-
+      } 
     }
+    baseSearchState = currProjects;
 
     // create list of pipelines to display for a selected project
     const result = await pipes.getPipelinesForProject(sessionStorage.getItem('project_id'), this.state.auth_key);
@@ -114,9 +116,9 @@ class App extends Component {
           currName = response.data.data[i].projectName;
         }
       }
-      this.setState({ pipelines: result, currentDeployment: currDep, script: currScript, projectName: currName, allProjects: currProjects} );
+      this.setState({ pipelines: result, currentDeployment: currDep, script: currScript, projectName: currName, searchResults: currProjects} );
     } else{
-      this.setState({ allProjects: currProjects });
+      this.setState({ searchResults: currProjects });
     }
   }
   
@@ -169,6 +171,13 @@ class App extends Component {
 
   selectProjectHandler = (e) => {
     this.handleProjectSubmit(e.target.title);
+  }
+
+  handleProjectSearch = (e) => {
+    const results = baseSearchState.filter(project =>
+      project.name.toLowerCase().includes(e.target.value.toLowerCase())
+    );
+    this.setState({ searchTerm: e.target.value, searchResults: results });
   }
 
   render () {
@@ -253,9 +262,15 @@ class App extends Component {
             <div>
               <Grid>
                 <Cell col = {7} className = 'table'>
+                  <input
+                    type="text"
+                    placeholder="Search"
+                    value={this.state.searchTerm}
+                    onChange={this.handleProjectSearch} 
+                  />
                   <DataTable
                         shadow={0}
-                        rows = {this.state.allProjects}
+                        rows = {this.state.searchResults}
                         style={{ margin: 'auto', marginTop: '3%'}}>
                         <TableHeader name="name" tooltip="Project Name">Project Name</TableHeader>
                         <TableHeader name="id" tooltip="Project ID">Project ID</TableHeader>
