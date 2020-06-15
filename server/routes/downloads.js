@@ -1,12 +1,11 @@
 require('dotenv').config();
 const express = require('express');
-const { spawn } = require('child_process');
+const { spawnSync } = require('child_process');
 const jobs = require('../../ui/src/API_Functions/jobs.js');
 const fs = require('fs');
 const Data = require('../data');
 
 var router = express.Router();
-
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -33,13 +32,13 @@ router.post('/', function(req, res, next) {
       }
       
       jobs.getArtifactPath(lastJobId, projectId, key)
-      .then((query) => {
-        spawn('sh', ['download.sh', projectId, query], {cwd: './downloadScripts'});
+      .then(async (query) => {
+        spawnSync('sh', ['download.sh', projectId, query], {cwd: './downloadScripts'});
         Data.findOne({ projectId: projectId }, function(err, adventure) {
           fs.writeFileSync(`../../Artifact-Downloads/${projectId}/runner.sh`, adventure.script);
-          spawn('sh', ['runner.sh'], {cwd: `../../Artifact-Downloads/${projectId}`});
+          spawnSync('sh', ['runner.sh', projectId, query], {cwd: `../../Artifact-Downloads/${projectId}`});
+          res.status(200).end();
         });
-        res.status(200).end();
       });
     }
   });
