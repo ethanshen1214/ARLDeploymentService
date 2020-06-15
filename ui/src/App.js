@@ -252,9 +252,9 @@ class App extends Component {
             <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}><h1>GitLab Deployment Util</h1></div>
             <div>
               <Grid>
-                <Cell col = {6} className = 'table'>
+                <Cell col = {7} className = 'table'>
                   <DataTable
-                        shadow={3}
+                        shadow={0}
                         rows = {this.state.allProjects}
                         style={{ margin: 'auto', marginTop: '3%'}}>
                         <TableHeader name="name" tooltip="Project Name">Project Name</TableHeader>
@@ -263,7 +263,7 @@ class App extends Component {
                         <TableHeader name="selectProjectButton" tooltip="Click to change the working project">Load Project</TableHeader>
                   </DataTable> 
                 </Cell>
-                <Cell col = {6}>
+                <Cell col = {5}>
                   <Card shadow={3} style={{width: '420px', height: '430px', margin: 'auto', marginTop: '3%'}}>
                     {/* <CardTitle expand style={{color: '#fff', background: 'url(http://www.getmdl.io/assets/demos/dog.png) bottom right 15% no-repeat #46B6AC'}}>Project Configurations</CardTitle> */}
                     <CardActions border>
