@@ -49,11 +49,12 @@ class App extends Component {
   }
 
   loadData = async () => {
-    const projectsResponse = await projects.getProjects(this.state.auth_key);
-    const response = await axios.get(`${apiEndpointUrl}/database/getData`);
+    const projectsResponse = await projects.getProjects(this.state.auth_key); // get an array of all the projects associated with a user
+    const response = await axios.get(`${apiEndpointUrl}/database/getData`); // get the data already logged in the database
     const responseArray = Array.from(response.data.data);
-    const mappedPipelines = new Map(responseArray.map(obj => [obj.projectId, obj.pipelineId]));
+    const mappedPipelines = new Map(responseArray.map(obj => [obj.projectId, obj.pipelineId])); // create map for projectId to currently deployed pipelineId for faster matching
 
+    // create list of possibly deployable projects to display to user
     const currProjects = [];
     for(let i = 0; i< projectsResponse.length; i++){
       const mappedPipeline = mappedPipelines.get(projectsResponse[i].id);
@@ -99,9 +100,9 @@ class App extends Component {
       }
 
     }
-    console.log('\n---------------------- loadData ---------------------- ');
+
+    // create list of pipelines to display for a selected project
     const result = await pipes.getPipelinesForProject(sessionStorage.getItem('project_id'), this.state.auth_key);
-    
     let currDep;
     let currScript;
     let currName;
@@ -116,7 +117,6 @@ class App extends Component {
       this.setState({ pipelines: result, currentDeployment: currDep, script: currScript, projectName: currName, allProjects: currProjects} );
     } else{
       this.setState({ allProjects: currProjects });
-      //alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token');
     }
   }
   
