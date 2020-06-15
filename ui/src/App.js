@@ -247,12 +247,12 @@ class App extends Component {
     }
 
     return(
-        <div style={{height: '1800px', position: 'relative', marginLeft: '85px', marginRight: '85px'}}>
+        <div style={{height: '1300px', position: 'relative', marginLeft: '85px', marginRight: '85px'}}>
           <div className = 'labels'>
             <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}><h1>GitLab Deployment Util</h1></div>
             <div>
               <Grid>
-                <Cell col = {6}>
+                <Cell col = {6} className = 'table'>
                   <DataTable
                         shadow={3}
                         rows = {this.state.allProjects}
