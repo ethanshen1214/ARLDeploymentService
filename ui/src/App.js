@@ -63,7 +63,8 @@ class App extends Component {
       if(gitLabProjects[i].id == sessionStorage.getItem('project_id')){
         if(typeof mappedPipeline !== 'undefined' && mappedPipeline !== 0){
           const tempProject = {
-            name: gitLabProjects[i].name,
+            name: <a href = {gitLabProjects[i].http_url_to_repo} target="_blank" rel="noopener noreferrer">{gitLabProjects[i].name}</a>,
+            title: gitLabProjects[i].name,
             id: gitLabProjects[i].id,
             pipelineId: mappedPipeline,
             selectProjectButton: <Chip style={{background: '#16d719', height: '20px'}}></Chip>
@@ -72,7 +73,8 @@ class App extends Component {
         }
         else{
           const tempProject = {
-            name: gitLabProjects[i].name,
+            name: <a href = {gitLabProjects[i].http_url_to_repo} target="_blank" rel="noopener noreferrer">{gitLabProjects[i].name}</a>,
+            title: gitLabProjects[i].name,
             id: gitLabProjects[i].id,
             pipelineId: 'no deployment',
             selectProjectButton: <Chip style={{background: '#16d719', height: '20px'}}></Chip>
@@ -83,7 +85,8 @@ class App extends Component {
       else{
         if(typeof mappedPipeline !== 'undefined' && mappedPipeline !== 0){
           const tempProject = {
-            name: gitLabProjects[i].name,
+            name: <a href = {gitLabProjects[i].http_url_to_repo} target="_blank" rel="noopener noreferrer">{gitLabProjects[i].name}</a>,
+            title: gitLabProjects[i].name,
             id: gitLabProjects[i].id,
             pipelineId: mappedPipeline,
             selectProjectButton: <button title={gitLabProjects[i].id} onClick = {this.selectProjectHandler}>Load</button>
@@ -92,7 +95,8 @@ class App extends Component {
         }
         else{
           const tempProject = {
-            name: gitLabProjects[i].name,
+            name: <a href = {gitLabProjects[i].http_url_to_repo} target="_blank" rel="noopener noreferrer">{gitLabProjects[i].name}</a>,
+            title: gitLabProjects[i].name,
             id: gitLabProjects[i].id,
             pipelineId: 'no deployment',
             selectProjectButton: <button title={gitLabProjects[i].id} onClick = {this.selectProjectHandler}>Load</button>
@@ -175,7 +179,7 @@ class App extends Component {
 
   handleProjectSearch = (e) => {
     const results = baseSearchState.filter(project =>
-      project.name.toLowerCase().includes(e.target.value.toLowerCase())
+      project.title.toLowerCase().includes(e.target.value.toLowerCase())
     );
     this.setState({ searchTerm: e.target.value, searchResults: results });
   }
@@ -194,7 +198,7 @@ class App extends Component {
       {
         let date = new Date(this.state.pipelines[i].created_at);
         const tempPipeline = {
-          sourceProject: this.state.pipelines[i].web_url,
+          sourceProject: <a href = {this.state.pipelines[i].web_url} target = "_blank" rel="noopener noreferrer">{this.state.pipelines[i].web_url}</a>,
           sourceCommit: this.state.pipelines[i].user.username,
           deploymentDate: date.toString(),
           successStatus: this.state.pipelines[i].status,
@@ -208,7 +212,7 @@ class App extends Component {
         {
           let date = new Date(this.state.pipelines[i].created_at);
           const tempPipeline = {
-            sourceProject: this.state.pipelines[i].web_url,
+            sourceProject: <a href = {this.state.pipelines[i].web_url} target = "_blank" rel="noopener noreferrer">{this.state.pipelines[i].web_url}</a>,
             sourceCommit: this.state.pipelines[i].user.username,
             deploymentDate: date.toString(),
             successStatus: this.state.pipelines[i].status,
@@ -220,7 +224,7 @@ class App extends Component {
         {
           let date = new Date(this.state.pipelines[i].created_at);
           const tempPipeline = {
-            sourceProject: this.state.pipelines[i].web_url,
+            sourceProject: <a href = {this.state.pipelines[i].web_url} target = "_blank" rel="noopener noreferrer">{this.state.pipelines[i].web_url}</a>,
             sourceCommit: this.state.pipelines[i].user.username,
             deploymentDate: date.toString(),
             successStatus: this.state.pipelines[i].status,
@@ -302,7 +306,7 @@ class App extends Component {
               <DataTable
                 shadow={0}
                 rows = {parsedPipelines}>
-                <TableHeader name="sourceProject" tooltip="URL of pipeline">Source Project</TableHeader>
+                <TableHeader name="sourceProject" tooltip="URL of pipeline">Source Pipeline</TableHeader>
                 <TableHeader name="sourceCommit" tooltip="Name of account that ran the pipeline">Source Commit</TableHeader>
                 <TableHeader name="deploymentDate" tooltip="Date pipeline was created">Date of Deployment</TableHeader>
                 <TableHeader name="successStatus" tooltip="Success/Failure">Status</TableHeader>
