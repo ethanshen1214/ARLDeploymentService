@@ -1,6 +1,6 @@
+require('dotenv').config();
 const express = require('express');
-const { spawn } = require('child_process');
-const config = require('../../ui/src/lib/config.json');
+const { spawnSync } = require('child_process');
 const jobs = require('../../ui/src/API_Functions/jobs.js');
 const axios = require('axios');
 const { sendPipelineUpdate } = require('../bin/sockets')
@@ -19,7 +19,7 @@ router.post('/', function(req, res, next) {
   if (req.body.builds[req.body.builds.length-1].finished_at !== null){
     let projectId = req.body.project.id;
     let pipelineId = req.body.object_attributes.id;
-    let key = config.auth_key;
+    let key = process.env.AUTH_KEY;
 
     axios.post('http://localhost:8080/database/updateData', {projectId: projectId, update: {pipelineId: pipelineId}})
     .then(jobs.getJobsByPipeline(projectId, pipelineId, key, (err, jobData) => {
@@ -30,17 +30,17 @@ router.post('/', function(req, res, next) {
         let lastJobId = jobData[jobData.length-1].id;
         jobs.getArtifactPath(lastJobId, projectId, key)
         .then((query) => {
-          spawn('sh', ['download.sh', projectId, query], {cwd: './downloadScripts'});
+          spawnSync('sh', ['download.sh', projectId, query], {cwd: './downloadScripts'});
           sendPipelineUpdate({
             type: 'success',
             projectId: projectId,
             pipelineId: pipelineId,
           });
           Data.findOne({ projectId: projectId }, function(err, adventure) {
-            fs.writeFileSync(process.env.DEPLOYMENT_SERVER + '/runner.sh', adventure.script);
-            spawn('sh', ['runner.sh'], {cwd: process.env.DEPLOYMENT_SERVER});
+            fs.writeFileSync(`../../Artifact-Downloads/${projectId}/runner.sh`, adventure.script);
+            spawnSync('sh', ['runner.sh', projectId, query], {cwd: `../../Artifact-Downloads/${projectId}`});
+            res.status(200).end();
           });
-          res.status(200).end();
         });
       }
     }));
@@ -49,6 +49,7 @@ router.post('/', function(req, res, next) {
     sendPipelineUpdate({
       type: 'pending',
     });
+    res.status(200).end();
   }
 });
 

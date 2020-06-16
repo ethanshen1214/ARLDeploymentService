@@ -1,5 +1,6 @@
 const https = require('https');
 const { apiUrl } = require('../lib/config.js');
+const axios = require('axios');
 
 exports.getProjectName = (projectId, key, callback) => {
     const path = `${apiUrl}/projects/${projectId}`;
@@ -19,4 +20,13 @@ exports.getProjectName = (projectId, key, callback) => {
         callback(null, name);
       });
     });
-  };
+};
+
+exports.getProjects = async (key) => {
+  const path = `${apiUrl}/projects`;
+  const token = `?private_token=${key}&membership=true&simple=true`;
+  const query = path + token;
+
+  let response = await axios.get(query);
+  return response.data;
+}

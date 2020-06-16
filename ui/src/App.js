@@ -1,9 +1,7 @@
 import React, {Component} from 'react';
 import './App.css';
-import { DataTable, TableHeader, Card, CardTitle, CardText, CardActions, RadioGroup, Radio, Spinner } from 'react-mdl';
-import Form from './Components/form';
+import { DataTable, TableHeader, Card, CardText, CardActions, RadioGroup, Radio, Spinner, Chip, Grid, Cell } from 'react-mdl';
 import Script from './Components/scriptInput';
-import Config from './lib/config.json';
 import axios from 'axios';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 const pipes = require('./API_Functions/pipelines.js');
@@ -13,7 +11,11 @@ const projects = require('./API_Functions/projects.js');
 //18820410
 //18876221
 
-const socket = new W3CWebSocket('ws://localhost:8080');
+const webSocketUrl = process.env.REACT_APP_WEBSOCKET_ENDPOINT_URL || 'ws://localhost:8080';
+const apiEndpointUrl = process.env.REACT_APP_API_ENDPOINT_URL || 'http://localhost:8080';
+
+const socket = new W3CWebSocket(webSocketUrl);
+let baseSearchState;
 
 class App extends Component {
 
@@ -21,22 +23,23 @@ class App extends Component {
     super(props);
     this.state = {
       pipelines: [],
-      auth_key: Config.auth_key,
+      auth_key: process.env.REACT_APP_AUTH_KEY,
       numPipelines: 5,
-      currentDeployment: 0,
+      currentDeployment: 'no deployment',
       script: 'placeholder',
       projectName: '',
-      allDeployments: [],
+      searchResults: [],
+      searchTerm: "",
     }
   }
 
-  componentDidMount() {   //on startup it checks to see if sessionStorage already has auth_key and/or project_id
+  async componentDidMount() {   //on startup it checks to see if sessionStorage already has auth_key and/or project_id
       // establishes websocket connection to the server
       socket.onmessage = (data) => {
         var dataJSON = JSON.parse(data.data);
         if (dataJSON.type === 'success') {
           if (dataJSON.projectId === parseInt(sessionStorage.getItem('project_id'))){
-            this.setState({ currentDeployment: dataJSON.pipelineId});
+            this.setState({ currentDeployment: dataJSON.pipelineId });
             this.loadData();
           }
         }
@@ -44,28 +47,68 @@ class App extends Component {
           this.loadData();
         }
       }
-
-      if (sessionStorage.getItem('project_id') != null){
-        this.loadData();
-      }
+      this.loadData();
   }
 
   loadData = async () => {
-    console.log('\n---------------------- loadData ---------------------- ');
-    const response = await axios.get('http://localhost:8080/database/getData');
-    const result = await pipes.getPipelinesForProject(sessionStorage.getItem('project_id'), this.state.auth_key);
+    const gitLabProjects = await projects.getProjects(this.state.auth_key); // get an array of all the projects associated with a user
+    const response = await axios.get(`${apiEndpointUrl}/database/getData`); // get the data already logged in the database
+    const responseArray = Array.from(response.data.data);
+    const mappedPipelines = new Map(responseArray.map(obj => [obj.projectId, obj.pipelineId])); // create map for projectId to currently deployed pipelineId for faster matching
 
-    const currDeployments = [];
-    for(let i = 0; i < response.data.data.length; i++){
-      const tempDeployment = {
-        projectName: response.data.data[i].projectName,
-        projectId: response.data.data[i].projectId,
-        pipelineId: response.data.data[i].pipelineId,
-        selectProjectButton: <button title ={response.data.data[i].projectId} onClick = {this.selectProjectHandler}>Load</button>,
-      };
-      currDeployments.push(tempDeployment);
+    // create list of possibly deployable projects to display to user
+    const currProjects = [];
+    for(let i = 0; i< gitLabProjects.length; i++){
+      const mappedPipeline = mappedPipelines.get(gitLabProjects[i].id);
+      if(gitLabProjects[i].id == sessionStorage.getItem('project_id')){
+        if(typeof mappedPipeline !== 'undefined' && mappedPipeline !== 0){
+          const tempProject = {
+            name: <a href = {gitLabProjects[i].http_url_to_repo} target="_blank" rel="noopener noreferrer">{gitLabProjects[i].name}</a>,
+            title: gitLabProjects[i].name,
+            id: gitLabProjects[i].id,
+            pipelineId: mappedPipeline,
+            selectProjectButton: <Chip style={{background: '#16d719', height: '20px'}}></Chip>
+          }
+          currProjects.push(tempProject);        
+        }
+        else{
+          const tempProject = {
+            name: <a href = {gitLabProjects[i].http_url_to_repo} target="_blank" rel="noopener noreferrer">{gitLabProjects[i].name}</a>,
+            title: gitLabProjects[i].name,
+            id: gitLabProjects[i].id,
+            pipelineId: 'no deployment',
+            selectProjectButton: <Chip style={{background: '#16d719', height: '20px'}}></Chip>
+          }
+          currProjects.push(tempProject);  
+        }     
+      }
+      else{
+        if(typeof mappedPipeline !== 'undefined' && mappedPipeline !== 0){
+          const tempProject = {
+            name: <a href = {gitLabProjects[i].http_url_to_repo} target="_blank" rel="noopener noreferrer">{gitLabProjects[i].name}</a>,
+            title: gitLabProjects[i].name,
+            id: gitLabProjects[i].id,
+            pipelineId: mappedPipeline,
+            selectProjectButton: <button title={gitLabProjects[i].id} onClick = {this.selectProjectHandler}>Load</button>
+          }
+          currProjects.push(tempProject);        
+        }
+        else{
+          const tempProject = {
+            name: <a href = {gitLabProjects[i].http_url_to_repo} target="_blank" rel="noopener noreferrer">{gitLabProjects[i].name}</a>,
+            title: gitLabProjects[i].name,
+            id: gitLabProjects[i].id,
+            pipelineId: 'no deployment',
+            selectProjectButton: <button title={gitLabProjects[i].id} onClick = {this.selectProjectHandler}>Load</button>
+          }
+          currProjects.push(tempProject);  
+        }        
+      } 
     }
-    
+    baseSearchState = currProjects;
+
+    // create list of pipelines to display for a selected project
+    const result = await pipes.getPipelinesForProject(sessionStorage.getItem('project_id'), this.state.auth_key);
     let currDep;
     let currScript;
     let currName;
@@ -77,10 +120,9 @@ class App extends Component {
           currName = response.data.data[i].projectName;
         }
       }
-      this.setState({ pipelines: result, allDeployments: currDeployments, currentDeployment: currDep, script: currScript, projectName: currName} );
+      this.setState({ pipelines: result, currentDeployment: currDep, script: currScript, projectName: currName, searchResults: currProjects} );
     } else{
-      this.setState({ allDeployments: currDeployments });
-      alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token');
+      this.setState({ searchResults: currProjects });
     }
   }
   
@@ -95,7 +137,7 @@ class App extends Component {
           sessionStorage.setItem('project_name', data);
           currName = data;
 
-          await axios.post('http://localhost:8080/database/putData', {
+          await axios.post(`${apiEndpointUrl}/database/putData`, {
             projectId: value,
             pipelineId: 0,
             script: 'placeholder',
@@ -113,7 +155,7 @@ class App extends Component {
   }
 
   handleScriptSubmit = (value) => {
-    axios.post('http://localhost:8080/database/updateData', {projectId: sessionStorage.getItem('project_id'), update: {script: value}});
+    axios.post(`${apiEndpointUrl}/database/updateData`, {projectId: sessionStorage.getItem('project_id'), update: {script: value}});
   }
 
   selectNumPipes = (e) => {  //handler for selecting number of pipelines to display
@@ -121,22 +163,25 @@ class App extends Component {
   }
 
   downloadHandler = (e) => {
-    axios.post('http://localhost:8080/database/updateData', {projectId: sessionStorage.getItem('project_id'), update: {pipelineId: e.target.title}})
+    axios.post(`${apiEndpointUrl}/database/updateData`, {projectId: sessionStorage.getItem('project_id'), update: {pipelineId: e.target.title}})
     .then(() => {
       this.loadData();
     });
-    axios.post('http://localhost:8080/downloads', {
+    axios.post(`${apiEndpointUrl}/downloads`, {
       pipelineId: e.target.title,
       projectId: sessionStorage.getItem('project_id'),
     });
   }
 
   selectProjectHandler = (e) => {
-    sessionStorage.setItem('project_id', e.target.title);
-    projects.getProjectName(sessionStorage.getItem('project_id'), this.state.auth_key, async (err, data) => {
-      sessionStorage.setItem('project_name', data)
-      this.loadData();
-    })
+    this.handleProjectSubmit(e.target.title);
+  }
+
+  handleProjectSearch = (e) => {
+    const results = baseSearchState.filter(project =>
+      project.title.toLowerCase().includes(e.target.value.toLowerCase())
+    );
+    this.setState({ searchTerm: e.target.value, searchResults: results });
   }
 
   render () {
@@ -153,7 +198,7 @@ class App extends Component {
       {
         let date = new Date(this.state.pipelines[i].created_at);
         const tempPipeline = {
-          sourceProject: this.state.pipelines[i].web_url,
+          sourceProject: <a href = {this.state.pipelines[i].web_url} target = "_blank" rel="noopener noreferrer">{this.state.pipelines[i].web_url}</a>,
           sourceCommit: this.state.pipelines[i].user.username,
           deploymentDate: date.toString(),
           successStatus: this.state.pipelines[i].status,
@@ -163,15 +208,31 @@ class App extends Component {
       }
       else
       {
-        let date = new Date(this.state.pipelines[i].created_at);
-        const tempPipeline = {
-          sourceProject: this.state.pipelines[i].web_url,
-          sourceCommit: this.state.pipelines[i].user.username,
-          deploymentDate: date.toString(),
-          successStatus: this.state.pipelines[i].status,
-          downloadButton: <button title ={this.state.pipelines[i].id} onClick = {this.downloadHandler}>Deploy</button>,
-        };     
-        parsedPipelines.push(tempPipeline);   //add to pipelines array       
+        if(this.state.currentDeployment === this.state.pipelines[i].id)
+        {
+          let date = new Date(this.state.pipelines[i].created_at);
+          const tempPipeline = {
+            sourceProject: <a href = {this.state.pipelines[i].web_url} target = "_blank" rel="noopener noreferrer">{this.state.pipelines[i].web_url}</a>,
+            sourceCommit: this.state.pipelines[i].user.username,
+            deploymentDate: date.toString(),
+            successStatus: this.state.pipelines[i].status,
+            downloadButton: <Chip style={{background: '#16d719'}}>Deployed</Chip>
+          };     
+          parsedPipelines.push(tempPipeline);   //add to pipelines array
+        }
+        else
+        {
+          let date = new Date(this.state.pipelines[i].created_at);
+          const tempPipeline = {
+            sourceProject: <a href = {this.state.pipelines[i].web_url} target = "_blank" rel="noopener noreferrer">{this.state.pipelines[i].web_url}</a>,
+            sourceCommit: this.state.pipelines[i].user.username,
+            deploymentDate: date.toString(),
+            successStatus: this.state.pipelines[i].status,
+            downloadButton: <button title ={this.state.pipelines[i].id} onClick = {this.downloadHandler}>Deploy</button>,
+          };     
+          parsedPipelines.push(tempPipeline);   //add to pipelines array            
+        }
+     
       }
     }
 
@@ -199,22 +260,45 @@ class App extends Component {
     }
 
     return(
-        <div style={{height: '1800px', position: 'relative', marginLeft: '85px', marginRight: '85px'}}>
+        <div style={{height: '1300px', width: '1000px', margin: 'auto'}}>
           <div className = 'labels'>
+            <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}><h1>GitLab Deployment Util</h1></div>
             <div>
-              <Card shadow={3} style={{width: '420px', height: '600px', margin: 'auto', marginTop: '8%'}}>
-              <CardTitle expand style={{color: '#fff', background: 'url(http://www.getmdl.io/assets/demos/dog.png) bottom right 15% no-repeat #46B6AC'}}>Project Configurations</CardTitle>
-                <CardActions border>
-                  <Form submitHandler={this.handleProjectSubmit} formTitle={'Project ID:'}/>
-                  <Script submitHandler={this.handleScriptSubmit} formTitle={'Current Deployment Script For '+sessionStorage.getItem('project_name')+':'} height = {200} width = {300} script = {this.state.script}/>
-                  <CardText>Select the number of pipelines to display (default 5)</CardText>
-                  {radioGroup}
-                </CardActions>
-              </Card>
+              <Grid>
+                <Cell col = {7} className = 'table'>
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="Search"
+                      value={this.state.searchTerm}
+                      onChange={this.handleProjectSearch} 
+                      style = {{marginTop: '10px'}}
+                    />
+                    <DataTable
+                          shadow={0}
+                          rows = {this.state.searchResults}
+                          style = {{marginTop: '10px'}}>
+                          <TableHeader name="name" tooltip="Project Name">Project Name</TableHeader>
+                          <TableHeader name="id" tooltip="Project ID">Project ID</TableHeader>
+                          <TableHeader name="pipelineId" tooltip="Currently deployed pipeline">Current Deployment</TableHeader>
+                          <TableHeader name="selectProjectButton" tooltip="Click to change the working project">Load Project</TableHeader>
+                    </DataTable> 
+                  </div>
+                  
+                </Cell>
+                <Cell col = {5}>
+                  <Card shadow={3} style={{width: '420px', height: '430px', margin: 'auto', marginTop: '3%'}}>
+                    <CardActions border>
+                      <Script submitHandler={this.handleScriptSubmit} formTitle={'Current Deployment Script For '+sessionStorage.getItem('project_name')+':'} height = {200} width = {300} script = {this.state.script}/>
+                      <CardText>Select the number of pipelines to display (default 5)</CardText>
+                      {radioGroup}
+                    </CardActions>
+                  </Card>
+                </Cell>
+              </Grid>
             </div>
           </div>
           <div className = 'labels'>
-            
             <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
               <h2>Pipeline Status For {sessionStorage.getItem('project_name')}</h2>
             </div>
@@ -222,31 +306,11 @@ class App extends Component {
               <DataTable
                 shadow={0}
                 rows = {parsedPipelines}>
-                <TableHeader name="sourceProject" tooltip="URL of pipeline">Source Project</TableHeader>
+                <TableHeader name="sourceProject" tooltip="URL of pipeline">Source Pipeline</TableHeader>
                 <TableHeader name="sourceCommit" tooltip="Name of account that ran the pipeline">Source Commit</TableHeader>
                 <TableHeader name="deploymentDate" tooltip="Date pipeline was created">Date of Deployment</TableHeader>
                 <TableHeader name="successStatus" tooltip="Success/Failure">Status</TableHeader>
                 <TableHeader name="downloadButton" tooltip="Click to download artifacts and deploy">Deploy</TableHeader>
-              </DataTable>
-            </div>
-            <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
-              <h2>Current Deployment Info</h2>
-            </div>
-            <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
-              <DataTable
-                    shadow={0}
-                    rows = {[{pipeline: this.state.currentDeployment}]}
-                    style = {{marginRight: '30px'}}>
-                    <TableHeader name="pipeline" tooltip="Pipeline ID">Current Deployment for This Project</TableHeader>
-              </DataTable>
-              <DataTable
-                    shadow={0}
-                    rows = {this.state.allDeployments}
-                    style = {{marginLeft: '30px'}}>
-                    <TableHeader name="projectName" tooltip="Project Name">Project Name</TableHeader>
-                    <TableHeader name="projectId" tooltip="Project ID">Project ID</TableHeader>
-                    <TableHeader name="pipelineId" tooltip="Pipeline ID">Pipeline ID</TableHeader>
-                    <TableHeader name="selectProjectButton" tooltip="Click to change the working project">Load Project</TableHeader>
               </DataTable>
             </div>
           </div>
