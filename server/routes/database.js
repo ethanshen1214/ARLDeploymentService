@@ -6,12 +6,17 @@ var router = express.Router();
 var fs = require('fs');
 
 let dbRoute = mongoDb;
+let connected;
 
 mongoose.connect(dbRoute, { useNewUrlParser: true }).catch(error => console.log('MongoDB URL not set.'));
 mongoose.set('useFindAndModify', false)
 let db = mongoose.connection;
-db.once('open', () => console.log('connected to the database'));
+db.once('open', () => {
+  connected = 1;
+  console.log('connected to the database')
+});
 db.on('error', () => {
+  connected = 0;
   db.removeAllListeners();
   db.close();
 });// checks if connection with the database is successful
@@ -25,14 +30,17 @@ router.post('/config', (req, res) => {
   if(req.body.authKey === '' && req.body.url !== ''){   //no auth key input
     
     fs.writeFileSync('./config.json', JSON.stringify({ authKey: oldKey, mongoDb: req.body.url }));
-    console.log('here')
     mongoose.disconnect();
     
     mongoose.connect(req.body.url, { useNewUrlParser: true }).catch(() => console.log('MongoDB URL invalid.'));
     mongoose.set('useFindAndModify', false);
     db = mongoose.connection;
-    db.once('open', () => console.log('connected to the database'));
+    db.once('open', () => {
+      connected = 1;
+      console.log('connected to the database')
+    });
     db.on('error', () => {
+      connected = 0;
       db.removeAllListeners();
       db.close();
     }); // checks if connection with the database is successful
@@ -46,8 +54,12 @@ router.post('/config', (req, res) => {
     mongoose.connect(req.body.url, { useNewUrlParser: true }).catch(() => console.log('MongoDB URL invalid.'));
     mongoose.set('useFindAndModify', false);
     db = mongoose.connection;
-    db.once('open', () => console.log('connected to the database'));
+    db.once('open', () => {
+      connected = 1;
+      console.log('connected to the database')
+    });
     db.on('error', () => {
+      connected = 0;
       db.removeAllListeners();
       db.close();
     }); // checks if connection with the database is successful
@@ -58,11 +70,16 @@ router.post('/config', (req, res) => {
 // this is our get method
 // this method fetches all available data in our database
 router.get('/getData', (req, res) => {
+  if(connected) {
     Data.find((err, data) => {
       if (err) return res.json({ success: false, error: err });
       return res.json({ success: true, data: data });
     });
+  } else {
+    return res.json({ success: false, data: 'noDbUrl' });
+  }
 });
+
 router.post('/getOne', (req, res) => {
   const { projectId } = req.body;
   Data.findOne({projectId: projectId}, (err, data) => {
