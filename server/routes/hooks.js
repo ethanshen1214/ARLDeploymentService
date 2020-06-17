@@ -19,7 +19,7 @@ router.post('/', function(req, res, next) {
   if (req.body.builds[req.body.builds.length-1].finished_at !== null){
     let projectId = req.body.project.id;
     let pipelineId = req.body.object_attributes.id;
-    let key = process.env.AUTH_KEY;
+    let key = JSON.parse(fs.readFileSync('./config.json')).authKey;
 
     axios.post('http://localhost:8080/database/updateData', {projectId: projectId, update: {pipelineId: pipelineId}})
     .then(jobs.getJobsByPipeline(projectId, pipelineId, key, (err, jobData) => {

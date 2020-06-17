@@ -16,7 +16,7 @@ router.get('/', function(req, res, next) {
 router.post('/', function(req, res, next) {
   let projectId = req.body.projectId;
   let pipelineId = req.body.pipelineId;
-  let key = process.env.AUTH_KEY;
+  let key = JSON.parse(fs.readFileSync('./config.json')).authKey;
 
   
   jobs.getJobsByPipeline(projectId, pipelineId, key, (err, jobData) => {

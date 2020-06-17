@@ -24,7 +24,7 @@ export default class DeploymentScreen extends Component {
     super(props);
     this.state = {
       pipelines: [],
-      auth_key: process.env.REACT_APP_AUTH_KEY,
+      auth_key: '',
       numPipelines: 5,
       currentDeployment: 'no deployment',
       script: 'placeholder',
@@ -34,8 +34,10 @@ export default class DeploymentScreen extends Component {
     }
   }
 
-  componentDidMount() {   //on startup it checks to see if sessionStorage already has auth_key and/or project_id
+  async componentDidMount() {   //on startup it checks to see if sessionStorage already has auth_key and/or project_id
       // establishes websocket connection to the server
+      let authKey = await axios.post(`${apiEndpointUrl}/authKey`);
+      this.setState({auth_key: authKey.data});
       const { match } = this.props;
       socket.onmessage = (data) => {
         var dataJSON = JSON.parse(data.data);
@@ -67,6 +69,9 @@ export default class DeploymentScreen extends Component {
   }
 
   loadData = async () => {
+    let authKey = await axios.post(`${apiEndpointUrl}/authKey`);
+    this.setState({auth_key: authKey.data});
+    //console.log(authKey);
     const gitLabProjects = await projects.getProjects(this.state.auth_key); // get an array of all the projects associated with a user
     const response = await axios.get(`${apiEndpointUrl}/database/getData`); // get the data already logged in the database
     const responseArray = Array.from(response.data.data);
