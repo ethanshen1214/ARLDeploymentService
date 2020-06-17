@@ -1,14 +1,33 @@
 var express = require('express');
 var mongoose = require('mongoose');
 var Data = require('../data');
+var { mongoDb } = require('../config.json');
 var router = express.Router();
+var fs = require('fs');
 
-const dbRoute = process.env.DATABASE_URL;
-mongoose.connect(dbRoute, { useNewUrlParser: true });
-mongoose.set('useFindAndModify', false);
-let db = mongoose.connection;
-db.once('open', () => console.log('connected to the database'));
-db.on('error', console.error.bind(console, 'MongoDB connection error:'));// checks if connection with the database is successful
+let dbRoute = mongoDb;
+  mongoose.connect(dbRoute, { useNewUrlParser: true });
+  mongoose.set('useFindAndModify', false);
+  let db = mongoose.connection;
+  db.once('open', () => console.log('connected to the database'));
+  db.on('error', console.error.bind(console, 'MongoDB connection error:'));// checks if connection with the database is successful
+
+
+
+
+router.post('/connect', (req, res) => {
+  fs.writeFileSync('./config.json', JSON.stringify({ mongoDb: req.body.url }));
+  mongoose.disconnect();
+  configFile = fs.readFileSync('./config.json');
+  dbRoute = JSON.parse(configFile).mongoDb;
+  mongoose.connect(dbRoute, { useNewUrlParser: true });
+  mongoose.set('useFindAndModify', false);
+  db = mongoose.connection;
+  db.once('open', () => console.log('connected to the database'));
+  db.on('error', console.error.bind(console, 'MongoDB connection error:'));// checks if connection with the database is successful
+  console.log(dbRoute)
+  res.status(200).end();
+})
 
 // this is our get method
 // this method fetches all available data in our database

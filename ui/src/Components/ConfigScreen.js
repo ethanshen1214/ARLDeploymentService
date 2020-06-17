@@ -1,5 +1,8 @@
 import React, {Component} from 'react';
 import '../App.css';
+import axios from 'axios';
+
+const apiEndpointUrl = process.env.REACT_APP_API_ENDPOINT_URL || 'http://localhost:8080';
 
 export default class ConfigScreen extends Component {
     constructor(props) {
@@ -9,8 +12,17 @@ export default class ConfigScreen extends Component {
             mongoDb: '',
         };
     }
-    handleChange = (e) => {
+    componentDidMount(){
         
+    }
+    handleSubmit = async (e) => {
+        axios.post(`${apiEndpointUrl}/database/connect`, { url: this.state.mongoDb });
+    }
+    handleChange1 = (e) => {
+        this.setState({authKey: e.target.value});
+    }
+    handleChange2 = (e) => {
+        this.setState({mongoDb: e.target.value});
     }
 
     render() {
@@ -22,16 +34,16 @@ export default class ConfigScreen extends Component {
                     <label>Authentication Key: </label>
                     <input
                         type="text" 
-                        value={this.state.value} 
-                        onChange={this.handleChange} 
+                        value={this.state.authKey} 
+                        onChange={this.handleChange1} 
                         />
                 </div>
                 <div style = {{marginBottom: '30px'}}>
                     <label>MongoDB Endpoint URL: </label>
                     <input
                         type="text" 
-                        value={this.state.value} 
-                        onChange={this.handleChange} 
+                        value={this.state.mongoDb} 
+                        onChange={this.handleChange2} 
                         />
                 </div>
                 <div>
