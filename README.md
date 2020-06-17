@@ -4,11 +4,11 @@
 WIP
 
 ### Launch API Server
-cd server
-npm install
+cd server  
+npm install  
 npm start
 
 ### Launch UI Server
-cd ui
-npm install
+cd ui  
+npm install  
 npm start
