@@ -1,14 +1,13 @@
 ## Available Scripts
 
 ### To Launch the API Server and UI Server
-WIP
+Within the root directory of the project run the following command:  
+npm run start
 
 ### Launch API Server
-cd server  
-npm install  
-npm start
+Within the root directory of the project, to start the API server independently run the following command:  
+npm run api
 
 ### Launch UI Server
-cd ui  
-npm install  
-npm start
+Within the root directory of the project, to start the UI server independently run the following command:  
+npm run ui
