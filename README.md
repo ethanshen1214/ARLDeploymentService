@@ -1,7 +1,8 @@
 ## Available Scripts
 
 ### To Launch the API Server and UI Server
-Within the root directory of the project run the following command:  
+Within the root directory of the project run the following commands:
+npm install  
 npm run start
 
 ### Launch API Server
