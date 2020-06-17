@@ -54,6 +54,6 @@ exports.getPipelinesForProject = (projectId, token) => {
         .then((promises) => Promise.all(promises).then((pipelines) => pipelines))
         .then((pipelines) => pipelines.sort((a, b) => b.id - a.id))
         .catch((err) => {
-        console.error('Failed to get pipelines', err);
+        // console.error('Failed to get pipelines', err);
         });
 };  
