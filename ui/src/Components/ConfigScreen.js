@@ -12,12 +12,9 @@ export default class ConfigScreen extends Component {
             mongoDb: '',
         };
     }
-    componentDidMount(){
-        
-    }
     handleSubmit = async (e) => {
         e.preventDefault();
-        axios.post(`${apiEndpointUrl}/database/connect`, { url: this.state.mongoDb });
+        axios.post(`${apiEndpointUrl}/database/config`, { authKey: this.state.authKey, url: this.state.mongoDb  });
     }
     handleChange1 = (e) => {
         this.setState({authKey: e.target.value});

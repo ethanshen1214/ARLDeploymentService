@@ -16,19 +16,42 @@ db.on('error', () => {
   db.close();
 });// checks if connection with the database is successful
 
-router.post('/connect', (req, res) => {
-  fs.writeFileSync('./config.json', JSON.stringify({ mongoDb: req.body.url }));
-  mongoose.disconnect();
-  configFile = fs.readFileSync('./config.json');
-  dbRoute = JSON.parse(configFile).mongoDb;
-  mongoose.connect(dbRoute, { useNewUrlParser: true }).catch(() => console.log('MongoDB URL invalid.'));
-  mongoose.set('useFindAndModify', false);
-  db = mongoose.connection;
-  db.once('open', () => console.log('connected to the database'));
-  db.on('error', () => {
-    db.removeAllListeners();
-    db.close();
-  }); // checks if connection with the database is successful
+router.post('/config', (req, res) => {
+  
+  oldConfigFile = fs.readFileSync('./config.json');
+  oldKey = JSON.parse(oldConfigFile).authKey;
+  oldUrl = JSON.parse(oldConfigFile).mongoDb;
+
+  if(req.body.authKey === '' && req.body.url !== ''){   //no auth key input
+    
+    fs.writeFileSync('./config.json', JSON.stringify({ authKey: oldKey, mongoDb: req.body.url }));
+    console.log('here')
+    mongoose.disconnect();
+    
+    mongoose.connect(req.body.url, { useNewUrlParser: true }).catch(() => console.log('MongoDB URL invalid.'));
+    mongoose.set('useFindAndModify', false);
+    db = mongoose.connection;
+    db.once('open', () => console.log('connected to the database'));
+    db.on('error', () => {
+      db.removeAllListeners();
+      db.close();
+    }); // checks if connection with the database is successful
+  }
+  else if(req.body.authKey !== '' && req.body.url === ''){  //no url input
+    fs.writeFileSync('./config.json', JSON.stringify({ authKey: req.body.authKey, mongoDb: oldUrl }));
+  }
+  else if(req.body.authKey !== '' && req.body.url !== ''){  //both inputs
+    fs.writeFileSync('./config.json', JSON.stringify({ authKey: req.body.authKey, mongoDb: req.body.url }));
+    mongoose.disconnect();
+    mongoose.connect(req.body.url, { useNewUrlParser: true }).catch(() => console.log('MongoDB URL invalid.'));
+    mongoose.set('useFindAndModify', false);
+    db = mongoose.connection;
+    db.once('open', () => console.log('connected to the database'));
+    db.on('error', () => {
+      db.removeAllListeners();
+      db.close();
+    }); // checks if connection with the database is successful
+  }
   res.status(200).end();
 })
 

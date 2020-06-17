@@ -19,8 +19,8 @@ class App extends Component {
             <Header title="Hi Trevor :)" scroll>
                 <Navigation>
                     <Link to='/'>Home</Link>
-                    <Link to='/view'>Deployments</Link>
                     <Link to='/config'>Config</Link>
+                    <Link to='/view'>Deployments</Link>
                     <Link to='/help'>Help</Link>
                 </Navigation>
             </Header>
