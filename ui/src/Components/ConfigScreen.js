@@ -16,6 +16,7 @@ export default class ConfigScreen extends Component {
         
     }
     handleSubmit = async (e) => {
+        e.preventDefault();
         axios.post(`${apiEndpointUrl}/database/connect`, { url: this.state.mongoDb });
     }
     handleChange1 = (e) => {

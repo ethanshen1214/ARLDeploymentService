@@ -6,26 +6,29 @@ var router = express.Router();
 var fs = require('fs');
 
 let dbRoute = mongoDb;
-  mongoose.connect(dbRoute, { useNewUrlParser: true });
-  mongoose.set('useFindAndModify', false);
-  let db = mongoose.connection;
-  db.once('open', () => console.log('connected to the database'));
-  db.on('error', console.error.bind(console, 'MongoDB connection error:'));// checks if connection with the database is successful
 
-
-
+mongoose.connect(dbRoute, { useNewUrlParser: true }).catch(error => console.log('MongoDB URL not set.'));
+mongoose.set('useFindAndModify', false)
+let db = mongoose.connection;
+db.once('open', () => console.log('connected to the database'));
+db.on('error', () => {
+  db.removeAllListeners();
+  db.close();
+});// checks if connection with the database is successful
 
 router.post('/connect', (req, res) => {
   fs.writeFileSync('./config.json', JSON.stringify({ mongoDb: req.body.url }));
   mongoose.disconnect();
   configFile = fs.readFileSync('./config.json');
   dbRoute = JSON.parse(configFile).mongoDb;
-  mongoose.connect(dbRoute, { useNewUrlParser: true });
+  mongoose.connect(dbRoute, { useNewUrlParser: true }).catch(() => console.log('MongoDB URL invalid.'));
   mongoose.set('useFindAndModify', false);
   db = mongoose.connection;
   db.once('open', () => console.log('connected to the database'));
-  db.on('error', console.error.bind(console, 'MongoDB connection error:'));// checks if connection with the database is successful
-  console.log(dbRoute)
+  db.on('error', () => {
+    db.removeAllListeners();
+    db.close();
+  }); // checks if connection with the database is successful
   res.status(200).end();
 })
 

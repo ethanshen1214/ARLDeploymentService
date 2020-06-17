@@ -1,3 +1,1 @@
-{
-    "mongoDb":"mongodb+srv://joemama:joemama@cluster0-vh0zy.gcp.mongodb.net/test?retryWrites=true&w=majority"
-}
+{"mongoDb":"mongodb+srv://joemama:joemama@cluster0-vh0zy.gcp.mongodb.net/test?retryWrites=true&w=majority"}
