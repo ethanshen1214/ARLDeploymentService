@@ -10,11 +10,22 @@ export default class ConfigScreen extends Component {
         this.state = {
             authKey: '',
             mongoDb: '',
+            savedAuthKey: '',
+            savedMongoDb: '',
         };
+    }
+    componentDidMount(){
+        this.getData();
+    }
+    getData = async () => {
+        let key = await axios.post(`${apiEndpointUrl}/configData/authKey`);
+        let url = await axios.post(`${apiEndpointUrl}/configData/mongoURL`);
+        this.setState({ savedAuthKey: key.data, savedMongoDb: url.data});
     }
     handleSubmit = async (e) => {
         e.preventDefault();
-        axios.post(`${apiEndpointUrl}/database/config`, { authKey: this.state.authKey, url: this.state.mongoDb  });
+        await axios.post(`${apiEndpointUrl}/database/config`, { authKey: this.state.authKey, url: this.state.mongoDb  });
+        this.getData();
     }
     handleChange1 = (e) => {
         this.setState({authKey: e.target.value});
@@ -29,12 +40,19 @@ export default class ConfigScreen extends Component {
             <h1>Configurations</h1>
             <form onSubmit={this.handleSubmit} style = {{marginLeft: '20px', marginTop: '10px'}}>
                 <div style = {{marginBottom: '30px'}}>
-                    <label>Authentication Key: </label>
+                    <label>Currently Saved Authentication Key: {this.state.savedAuthKey}</label>
+                </div>
+                <div style = {{marginBottom: '30px'}}>
+                    <label>Authentication Key:</label>
                     <input
                         type="text" 
                         value={this.state.authKey} 
                         onChange={this.handleChange1} 
+                        style={{ marginLeft: '50px' }}
                         />
+                </div>
+                <div style = {{marginBottom: '30px'}}>
+                    <label>Currently Saved MongoDB URL: {this.state.savedMongoDb}</label>
                 </div>
                 <div style = {{marginBottom: '30px'}}>
                     <label>MongoDB Endpoint URL: </label>
@@ -42,10 +60,12 @@ export default class ConfigScreen extends Component {
                         type="text" 
                         value={this.state.mongoDb} 
                         onChange={this.handleChange2} 
+                        style={{ width: '650px', marginLeft: '10px'}}
                         />
                 </div>
                 <div>
                     <input type="submit" value="Save Changes" />
+                    <p>(Changes may take a couple seconds to save)</p>
                 </div>
                 
             </form>

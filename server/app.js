@@ -11,7 +11,7 @@ var downloads = require('./routes/downloads');
 var downloadsRouter = downloads.router;
 var hooksRouter = require('./routes/hooks');
 var databaseRouter = require('./routes/database');
-var authKeyRouter = require('./routes/authKey');
+var configRouter = require('./routes/configData');
 
 
 var app = express();
@@ -37,7 +37,7 @@ app.use('/', indexRouter);
 app.use('/downloads', downloadsRouter);
 app.use('/hooks', hooksRouter);
 app.use('/database', databaseRouter);
-app.use('/authKey', authKeyRouter);
+app.use('/configData', configRouter);
 
 
 // catch 404 and forward to error handler
