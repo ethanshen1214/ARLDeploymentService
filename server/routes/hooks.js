@@ -9,20 +9,16 @@ const Data = require('../data');
 
 var router = express.Router();
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
-});
-
 /* Handles POST to route */
 router.post('/', function(req, res, next) {
-  if (req.body.builds[req.body.builds.length-1].finished_at !== null){
+  console.log(req.body.object_attributes.finished_at)
+  if (req.body.object_attributes.finished_at !== null){
     let projectId = req.body.project.id;
     let pipelineId = req.body.object_attributes.id;
     let key = JSON.parse(fs.readFileSync('./config.json')).authKey;
 
-    axios.post('http://localhost:8080/database/updateData', {projectId: projectId, update: {pipelineId: pipelineId}})
-    .then(jobs.getJobsByPipeline(projectId, pipelineId, key, (err, jobData) => {
+    Data.findOneAndUpdate( {projectId: projectId}, { pipelineId } ).catch((err) => console.log('Failed to update database on hook.'));
+    jobs.getJobsByPipeline(projectId, pipelineId, key, (err, jobData) => {
       if (err) {
         console.error(err);
         res.status(500).end();
@@ -43,7 +39,7 @@ router.post('/', function(req, res, next) {
           });
         });
       }
-    }));
+    });
   }
   else {
     sendPipelineUpdate({

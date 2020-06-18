@@ -7,15 +7,12 @@ var bodyParser = require('body-parser');
 var cors = require('cors');
 
 var indexRouter = require('./routes/index');
-var downloads = require('./routes/downloads');
-var downloadsRouter = downloads.router;
+var downloadsRouter = require('./routes/downloads');
 var hooksRouter = require('./routes/hooks');
 var databaseRouter = require('./routes/database');
 var configRouter = require('./routes/configData');
 
-
 var app = express();
-
 
 // (optional) only made for logging and
 // bodyParser, parses the request body to be a readable json format

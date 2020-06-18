@@ -8,6 +8,7 @@ var fs = require('fs');
 let dbRoute = mongoDb;
 let connected;
 
+// attempts to connect to database on startup and sets a flag to indicate a successful/unsuccessful connection
 mongoose.connect(dbRoute, { useNewUrlParser: true }).catch(error => console.log('MongoDB URL not set.'));
 mongoose.set('useFindAndModify', false)
 let db = mongoose.connection;
@@ -19,7 +20,7 @@ db.on('error', () => {
   connected = 0;
   db.removeAllListeners();
   db.close();
-});// checks if connection with the database is successful
+});
 
 router.post('/config', (req, res) => {
   
@@ -27,11 +28,10 @@ router.post('/config', (req, res) => {
   oldKey = JSON.parse(oldConfigFile).authKey;
   oldUrl = JSON.parse(oldConfigFile).mongoDb;
 
-  if(req.body.authKey === '' && req.body.url !== ''){   //no auth key input
-    
+  if(req.body.authKey === '' && req.body.url !== ''){   // no auth key input
     fs.writeFileSync('./config.json', JSON.stringify({ authKey: oldKey, mongoDb: req.body.url }));
     mongoose.disconnect();
-    
+    // attempts to connect to database on user input and sets a flag to indicate a successful/unsuccessful connection
     mongoose.connect(req.body.url, { useNewUrlParser: true }).catch(() => console.log('MongoDB URL invalid.'));
     mongoose.set('useFindAndModify', false);
     db = mongoose.connection;
@@ -43,7 +43,7 @@ router.post('/config', (req, res) => {
       connected = 0;
       db.removeAllListeners();
       db.close();
-    }); // checks if connection with the database is successful
+    });
   }
   else if(req.body.authKey !== '' && req.body.url === ''){  //no url input
     fs.writeFileSync('./config.json', JSON.stringify({ authKey: req.body.authKey, mongoDb: oldUrl }));
@@ -51,6 +51,7 @@ router.post('/config', (req, res) => {
   else if(req.body.authKey !== '' && req.body.url !== ''){  //both inputs
     fs.writeFileSync('./config.json', JSON.stringify({ authKey: req.body.authKey, mongoDb: req.body.url }));
     mongoose.disconnect();
+    // attempts to connect to database on user input and sets a flag to indicate a successful/unsuccessful connection
     mongoose.connect(req.body.url, { useNewUrlParser: true }).catch(() => console.log('MongoDB URL invalid.'));
     mongoose.set('useFindAndModify', false);
     db = mongoose.connection;
@@ -79,17 +80,9 @@ router.get('/getData', (req, res) => {
     return res.json({ success: false, data: 'noDbUrl' });
   }
 });
-
-router.post('/getOne', (req, res) => {
-  const { projectId } = req.body;
-  Data.findOne({projectId: projectId}, (err, data) => {
-    if(err) return res.json({ success: false, error: err });
-    return res.json({ success: true, data: data });
-  })
-});
   
-  // this is our update method
-  // this method overwrites existing data in our database
+// this is our update method
+// this method overwrites existing data in our database
 router.post('/updateData', (req, res) => {
     const { projectId, update } = req.body;
     Data.findOneAndUpdate( {projectId: projectId}, update, (err) => {
@@ -98,8 +91,8 @@ router.post('/updateData', (req, res) => {
     });
 });
   
-  // this is our delete method
-  // this method removes existing data in our database
+// this is our delete method
+// this method removes existing data in our database
 router.delete('/deleteData', (req, res) => {
     const { projectId } = req.body;
     Data.findByIdAndRemove(projectId, (err) => {
@@ -108,8 +101,8 @@ router.delete('/deleteData', (req, res) => {
     });
 });
   
-  // this is our create methid
-  // this method adds new data in our database
+// this is our create method
+// this method adds new data in our database
 router.post('/putData', (req, res) => {
   let data = new Data();
   const { projectId, pipelineId, script, projectName } = req.body;
@@ -120,7 +113,6 @@ router.post('/putData', (req, res) => {
       data.pipelineId = pipelineId;
       data.projectName = projectName;
       data.save();
-
       return res.json({ success: true });
     } else {
       return res.json({ success: false });

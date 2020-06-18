@@ -7,17 +7,11 @@ const Data = require('../data');
 
 var router = express.Router();
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
-});
-
 /* Handles POST to route */
 router.post('/', function(req, res, next) {
   let projectId = req.body.projectId;
   let pipelineId = req.body.pipelineId;
   let key = JSON.parse(fs.readFileSync('./config.json')).authKey;
-
   
   jobs.getJobsByPipeline(projectId, pipelineId, key, (err, jobData) => {
     if (err) {
@@ -44,4 +38,4 @@ router.post('/', function(req, res, next) {
   });
 });
 
-exports.router = router;
+module.exports = router;
