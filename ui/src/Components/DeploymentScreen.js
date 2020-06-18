@@ -157,13 +157,11 @@ export default class DeploymentScreen extends Component {
   
   handleProjectSubmit = async () => {  //handler for submitting project ID
     const { match } = this.props;
-    console.log(match.params.id);
     try {
       const result = await pipes.getPipelinesForProject(parseInt(match.params.id), this.state.auth_key);
       if (typeof result != 'undefined') {
         var currName;
         projects.getProjectName(parseInt(match.params.id), this.state.auth_key, async (err, data) => {
-          //sessionStorage.setItem('project_name', data);
           currName = data;
 
           await axios.post(`${apiEndpointUrl}/database/putData`, {
