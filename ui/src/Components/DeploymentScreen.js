@@ -219,15 +219,30 @@ export default class DeploymentScreen extends Component {
     {
       if(this.state.pipelines[i].status !== 'success')
       {
-        let date = new Date(this.state.pipelines[i].created_at);
-        const tempPipeline = {
-          sourceProject: <a href = {this.state.pipelines[i].web_url} target = "_blank" rel="noopener noreferrer">{this.state.pipelines[i].web_url}</a>,
-          sourceCommit: this.state.pipelines[i].user.username,
-          deploymentDate: date.toString(),
-          successStatus: this.state.pipelines[i].status,
-          downloadButton: <Spinner/>
-        };
-        parsedPipelines.push(tempPipeline);   //add to pipelines array    
+        if(this.state.pipelines[i].status == 'failed')
+        {
+          let date = new Date(this.state.pipelines[i].created_at);
+          const tempPipeline = {
+            sourceProject: <a href = {this.state.pipelines[i].web_url} target = "_blank" rel="noopener noreferrer">{this.state.pipelines[i].web_url}</a>,
+            sourceCommit: this.state.pipelines[i].user.username,
+            deploymentDate: date.toString(),
+            successStatus: this.state.pipelines[i].status,
+            downloadButton: <Chip style={{background: '#d73016'}}>Failed</Chip>
+          };     
+          parsedPipelines.push(tempPipeline);   //add to pipelines array
+        }
+        else
+        {
+          let date = new Date(this.state.pipelines[i].created_at);
+          const tempPipeline = {
+            sourceProject: <a href = {this.state.pipelines[i].web_url} target = "_blank" rel="noopener noreferrer">{this.state.pipelines[i].web_url}</a>,
+            sourceCommit: this.state.pipelines[i].user.username,
+            deploymentDate: date.toString(),
+            successStatus: this.state.pipelines[i].status,
+            downloadButton: <Spinner/>
+          };
+          parsedPipelines.push(tempPipeline);   //add to pipelines array  
+        }
       }
       else
       {
