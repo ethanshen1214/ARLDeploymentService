@@ -5,11 +5,10 @@
  */
 
 require('dotenv').config();
-var app = require('../app');
-var debug = require('debug')('server:server');
-var http = require('http');
-var socket = require('./sockets');
-const { spawn } = require('child_process');
+const app = require('../app');
+const debug = require('debug')('server:server');
+const http = require('http');
+const socket = require('./sockets');
 
 /**
  * Get port from environment and store in Express.

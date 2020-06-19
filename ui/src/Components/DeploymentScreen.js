@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import '../App.css';
-import { HashRouter as Router, Link, } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { DataTable, TableHeader, Card, CardText, CardActions, RadioGroup, Radio, Spinner, Chip, Grid, Cell } from 'react-mdl';
 import Script from './scriptInput';
 import axios from 'axios';
@@ -9,6 +9,7 @@ const pipes = require('../API_Functions/pipelines.js');
 const projects = require('../API_Functions/projects.js');
 
 //zJLxDfYVS87Ar2NRp52K
+//mongodb+srv://joemama:joemama@cluster0-vh0zy.gcp.mongodb.net/test?retryWrites=true&w=majority
 //18820410
 //18876221
 
@@ -24,7 +25,7 @@ export default class DeploymentScreen extends Component {
     super(props);
     this.state = {
       pipelines: [],
-      auth_key: process.env.REACT_APP_AUTH_KEY,
+      auth_key: '',
       numPipelines: 5,
       currentDeployment: 'no deployment',
       script: 'placeholder',
@@ -34,7 +35,7 @@ export default class DeploymentScreen extends Component {
     }
   }
 
-  componentDidMount() {   //on startup it checks to see if sessionStorage already has auth_key and/or project_id
+  async componentDidMount() {   //on startup it checks to see if sessionStorage already has auth_key and/or project_id
       // establishes websocket connection to the server
       const { match } = this.props;
       socket.onmessage = (data) => {
@@ -67,8 +68,18 @@ export default class DeploymentScreen extends Component {
   }
 
   loadData = async () => {
-    const gitLabProjects = await projects.getProjects(this.state.auth_key); // get an array of all the projects associated with a user
+    let authKey = await axios.post(`${apiEndpointUrl}/configData/authKey`);
+    this.setState({auth_key: authKey.data});
+    const gitLabProjects = await projects.getProjects(this.state.auth_key); // get an array of all the projects associated with a user DOES NOT HANDLE ERROR
+    if (gitLabProjects === false) {
+      alert('Invalid Authentication Key \nEnter a new key on the Config page');
+      return;
+    }
     const response = await axios.get(`${apiEndpointUrl}/database/getData`); // get the data already logged in the database
+    if (response.data.data === 'noDbUrl') {
+      alert('Invalid DB Endpoint \nEnter a new MongoDB URL on the Config page');
+      return;
+    }
     const responseArray = Array.from(response.data.data);
     const mappedPipelines = new Map(responseArray.map(obj => [obj.projectId, obj.pipelineId])); // create map for projectId to currently deployed pipelineId for faster matching
     const { match } = this.props;
@@ -146,13 +157,11 @@ export default class DeploymentScreen extends Component {
   
   handleProjectSubmit = async () => {  //handler for submitting project ID
     const { match } = this.props;
-    console.log(match.params.id);
     try {
       const result = await pipes.getPipelinesForProject(parseInt(match.params.id), this.state.auth_key);
       if (typeof result != 'undefined') {
         var currName;
         projects.getProjectName(parseInt(match.params.id), this.state.auth_key, async (err, data) => {
-          //sessionStorage.setItem('project_name', data);
           currName = data;
 
           await axios.post(`${apiEndpointUrl}/database/putData`, {

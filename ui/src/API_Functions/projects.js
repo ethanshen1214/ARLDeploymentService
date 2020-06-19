@@ -27,6 +27,7 @@ exports.getProjects = async (key) => {
   const token = `?private_token=${key}&membership=true&simple=true`;
   const query = path + token;
 
-  let response = await axios.get(query);
-  return response.data;
+  let response = await axios.get(query).catch(err => {})
+  if(response) return response.data;
+  return false;
 }
