@@ -1,5 +1,5 @@
 const https = require('https');
-const { apiUrl } = require('../lib/config.js');
+const { apiUrl } = require('./config.js');
 const axios = require('axios');
 
 exports.getProjectName = (projectId, key, callback) => {

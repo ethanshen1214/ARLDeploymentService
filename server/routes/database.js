@@ -1,6 +1,6 @@
 var express = require('express');
 var mongoose = require('mongoose');
-var Data = require('../data');
+var Data = require('../bin/data');
 var { mongoDb } = require('../config.json');
 var router = express.Router();
 var fs = require('fs');
