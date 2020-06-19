@@ -40,7 +40,6 @@ export default class DeploymentScreen extends Component {
       const { match } = this.props;
       socket.onmessage = (data) => {
         var dataJSON = JSON.parse(data.data);
-        console.log(dataJSON)
         if (dataJSON.type === 'success') {
           if (dataJSON.projectId === parseInt(match.params.id)){
             this.setState({ currentDeployment: dataJSON.pipelineId });
