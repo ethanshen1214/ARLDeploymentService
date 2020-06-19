@@ -1,5 +1,5 @@
 const https = require('https');
-const { apiUrl } = require('../lib/config.js');
+const { apiUrl } = require('./config.js');
 
 exports.getJobsByPipeline = (projectId, pipelineId, key, callback) => {
     const path = `${apiUrl}/projects/${projectId}/pipelines/${pipelineId}/jobs`;

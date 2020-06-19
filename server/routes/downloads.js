@@ -1,7 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const { spawnSync } = require('child_process');
-const jobs = require('../../ui/src/API_Functions/jobs.js');
+//const jobs = require('../../ui/src/API_Functions/jobs.js');
+const jobs = require('../bin/jobs.js');
 const fs = require('fs');
 const Data = require('../data');
 
