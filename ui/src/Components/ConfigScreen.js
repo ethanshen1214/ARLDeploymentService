@@ -64,7 +64,7 @@ export default class ConfigScreen extends Component {
                         type="text" 
                         value={this.state.authKey} 
                         onChange={this.handleChangeAuthKey} 
-                        style={{ marginLeft: '50px', marginRight: '20px', marginBottom: '10px' }}
+                        style={{ marginLeft: '90px', marginRight: '20px', marginBottom: '10px' }}
                         />
                     <input type="submit" value="Save Changes" />
                     <p>(Changes may take a couple seconds to save)</p>
@@ -80,7 +80,7 @@ export default class ConfigScreen extends Component {
                         type="text" 
                         value={this.state.mongoDb} 
                         onChange={this.handleChangeMongoDB} 
-                        style={{ width: '650px', marginLeft: '10px', marginRight: '10px', marginBottom: '10px '}}
+                        style={{ width: '650px', marginLeft: '50px', marginRight: '10px', marginBottom: '10px '}}
                         />
                     <input type="submit" value="Save Changes" />
                     <p>(Changes may take a couple seconds to save)</p>                    
@@ -91,12 +91,12 @@ export default class ConfigScreen extends Component {
                     <label>Currently Saved Download Path: {this.state.savedDownloadPath}</label>
                 </div>
                 <div style = {{marginBottom: '30px'}}>
-                    <label>MongoDB Endpoint URL: </label>
+                    <label>Download Path: </label>
                     <input
                         type="text" 
                         value={this.state.downloadPath} 
                         onChange={this.handleChangeDownloadPath} 
-                        style={{ width: '650px', marginLeft: '10px', marginRight: '10px', marginBottom: '10px' }}
+                        style={{ width: '650px', marginLeft: '107px', marginRight: '10px', marginBottom: '10px' }}
                         />
                     <input type="submit" value="Save Changes" />
                     <p>(Changes may take a couple seconds to save)</p>                    
