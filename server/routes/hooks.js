@@ -11,9 +11,10 @@ var router = express.Router();
 /* Handles POST to route */
 router.post('/', function(req, res, next) {
   if (req.body.builds[req.body.builds.length-1].finished_at !== null){
+    let config = JSON.parse(fs.readFileSync('./config.json'));
     let projectId = req.body.project.id;
     let pipelineId = req.body.object_attributes.id;
-    let key = JSON.parse(fs.readFileSync('./config.json')).authKey;
+    let key = config.authKey;
 
     Data.findOneAndUpdate( {projectId: projectId}, { pipelineId } ).catch((err) => console.log('Failed to update database on hook.'));
     jobs.getJobsByPipeline(projectId, pipelineId, key, (err, jobData) => {
@@ -26,8 +27,8 @@ router.post('/', function(req, res, next) {
         .then((query) => {
           spawnSync('sh', ['download.sh', projectId, query], {cwd: './downloadScripts'});
           Data.findOne({ projectId: projectId }, function(err, adventure) {
-            fs.writeFileSync(`../../Artifact-Downloads/${projectId}/runner.sh`, adventure.script);
-            spawnSync('sh', ['runner.sh', projectId, query], {cwd: `../../Artifact-Downloads/${projectId}`});
+            fs.writeFileSync(`${config.downloadPath}/${projectId}/runner.sh`, adventure.script);
+            spawnSync('sh', ['runner.sh', projectId, query], {cwd: `${config.downloadPath}/${projectId}`});
             sendPipelineUpdate({
               type: 'success',
               projectId: projectId,

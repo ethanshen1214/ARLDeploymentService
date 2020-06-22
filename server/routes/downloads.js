@@ -9,9 +9,10 @@ var router = express.Router();
 
 /* Handles POST to route */
 router.post('/', function(req, res, next) {
+  let config = JSON.parse(fs.readFileSync('./config.json'));
   let projectId = req.body.projectId;
   let pipelineId = req.body.pipelineId;
-  let key = JSON.parse(fs.readFileSync('./config.json')).authKey;
+  let key = config.authKey;
   
   jobs.getJobsByPipeline(projectId, pipelineId, key, (err, jobData) => {
     if (err) {
@@ -29,8 +30,8 @@ router.post('/', function(req, res, next) {
       .then(async (query) => {
         spawnSync('sh', ['download.sh', projectId, query], {cwd: './downloadScripts'});
         Data.findOne({ projectId: projectId }, function(err, adventure) {
-          fs.writeFileSync(`../../Artifact-Downloads/${projectId}/runner.sh`, adventure.script);
-          spawnSync('sh', ['runner.sh', projectId, query], {cwd: `../../Artifact-Downloads/${projectId}`});
+          fs.writeFileSync(`${config.downloadPath}/${projectId}/runner.sh`, adventure.script);
+          spawnSync('sh', ['runner.sh', projectId, query], {cwd: `${config.downloadPath}/${projectId}`});
           res.status(200).end();
         });
       });
