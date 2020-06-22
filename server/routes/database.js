@@ -22,14 +22,10 @@ db.on('error', () => {
   db.close();
 });
 
-router.post('/config', (req, res) => {
-  
-  oldConfigFile = fs.readFileSync('./config.json');
-  oldKey = JSON.parse(oldConfigFile).authKey;
-  oldUrl = JSON.parse(oldConfigFile).mongoDb;
-
-  if(req.body.authKey === '' && req.body.url !== ''){   // no auth key input
-    fs.writeFileSync('./config.json', JSON.stringify({ authKey: oldKey, mongoDb: req.body.url }));
+router.post('/setMongoURL', (req, res) => {
+  const oldConfig = JSON.parse(fs.readFileSync('./config.json'));
+  if (req.body.authKey !== '') {
+    fs.writeFileSync('./config.json', JSON.stringify({ authKey: oldConfig.authKey, mongoDb: req.body.url, downloadPath: oldConfig.downloadPath }));
     mongoose.disconnect();
     // attempts to connect to database on user input and sets a flag to indicate a successful/unsuccessful connection
     mongoose.connect(req.body.url, { useNewUrlParser: true }).catch(() => console.log('MongoDB URL invalid.'));
@@ -44,29 +40,9 @@ router.post('/config', (req, res) => {
       db.removeAllListeners();
       db.close();
     });
-  }
-  else if(req.body.authKey !== '' && req.body.url === ''){  //no url input
-    fs.writeFileSync('./config.json', JSON.stringify({ authKey: req.body.authKey, mongoDb: oldUrl }));
-  }
-  else if(req.body.authKey !== '' && req.body.url !== ''){  //both inputs
-    fs.writeFileSync('./config.json', JSON.stringify({ authKey: req.body.authKey, mongoDb: req.body.url }));
-    mongoose.disconnect();
-    // attempts to connect to database on user input and sets a flag to indicate a successful/unsuccessful connection
-    mongoose.connect(req.body.url, { useNewUrlParser: true }).catch(() => console.log('MongoDB URL invalid.'));
-    mongoose.set('useFindAndModify', false);
-    db = mongoose.connection;
-    db.once('open', () => {
-      connected = 1;
-      console.log('connected to the database')
-    });
-    db.on('error', () => {
-      connected = 0;
-      db.removeAllListeners();
-      db.close();
-    }); // checks if connection with the database is successful
   }
   res.status(200).end();
-})
+});
 
 // this is our get method
 // this method fetches all available data in our database

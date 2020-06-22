@@ -18,15 +18,13 @@ router.post('/getDownloadPath', (req, res) => {
 })
 
 router.post('/setAuthKey', (req, res) => {
-
-})
-
-router.post('/setMongoURL', (req, res) => {
-
+    const oldConfig = JSON.parse(fs.readFileSync('./config.json'));
+    fs.writeFileSync('./config.json', JSON.stringify({ authKey: req.body.key, mongoDb: oldConfig.mongoDb, downloadPath: oldConfig.downloadPath }));
 })
 
 router.post('/setDownloadPath', (req, res) => {
-    
+    const oldConfig = JSON.parse(fs.readFileSync('./config.json'));
+    fs.writeFileSync('./config.json', JSON.stringify({ authKey: oldConfig.authKey, mongoDb: oldConfig.mongoDb, downloadPath: req.body.downloadPath }));
 })
 
 module.exports = router;
