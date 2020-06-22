@@ -5,8 +5,8 @@ import { DataTable, TableHeader, Card, CardText, CardActions, RadioGroup, Radio,
 import Script from './scriptInput';
 import axios from 'axios';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
-const pipes = require('../API_Functions/pipelines.js');
-const projects = require('../API_Functions/projects.js');
+import pipes from '../API_Functions/pipelines.js';
+import projects from '../API_Functions/projects.js';
 
 //zJLxDfYVS87Ar2NRp52K
 //mongodb+srv://joemama:joemama@cluster0-vh0zy.gcp.mongodb.net/test?retryWrites=true&w=majority

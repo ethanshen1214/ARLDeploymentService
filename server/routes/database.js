@@ -1,9 +1,9 @@
-var express = require('express');
-var mongoose = require('mongoose');
-var Data = require('../bin/data');
-var { mongoDb } = require('../config.json');
-var router = express.Router();
-var fs = require('fs');
+const express = require('express');
+const mongoose = require('mongoose');
+const Data = require('../bin/data');
+const { mongoDb } = require('../config.json');
+const router = express.Router();
+const fs = require('fs');
 
 let dbRoute = mongoDb;
 let connected;
