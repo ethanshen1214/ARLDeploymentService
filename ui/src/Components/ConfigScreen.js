@@ -10,8 +10,10 @@ export default class ConfigScreen extends Component {
         this.state = {
             authKey: '',
             mongoDb: '',
+            downloadPath: '',
             savedAuthKey: '',
             savedMongoDb: '',
+            savedDownloadPath: '',
         };
     }
     componentDidMount(){
@@ -20,11 +22,12 @@ export default class ConfigScreen extends Component {
     getData = async () => {
         let key = await axios.post(`${apiEndpointUrl}/configData/authKey`);
         let url = await axios.post(`${apiEndpointUrl}/configData/mongoURL`);
-        this.setState({ savedAuthKey: key.data, savedMongoDb: url.data});
+        let path = await axios.post(`${apiEndpointUrl}/configData/downloadPath`);
+        this.setState({ savedAuthKey: key.data, savedMongoDb: url.data, downloadPath: path.data});
     }
     handleSubmit = async (e) => {
         e.preventDefault();
-        await axios.post(`${apiEndpointUrl}/database/config`, { authKey: this.state.authKey, url: this.state.mongoDb  });
+        await axios.post(`${apiEndpointUrl}/database/config`, { authKey: this.state.authKey, url: this.state.mongoDb, downloadPath: this.state.downloadPath  });
         this.getData();
     }
     handleChange1 = (e) => {
@@ -32,6 +35,9 @@ export default class ConfigScreen extends Component {
     }
     handleChange2 = (e) => {
         this.setState({mongoDb: e.target.value});
+    }
+    handleChange3 = (e) => {
+        this.setState({downloadPath: e.target.value});
     }
 
     render() {
@@ -60,6 +66,18 @@ export default class ConfigScreen extends Component {
                         type="text" 
                         value={this.state.mongoDb} 
                         onChange={this.handleChange2} 
+                        style={{ width: '650px', marginLeft: '10px'}}
+                        />
+                </div>
+                <div style = {{marginBottom: '30px'}}>
+                    <label>Currently Saved Download Path: {this.state.savedDownloadPath}</label>
+                </div>
+                <div style = {{marginBottom: '30px'}}>
+                    <label>MongoDB Endpoint URL: </label>
+                    <input
+                        type="text" 
+                        value={this.state.downloadPath} 
+                        onChange={this.handleChange3} 
                         style={{ width: '650px', marginLeft: '10px'}}
                         />
                 </div>
