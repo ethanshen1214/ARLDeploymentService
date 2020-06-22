@@ -275,26 +275,28 @@ export default class DeploymentScreen extends Component {
     }
 
     let radioGroup;
-    if(this.state.numPipelines === 1){    //for re-rendering the radio buttons with the correct values
-      radioGroup = <RadioGroup container="ul" childContainer="li" name="demo2" value = '1' onChange ={this.selectNumPipes}>
+    switch(this.state.numPipelines) {
+      case 1:
+        radioGroup = <RadioGroup container="ul" childContainer="li" name="demo2" value = '1' onChange ={this.selectNumPipes}>
                         <Radio value= '1' >1</Radio>
                         <Radio value= '5' >5</Radio>
                         <Radio value= '10'>10</Radio>
                     </RadioGroup>;
-    }
-    else if(this.state.numPipelines === 5){
-      radioGroup = <RadioGroup container="ul" childContainer="li" name="demo2" value = '5' onChange ={this.selectNumPipes}>
+        break;
+      case 5:
+        radioGroup = <RadioGroup container="ul" childContainer="li" name="demo2" value = '5' onChange ={this.selectNumPipes}>
                         <Radio value= '1' >1</Radio>
                         <Radio value= '5' >5</Radio>
                         <Radio value= '10'>10</Radio>
                     </RadioGroup>;
-    }
-    else if(this.state.numPipelines === 10){
-      radioGroup = <RadioGroup container="ul" childContainer="li" name="demo2" value = '10' onChange ={this.selectNumPipes}>
+        break;
+      case 10:
+        radioGroup = <RadioGroup container="ul" childContainer="li" name="demo2" value = '10' onChange ={this.selectNumPipes}>
                         <Radio value= '1' >1</Radio>
                         <Radio value= '5' >5</Radio>
                         <Radio value= '10'>10</Radio>
                     </RadioGroup>;
+        break;
     }
 
     return(
