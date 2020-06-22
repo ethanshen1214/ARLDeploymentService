@@ -32,7 +32,7 @@ export default class ConfigScreen extends Component {
     }
     handleSubmitMongoDB = async (e) => {
         e.preventDefault();
-        await axios.post(`${apiEndpointUrl}/configData/setMongoURL`, { url: this.state.mongoDb });
+        await axios.post(`${apiEndpointUrl}/database/setMongoURL`, { url: this.state.mongoDb });
         this.getData();
     }
     handleSubmitDownloadPath = async (e) => {

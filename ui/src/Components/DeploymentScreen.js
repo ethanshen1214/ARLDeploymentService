@@ -68,7 +68,7 @@ export default class DeploymentScreen extends Component {
   }
 
   loadData = async () => {
-    let authKey = await axios.post(`${apiEndpointUrl}/configData/authKey`);
+    let authKey = await axios.post(`${apiEndpointUrl}/configData/getAuthKey`);
     this.setState({auth_key: authKey.data});
     const gitLabProjects = await projects.getProjects(this.state.auth_key); // get an array of all the projects associated with a user DOES NOT HANDLE ERROR
     if (gitLabProjects === false) {
