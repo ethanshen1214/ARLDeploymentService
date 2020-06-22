@@ -19,7 +19,7 @@ router.post('/getDownloadPath', (req, res) => {
 
 router.post('/setAuthKey', (req, res) => {
     const oldConfig = JSON.parse(fs.readFileSync('./config.json'));
-    fs.writeFileSync('./config.json', JSON.stringify({ authKey: req.body.key, mongoDb: oldConfig.mongoDb, downloadPath: oldConfig.downloadPath }));
+    fs.writeFileSync('./config.json', JSON.stringify({ authKey: req.body.authKey, mongoDb: oldConfig.mongoDb, downloadPath: oldConfig.downloadPath }));
     res.status(200).end();
 })
 
