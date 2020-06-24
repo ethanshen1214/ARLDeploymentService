@@ -38,7 +38,6 @@ exit
 %attr(0644, root, root) /etc/systemd/system
 
 %pre
-ls
 
 %post
 cd /opt/ARL-UT/Deployment-Server
