@@ -1,0 +1,12 @@
+image: centos:centos8.2.2004
+
+build:
+  script:
+    - mkdir -p rpmbuild/{BUILD,BUILDROOT,RPMS,SRPMS}
+    - mkdir -p rpmbuild/RPMS/noarch
+    - cd rpmbuild/SPECS
+    - rpmbuild --target noarch -bb deployment.spec
+
+  artifacts:
+    paths:
+      - rpmbuild/RPMS
