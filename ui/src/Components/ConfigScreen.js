@@ -10,36 +10,52 @@ export default class ConfigScreen extends Component {
         this.state = {
             authKey: '',
             mongoDb: '',
+            downloadPath: '',
             savedAuthKey: '',
             savedMongoDb: '',
+            savedDownloadPath: '',
         };
     }
     componentDidMount(){
         this.getData();
     }
     getData = async () => {
-        let key = await axios.post(`${apiEndpointUrl}/configData/authKey`);
-        let url = await axios.post(`${apiEndpointUrl}/configData/mongoURL`);
-        this.setState({ savedAuthKey: key.data, savedMongoDb: url.data});
+        let key = await axios.post(`${apiEndpointUrl}/configData/getAuthKey`);
+        let url = await axios.post(`${apiEndpointUrl}/configData/getMongoURL`);
+        let path = await axios.post(`${apiEndpointUrl}/configData/getDownloadPath`);
+        this.setState({ savedAuthKey: key.data, savedMongoDb: url.data, savedDownloadPath: path.data});
     }
-    handleSubmit = async (e) => {
+    handleSubmitAuthKey = async (e) => {
         e.preventDefault();
-        await axios.post(`${apiEndpointUrl}/database/config`, { authKey: this.state.authKey, url: this.state.mongoDb  });
+        await axios.post(`${apiEndpointUrl}/configData/setAuthKey`, { authKey: this.state.authKey });
         this.getData();
     }
-    handleChange1 = (e) => {
+    handleSubmitMongoDB = async (e) => {
+        e.preventDefault();
+        await axios.post(`${apiEndpointUrl}/database/setMongoURL`, { url: this.state.mongoDb });
+        this.getData();
+    }
+    handleSubmitDownloadPath = async (e) => {
+        e.preventDefault();
+        await axios.post(`${apiEndpointUrl}/configData/setDownloadPath`, { downloadPath: this.state.downloadPath });
+        this.getData();
+    }
+    handleChangeAuthKey = (e) => {
         this.setState({authKey: e.target.value});
     }
-    handleChange2 = (e) => {
+    handleChangeMongoDB = (e) => {
         this.setState({mongoDb: e.target.value});
+    }
+    handleChangeDownloadPath = (e) => {
+        this.setState({downloadPath: e.target.value});
     }
 
     render() {
       return (
         <div className='labels' style={{marginLeft: '80px', marginRight: '80px'}}>
             <h1>Configurations</h1>
-            <form onSubmit={this.handleSubmit} style = {{marginLeft: '20px', marginTop: '10px'}}>
-                <div style = {{marginBottom: '30px'}}>
+            <form onSubmit={this.handleSubmitAuthKey} style = {{marginLeft: '20px', marginTop: '10px'}}>
+                <div style = {{marginBottom: '10px'}}>
                     <label>Currently Saved Authentication Key: {this.state.savedAuthKey}</label>
                 </div>
                 <div style = {{marginBottom: '30px'}}>
@@ -47,11 +63,15 @@ export default class ConfigScreen extends Component {
                     <input
                         type="text" 
                         value={this.state.authKey} 
-                        onChange={this.handleChange1} 
-                        style={{ marginLeft: '50px' }}
+                        onChange={this.handleChangeAuthKey} 
+                        style={{ marginLeft: '90px', marginRight: '20px', marginBottom: '10px' }}
                         />
+                    <input type="submit" value="Save Changes" />
+                    <p>(Changes may take a couple seconds to save)</p>
                 </div>
-                <div style = {{marginBottom: '30px'}}>
+            </form>
+            <form onSubmit={this.handleSubmitMongoDB} style = {{marginLeft: '20px', marginTop: '10px'}}>
+                <div style = {{marginBottom: '10px'}}>
                     <label>Currently Saved MongoDB URL: {this.state.savedMongoDb}</label>
                 </div>
                 <div style = {{marginBottom: '30px'}}>
@@ -59,15 +79,28 @@ export default class ConfigScreen extends Component {
                     <input
                         type="text" 
                         value={this.state.mongoDb} 
-                        onChange={this.handleChange2} 
-                        style={{ width: '650px', marginLeft: '10px'}}
+                        onChange={this.handleChangeMongoDB} 
+                        style={{ width: '650px', marginLeft: '50px', marginRight: '10px', marginBottom: '10px '}}
                         />
-                </div>
-                <div>
                     <input type="submit" value="Save Changes" />
-                    <p>(Changes may take a couple seconds to save)</p>
+                    <p>(Changes may take a couple seconds to save)</p>                    
                 </div>
-                
+            </form>
+            <form onSubmit={this.handleSubmitDownloadPath} style = {{marginLeft: '20px', marginTop: '10px'}}>
+                <div style = {{marginBottom: '10px'}}>
+                    <label>Currently Saved Download Path: {this.state.savedDownloadPath}</label>
+                </div>
+                <div style = {{marginBottom: '30px'}}>
+                    <label>Download Path: </label>
+                    <input
+                        type="text" 
+                        value={this.state.downloadPath} 
+                        onChange={this.handleChangeDownloadPath} 
+                        style={{ width: '650px', marginLeft: '107px', marginRight: '10px', marginBottom: '10px' }}
+                        />
+                    <input type="submit" value="Save Changes" />
+                    <p>(Changes may take a couple seconds to save)</p>                    
+                </div>
             </form>
         </div>
       );

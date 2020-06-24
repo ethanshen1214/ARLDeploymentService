@@ -1,9 +1,18 @@
+<<<<<<< HEAD
 var express = require('express');
 var mongoose = require('mongoose');
 var Data = require('../data');
 var { mongoDb } = require('../config.json');
 var router = express.Router();
 var fs = require('fs');
+=======
+const express = require('express');
+const mongoose = require('mongoose');
+const Data = require('../bin/data');
+const { mongoDb } = require('../config.json');
+const router = express.Router();
+const fs = require('fs');
+>>>>>>> master
 
 let dbRoute = mongoDb;
 let connected;
@@ -22,6 +31,7 @@ db.on('error', () => {
   db.close();
 });
 
+<<<<<<< HEAD
 router.post('/config', (req, res) => {
   
   oldConfigFile = fs.readFileSync('./config.json');
@@ -30,6 +40,12 @@ router.post('/config', (req, res) => {
 
   if(req.body.authKey === '' && req.body.url !== ''){   // no auth key input
     fs.writeFileSync('./config.json', JSON.stringify({ authKey: oldKey, mongoDb: req.body.url }));
+=======
+router.post('/setMongoURL', (req, res) => {
+  const oldConfig = JSON.parse(fs.readFileSync('./config.json'));
+  if (req.body.authKey !== '') {
+    fs.writeFileSync('./config.json', JSON.stringify({ authKey: oldConfig.authKey, mongoDb: req.body.url, downloadPath: oldConfig.downloadPath }));
+>>>>>>> master
     mongoose.disconnect();
     // attempts to connect to database on user input and sets a flag to indicate a successful/unsuccessful connection
     mongoose.connect(req.body.url, { useNewUrlParser: true }).catch(() => console.log('MongoDB URL invalid.'));
@@ -45,6 +61,7 @@ router.post('/config', (req, res) => {
       db.close();
     });
   }
+<<<<<<< HEAD
   else if(req.body.authKey !== '' && req.body.url === ''){  //no url input
     fs.writeFileSync('./config.json', JSON.stringify({ authKey: req.body.authKey, mongoDb: oldUrl }));
   }
@@ -67,6 +84,10 @@ router.post('/config', (req, res) => {
   }
   res.status(200).end();
 })
+=======
+  res.status(200).end();
+});
+>>>>>>> master
 
 // this is our get method
 // this method fetches all available data in our database

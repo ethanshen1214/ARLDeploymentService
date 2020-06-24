@@ -6,6 +6,10 @@
 /server/node_modules
 /ui/.pnp
 /ui/.pnp.js
+<<<<<<< HEAD
+=======
+/server/config.json
+>>>>>>> master
 
 # testing
 /ui/coverage

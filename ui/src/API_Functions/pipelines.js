@@ -1,6 +1,6 @@
 const https = require('https');
 const querystring = require('querystring');
-const { apiUrl } = require('../lib/config.js');
+const { apiUrl } = require('./config.js');
 
 const request = (url, data = '') => new Promise((resolve, reject) => {
     const req = https.request(url, (res) => {

@@ -5,8 +5,8 @@ import { DataTable, TableHeader, Card, CardText, CardActions, RadioGroup, Radio,
 import Script from './scriptInput';
 import axios from 'axios';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
-const pipes = require('../API_Functions/pipelines.js');
-const projects = require('../API_Functions/projects.js');
+import pipes from '../API_Functions/pipelines.js';
+import projects from '../API_Functions/projects.js';
 
 //zJLxDfYVS87Ar2NRp52K
 //mongodb+srv://joemama:joemama@cluster0-vh0zy.gcp.mongodb.net/test?retryWrites=true&w=majority
@@ -68,7 +68,7 @@ export default class DeploymentScreen extends Component {
   }
 
   loadData = async () => {
-    let authKey = await axios.post(`${apiEndpointUrl}/configData/authKey`);
+    let authKey = await axios.post(`${apiEndpointUrl}/configData/getAuthKey`);
     this.setState({auth_key: authKey.data});
     const gitLabProjects = await projects.getProjects(this.state.auth_key); // get an array of all the projects associated with a user DOES NOT HANDLE ERROR
     if (gitLabProjects === false) {
@@ -219,15 +219,30 @@ export default class DeploymentScreen extends Component {
     {
       if(this.state.pipelines[i].status !== 'success')
       {
-        let date = new Date(this.state.pipelines[i].created_at);
-        const tempPipeline = {
-          sourceProject: <a href = {this.state.pipelines[i].web_url} target = "_blank" rel="noopener noreferrer">{this.state.pipelines[i].web_url}</a>,
-          sourceCommit: this.state.pipelines[i].user.username,
-          deploymentDate: date.toString(),
-          successStatus: this.state.pipelines[i].status,
-          downloadButton: <Spinner/>
-        };
-        parsedPipelines.push(tempPipeline);   //add to pipelines array    
+        if(this.state.pipelines[i].status == 'failed')
+        {
+          let date = new Date(this.state.pipelines[i].created_at);
+          const tempPipeline = {
+            sourceProject: <a href = {this.state.pipelines[i].web_url} target = "_blank" rel="noopener noreferrer">{this.state.pipelines[i].web_url}</a>,
+            sourceCommit: this.state.pipelines[i].user.username,
+            deploymentDate: date.toString(),
+            successStatus: this.state.pipelines[i].status,
+            downloadButton: <Chip style={{background: '#d73016'}}>Failed</Chip>
+          };     
+          parsedPipelines.push(tempPipeline);   //add to pipelines array
+        }
+        else
+        {
+          let date = new Date(this.state.pipelines[i].created_at);
+          const tempPipeline = {
+            sourceProject: <a href = {this.state.pipelines[i].web_url} target = "_blank" rel="noopener noreferrer">{this.state.pipelines[i].web_url}</a>,
+            sourceCommit: this.state.pipelines[i].user.username,
+            deploymentDate: date.toString(),
+            successStatus: this.state.pipelines[i].status,
+            downloadButton: <Spinner/>
+          };
+          parsedPipelines.push(tempPipeline);   //add to pipelines array  
+        }
       }
       else
       {
@@ -260,26 +275,28 @@ export default class DeploymentScreen extends Component {
     }
 
     let radioGroup;
-    if(this.state.numPipelines === 1){    //for re-rendering the radio buttons with the correct values
-      radioGroup = <RadioGroup container="ul" childContainer="li" name="demo2" value = '1' onChange ={this.selectNumPipes}>
+    switch(this.state.numPipelines) {
+      case 1:
+        radioGroup = <RadioGroup container="ul" childContainer="li" name="demo2" value = '1' onChange ={this.selectNumPipes}>
                         <Radio value= '1' >1</Radio>
                         <Radio value= '5' >5</Radio>
                         <Radio value= '10'>10</Radio>
                     </RadioGroup>;
-    }
-    else if(this.state.numPipelines === 5){
-      radioGroup = <RadioGroup container="ul" childContainer="li" name="demo2" value = '5' onChange ={this.selectNumPipes}>
+        break;
+      case 5:
+        radioGroup = <RadioGroup container="ul" childContainer="li" name="demo2" value = '5' onChange ={this.selectNumPipes}>
                         <Radio value= '1' >1</Radio>
                         <Radio value= '5' >5</Radio>
                         <Radio value= '10'>10</Radio>
                     </RadioGroup>;
-    }
-    else if(this.state.numPipelines === 10){
-      radioGroup = <RadioGroup container="ul" childContainer="li" name="demo2" value = '10' onChange ={this.selectNumPipes}>
+        break;
+      case 10:
+        radioGroup = <RadioGroup container="ul" childContainer="li" name="demo2" value = '10' onChange ={this.selectNumPipes}>
                         <Radio value= '1' >1</Radio>
                         <Radio value= '5' >5</Radio>
                         <Radio value= '10'>10</Radio>
                     </RadioGroup>;
+        break;
     }
 
     return(
