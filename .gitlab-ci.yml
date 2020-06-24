@@ -3,13 +3,8 @@ image: centos:centos8.2.2004
 build:
   script:
     - yum -y install rpm-build
-    - mkdir -p rpmbuild/{BUILD,BUILDROOT,RPMS,SRPMS}
-    - mkdir -p rpmbuild/RPMS/noarch
-    - cd rpmbuild/SPECS
     - rpmbuild --target noarch -bb deployment.spec
-    - cd ../../../../../../
-    - find . -name "Deployment-Server-0.0.0-1.noarch.rpm"
 
   artifacts:
     paths:
-      - rpmbuild/RPMS
+      - /root/rpmbuild/RPMS
