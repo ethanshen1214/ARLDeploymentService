@@ -7,8 +7,8 @@ build:
     - mkdir -p rpmbuild/RPMS/noarch
     - cd rpmbuild/SPECS
     - rpmbuild --target noarch -bb deployment.spec
-    - cd ../RPMS/noarch
-    - ls
+    - cd ../../../../../../
+    - find . -name "Deployment-Server-0.0.0-1.noarch.rpm"
 
   artifacts:
     paths:
