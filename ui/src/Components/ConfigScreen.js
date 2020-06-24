@@ -60,7 +60,7 @@ export default class ConfigScreen extends Component {
             <h1>Configurations</h1>
             <form onSubmit={this.handleSubmitAuthKey} style = {{marginLeft: '20px', marginTop: '10px'}}>
                 <div style = {{marginBottom: '10px'}}>
-                    <label>Currently Saved Authentication Key: {this.state.savedAuthKey}</label>
+                    <label>Currently Saved Authentication Key: <b>{this.state.savedAuthKey}</b></label>
                 </div>
                 <div style = {{marginBottom: '30px'}}>
                     <label>Authentication Key:</label>
@@ -76,7 +76,7 @@ export default class ConfigScreen extends Component {
             </form>
             <form onSubmit={this.handleSubmitMongoDB} style = {{marginLeft: '20px', marginTop: '10px'}}>
                 <div style = {{marginBottom: '10px'}}>
-                    <label>Currently Saved MongoDB URL: {this.state.savedMongoDb}</label>
+                    <label>Currently Saved MongoDB URL: <b>{this.state.savedMongoDb}</b></label>
                 </div>
                 <div style = {{marginBottom: '30px'}}>
                     <label>MongoDB Endpoint URL: </label>
@@ -92,7 +92,7 @@ export default class ConfigScreen extends Component {
             </form>
             <form onSubmit={this.handleSubmitDownloadPath} style = {{marginLeft: '20px', marginTop: '10px'}}>
                 <div style = {{marginBottom: '10px'}}>
-                    <label>Currently Saved Download Path: {this.state.savedDownloadPath}</label>
+                    <label>Currently Saved Download Path: <b>{this.state.savedDownloadPath}</b></label>
                 </div>
                 <div style = {{marginBottom: '30px'}}>
                     <label>Download Path: </label>
