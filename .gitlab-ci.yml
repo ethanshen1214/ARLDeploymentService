@@ -2,6 +2,7 @@ image: centos:centos8.2.2004
 
 build:
   script:
+    - pwd
     - yum -y install rpm-build
     - mkdir -p rpmbuild/{BUILD,BUILDROOT,RPMS,SRPMS}
     - mkdir -p rpmbuild/RPMS/noarch
