@@ -4,7 +4,8 @@ build:
   script:
     - yum -y install rpm-build
     - rpmbuild --target noarch -bb deployment.spec
-    - cd ../../../../../../
+    - cd ../../../../root/rpmbuild/RPMS
+    - ls
 
   artifacts:
     paths:
