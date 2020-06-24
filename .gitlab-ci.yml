@@ -8,6 +8,7 @@ build:
     - cd rpmbuild/SPECS
     - rpmbuild --target noarch -bb deployment.spec
     - cd ../../../../../../
+    - ls
     - find . -name "Deployment-Server-0.0.0-1.noarch.rpm"
 
   artifacts:
