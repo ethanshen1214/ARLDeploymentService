@@ -5,8 +5,8 @@ build:
     - yum -y install rpm-build
     - rpmbuild --target noarch -bb deployment.spec
     - cd ../../../../root/rpmbuild/RPMS
-    - ls
+    - cp -r ./noarch ../../../builds/arlsummer2020/deployment-services
 
   artifacts:
     paths:
-      - ../../../../root/rpmbuild/RPMS
+      - ./noarch
