@@ -23,21 +23,25 @@ export default class ConfigScreen extends Component {
         let key = await axios.post(`${apiEndpointUrl}/configData/getAuthKey`);
         let url = await axios.post(`${apiEndpointUrl}/configData/getMongoURL`);
         let path = await axios.post(`${apiEndpointUrl}/configData/getDownloadPath`);
-        this.setState({ savedAuthKey: key.data, savedMongoDb: url.data, savedDownloadPath: path.data});
+        this.setState({ 
+            savedAuthKey: key.data, savedMongoDb: url.data, savedDownloadPath: path.data});
     }
     handleSubmitAuthKey = async (e) => {
         e.preventDefault();
         await axios.post(`${apiEndpointUrl}/configData/setAuthKey`, { authKey: this.state.authKey });
+        this.setState({ authKey: '' });
         this.getData();
     }
     handleSubmitMongoDB = async (e) => {
         e.preventDefault();
         await axios.post(`${apiEndpointUrl}/database/setMongoURL`, { url: this.state.mongoDb });
+        this.setState({ mongoDb: '' });
         this.getData();
     }
     handleSubmitDownloadPath = async (e) => {
         e.preventDefault();
         await axios.post(`${apiEndpointUrl}/configData/setDownloadPath`, { downloadPath: this.state.downloadPath });
+        this.setState({ downloadPath: '' });
         this.getData();
     }
     handleChangeAuthKey = (e) => {
