@@ -5,6 +5,7 @@ const jobs = require('../bin/jobs.js');
 const { sendPipelineUpdate } = require('../bin/sockets')
 const fs = require('fs');
 const Data = require('../bin/data');
+const path = require('path');
 
 var router = express.Router();
 
@@ -15,6 +16,13 @@ router.post('/', function(req, res, next) {
     let projectId = req.body.project.id;
     let pipelineId = req.body.object_attributes.id;
     let key = config.authKey;
+
+    if(!path.isAbsolute(`${config.downloadPath}`)){
+      res.status(500).end();
+    }
+    if(!fs.existsSync(`${config.downloadPath}`)){
+      res.status(500).end();
+    }
 
     Data.findOneAndUpdate( {projectId: projectId}, { pipelineId } ).catch((err) => console.log('Failed to update database on hook.'));
     jobs.getJobsByPipeline(projectId, pipelineId, key, (err, jobData) => {

@@ -4,6 +4,7 @@ const { spawnSync } = require('child_process');
 const jobs = require('../bin/jobs.js');
 const fs = require('fs');
 const Data = require('../bin/data');
+const path = require('path');
 
 var router = express.Router();
 
@@ -13,6 +14,13 @@ router.post('/', function(req, res, next) {
   let projectId = req.body.projectId;
   let pipelineId = req.body.pipelineId;
   let key = config.authKey;
+
+  if(!path.isAbsolute(`${config.downloadPath}`)){
+    res.status(500).end();
+  }
+  if(!fs.existsSync(`${config.downloadPath}`)){
+    res.status(500).end();
+  }
   
   jobs.getJobsByPipeline(projectId, pipelineId, key, (err, jobData) => {
     if (err) {
@@ -33,7 +41,7 @@ router.post('/', function(req, res, next) {
           fs.writeFileSync(`${config.downloadPath}/${projectId}/runner.sh`, adventure.script);
           spawnSync('sh', ['runner.sh', projectId, query], {cwd: `${config.downloadPath}/${projectId}`});
           res.status(200).end();
-        });
+        });          
       });
     }
   });
