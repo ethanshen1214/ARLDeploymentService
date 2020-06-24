@@ -12,7 +12,7 @@ Release: 1
 Group: System
 Packager: William Avery
 Requires: node
-BuildRoot: builds/arlsummer2020/deployment-services/rpmbuild/
+BuildRoot: ~/rpmbuild/
 
 # Build with the following syntax:
 # rpmbuild --target noarch -bb deployment.spec
