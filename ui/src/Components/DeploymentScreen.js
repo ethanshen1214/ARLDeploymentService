@@ -33,6 +33,7 @@ export default class DeploymentScreen extends Component {
       searchResults: [],
       searchTerm: "",
     }
+
   }
 
   async componentDidMount() {   //on startup it checks to see if sessionStorage already has auth_key and/or project_id
@@ -196,6 +197,7 @@ export default class DeploymentScreen extends Component {
 
   downloadHandler = async (e) => {
     const { match } = this.props;
+    e.persist();
     const result = await axios.post(`${apiEndpointUrl}/database/updateData`, {projectId: parseInt(match.params.id), update: {pipelineId: e.target.title}});
     if (result.data.type) {
       alert('File path is not absolute or does not exist.');
