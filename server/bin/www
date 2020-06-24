@@ -1,14 +1,19 @@
 #!/usr/bin/env node
 
+// rm -f config.json && echo {\"authKey\":\"\",\"mongoDb\":\"\",\"downloadPath\":\"\"} >> config.json && 
+
 /**
  * Module dependencies.
  */
+const fs = require('fs');
 
+fs.writeFileSync('./config.json', JSON.stringify({ authKey: "", mongoDb: "", downloadPath: ""}));
 require('dotenv').config();
 const app = require('../app');
 const debug = require('debug')('server:server');
 const http = require('http');
 const socket = require('./sockets');
+
 
 /**
  * Get port from environment and store in Express.
