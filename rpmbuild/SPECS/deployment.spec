@@ -29,8 +29,8 @@ echo "BUILDROOT = $RPM_BUILD_ROOT"
 mkdir -p $RPM_BUILD_ROOT/opt/ARL-UT/Deployment-Server
 mkdir -p $RPM_BUILD_ROOT/etc/systemd/system
 
-cp -r ./* $RPM_BUILD_ROOT/opt/ARL-UT/Deployment-Server
-cp -r ./deployment.service $RPM_BUILD_ROOT/etc/systemd/system
+cp -r * $RPM_BUILD_ROOT/opt/ARL-UT/Deployment-Server
+cp -r deployment.service $RPM_BUILD_ROOT/etc/systemd/system
 
 exit
 
