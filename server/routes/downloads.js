@@ -18,11 +18,11 @@ router.post('/', function(req, res, next) {
 
   if(!path.isAbsolute(`${config.downloadPath}`)){
     sendSocketData({ type: 'notAbs' });
-    res.status(200).end();
+    return res.status(200).end();
   }
   if(!fs.existsSync(`${config.downloadPath}`)){
     sendSocketData({ type: 'notEx' });
-    res.status(200).end();
+    return res.status(200).end();
   }
   
   jobs.getJobsByPipeline(projectId, pipelineId, key, (err, jobData) => {

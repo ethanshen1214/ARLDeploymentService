@@ -19,11 +19,11 @@ router.post('/', function(req, res, next) {
 
     if(!path.isAbsolute(`${config.downloadPath}`)){
       sendSocketData({ type: 'notAbs' });
-      res.status(200).end();
+      return res.status(200).end();
     }
     if(!fs.existsSync(`${config.downloadPath}`)){
       sendSocketData({ type: 'notEx' });
-      res.status(200).end();
+      return res.status(200).end();
     }
 
     Data.findOneAndUpdate( {projectId: projectId}, { pipelineId } ).catch((err) => console.log('Failed to update database on hook.'));
