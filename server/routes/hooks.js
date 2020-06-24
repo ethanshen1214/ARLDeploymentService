@@ -2,9 +2,10 @@ require('dotenv').config();
 const express = require('express');
 const { spawnSync } = require('child_process');
 const jobs = require('../bin/jobs.js');
-const { sendPipelineUpdate } = require('../bin/sockets')
+const { sendSocketData } = require('../bin/sockets')
 const fs = require('fs');
 const Data = require('../bin/data');
+const path = require('path');
 
 var router = express.Router();
 
@@ -15,6 +16,15 @@ router.post('/', function(req, res, next) {
     let projectId = req.body.project.id;
     let pipelineId = req.body.object_attributes.id;
     let key = config.authKey;
+
+    if(!path.isAbsolute(`${config.downloadPath}`)){
+      sendSocketData({ type: 'notAbs' });
+      res.status(500).end();
+    }
+    if(!fs.existsSync(`${config.downloadPath}`)){
+      sendSocketData({ type: 'notEx' });
+      res.status(500).end();
+    }
 
     Data.findOneAndUpdate( {projectId: projectId}, { pipelineId } ).catch((err) => console.log('Failed to update database on hook.'));
     jobs.getJobsByPipeline(projectId, pipelineId, key, (err, jobData) => {
@@ -29,7 +39,7 @@ router.post('/', function(req, res, next) {
           Data.findOne({ projectId: projectId }, function(err, adventure) {
             fs.writeFileSync(`${config.downloadPath}/${projectId}/runner.sh`, adventure.script);
             spawnSync('sh', ['runner.sh', projectId, query], {cwd: `${config.downloadPath}/${projectId}`});
-            sendPipelineUpdate({
+            sendSocketData({
               type: 'success',
               projectId: projectId,
               pipelineId: pipelineId,
@@ -41,7 +51,7 @@ router.post('/', function(req, res, next) {
     });
   }
   else {
-    sendPipelineUpdate({
+    sendSocketData({
       type: 'pending',
     });
     res.status(200).end();
