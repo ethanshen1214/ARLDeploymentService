@@ -1,9 +1,6 @@
 ###############################################################################
 # Spec file for Utils
 ################################################################################
-# Configured to be built by user student or other non-root user
-################################################################################
-#
 Summary: Installs Deployment-Server API and UI
 Name: Deployment-Server
 Version: 0.0.0
@@ -46,10 +43,16 @@ cd server
 npm install
 cd ../ui
 npm install
+systemctl stop deployment
+systemctl enable deployment
+systemctl start deployment
 
 exit
 
 %postun
+systemctl stop deployment
+systemctl disable deployment
+
 %clean
 rm -rf $RPM_BUILD_ROOT/opt/ARL-UT
 rm -rf $RPM_BUILD_ROOT/etc/systemd/system
