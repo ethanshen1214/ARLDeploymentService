@@ -28,7 +28,7 @@ rm -rf $workdir
 echo "BUILDROOT = $RPM_BUILD_ROOT"
 mkdir -p $RPM_BUILD_ROOT/opt/ARL-UT/Deployment-Server
 mkdir -p $RPM_BUILD_ROOT/etc/systemd/system
-
+ls
 cp -r /{ui,server,package.json,package-lock.json} $RPM_BUILD_ROOT/opt/ARL-UT/Deployment-Server
 cp -r /deployment.service $RPM_BUILD_ROOT/etc/systemd/system
 
