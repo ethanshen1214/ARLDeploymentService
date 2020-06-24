@@ -1,9 +1,5 @@
 const https = require('https');
-<<<<<<< HEAD:ui/src/API_Functions/projects.js
-const { apiUrl } = require('../lib/config.js');
-=======
 const { apiUrl } = require('./config.js');
->>>>>>> master:src/API_Functions/projects.js
 const axios = require('axios');
 
 exports.getProjectName = (projectId, key, callback) => {
