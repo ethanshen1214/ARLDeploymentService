@@ -4,6 +4,7 @@ const Data = require('../bin/data');
 const { mongoDb } = require('../config.json');
 const router = express.Router();
 const fs = require('fs');
+const path = require('path');
 
 let dbRoute = mongoDb;
 let connected;
@@ -60,6 +61,14 @@ router.get('/getData', (req, res) => {
 // this is our update method
 // this method overwrites existing data in our database
 router.post('/updateData', (req, res) => {
+    let config = JSON.parse(fs.readFileSync('./config.json'));
+    if(!path.isAbsolute(`${config.downloadPath}`)){
+      return res.json({ type: 'notAbs' }).end();
+    }
+    if(!fs.existsSync(`${config.downloadPath}`)){
+      return res.json({ type: 'notEx' }).end();
+    }
+
     const { projectId, update } = req.body;
     Data.findOneAndUpdate( {projectId: projectId}, update, (err) => {
       if (err) return res.json({ success: false, error: err });

@@ -50,10 +50,10 @@ export default class DeploymentScreen extends Component {
           this.loadData();
         }
         else if (dataJSON.type === 'notAbs') {
-          alert('File path is not absolute. Please enter an absolute file path.');
+          alert('File path is not absolute.')
         }
         else if (dataJSON.type === 'notEx') {
-          alert('File path does not exist. Please enter an existing file path.');
+          alert('File path does not exist.')
         }
       }
       this.loadData();
@@ -194,16 +194,18 @@ export default class DeploymentScreen extends Component {
     this.setState({numPipelines: parseInt(e.target.value)});
   }
 
-  downloadHandler = (e) => {
+  downloadHandler = async (e) => {
     const { match } = this.props;
-    axios.post(`${apiEndpointUrl}/database/updateData`, {projectId: parseInt(match.params.id), update: {pipelineId: e.target.title}})
-    .then(() => {
+    result = await axios.post(`${apiEndpointUrl}/database/updateData`, {projectId: parseInt(match.params.id), update: {pipelineId: e.target.title}});
+    if (result.data.type) {
+      alert('File path is not absolute or does not exist.');
+    } else {
+      axios.post(`${apiEndpointUrl}/downloads`, {
+        pipelineId: e.target.title,
+        projectId: parseInt(match.params.id),
+      });
       this.loadData();
-    });
-    axios.post(`${apiEndpointUrl}/downloads`, {
-      pipelineId: e.target.title,
-      projectId: parseInt(match.params.id),
-    });
+    }
   }
 
   handleProjectSearch = (e) => {

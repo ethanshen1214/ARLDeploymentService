@@ -1,11 +1,9 @@
 require('dotenv').config();
 const express = require('express');
 const { spawnSync } = require('child_process');
-const { sendSocketData } = require('../bin/sockets');
 const jobs = require('../bin/jobs.js');
 const fs = require('fs');
 const Data = require('../bin/data');
-const path = require('path');
 
 var router = express.Router();
 
@@ -15,15 +13,6 @@ router.post('/', function(req, res, next) {
   let projectId = req.body.projectId;
   let pipelineId = req.body.pipelineId;
   let key = config.authKey;
-
-  if(!path.isAbsolute(`${config.downloadPath}`)){
-    sendSocketData({ type: 'notAbs' });
-    return res.status(200).end();
-  }
-  if(!fs.existsSync(`${config.downloadPath}`)){
-    sendSocketData({ type: 'notEx' });
-    return res.status(200).end();
-  }
   
   jobs.getJobsByPipeline(projectId, pipelineId, key, (err, jobData) => {
     if (err) {
