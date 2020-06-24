@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const { spawnSync } = require('child_process');
+const { sendSocketData } = require('../bin/sockets');
 const jobs = require('../bin/jobs.js');
 const fs = require('fs');
 const Data = require('../bin/data');
@@ -16,9 +17,11 @@ router.post('/', function(req, res, next) {
   let key = config.authKey;
 
   if(!path.isAbsolute(`${config.downloadPath}`)){
+    sendSocketData({ type: 'notAbs' });
     res.status(500).end();
   }
   if(!fs.existsSync(`${config.downloadPath}`)){
+    sendSocketData({ type: 'notEx' });
     res.status(500).end();
   }
   

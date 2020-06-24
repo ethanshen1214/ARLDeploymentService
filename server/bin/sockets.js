@@ -2,7 +2,7 @@ const WebSocketServer = require('websocket').server;
 
 let connection;
 
-const sendPipelineUpdate = data => {
+const sendSocketData = data => {
     connection.sendUTF(JSON.stringify(data));
 }
 
@@ -24,4 +24,4 @@ const configureWebSockets = httpServer => {
 
 
 
-module.exports = {configureWebSockets, sendPipelineUpdate};
+module.exports = {configureWebSockets, sendSocketData};

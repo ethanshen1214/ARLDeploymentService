@@ -49,6 +49,12 @@ export default class DeploymentScreen extends Component {
         else if (dataJSON.type === 'pending') {
           this.loadData();
         }
+        else if (dataJSON.type === 'notAbs') {
+          alert('File path is not absolute. Please enter an absolute file path.');
+        }
+        else if (dataJSON.type === 'notEx') {
+          alert('File path does not exist. Please enter an existing file path.');
+        }
       }
       this.loadData();
   }
