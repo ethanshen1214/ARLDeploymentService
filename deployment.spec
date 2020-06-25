@@ -23,7 +23,7 @@ BuildRoot: ~/rpmbuild/
 ################################################################################
 rm -rf $workdir
 echo "BUILDROOT = $RPM_BUILD_ROOT"
-mkdir -p $RPM_BUILD_ROOT/opt/ARL-UT/Deployment-Server
+mkdir -p $RPM_BUILD_ROOT/opt/arlut/Deployment-Server
 mkdir -p $RPM_BUILD_ROOT/etc/systemd/system
 cp -r /builds/arlsummer2020/deployment-services/{ui,server,package.json,package-lock.json} $RPM_BUILD_ROOT/opt/arlut/Deployment-Server
 cp -r /builds/arlsummer2020/deployment-services/deployment.service $RPM_BUILD_ROOT/etc/systemd/system
@@ -37,7 +37,7 @@ exit
 %pre
 
 %post
-cd /opt/ARL-UT/Deployment-Server
+cd /opt/arlut/Deployment-Server
 npm install
 cd server
 npm install
