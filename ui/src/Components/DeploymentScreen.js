@@ -45,6 +45,7 @@ export default class DeploymentScreen extends Component {
           if (dataJSON.projectId === parseInt(match.params.id)){
             this.setState({ currentDeployment: dataJSON.pipelineId }, () => {
               this.loadData();
+              console.log('here');
             });
           }
         }

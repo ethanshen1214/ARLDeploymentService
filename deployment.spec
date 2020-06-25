@@ -25,13 +25,13 @@ rm -rf $workdir
 echo "BUILDROOT = $RPM_BUILD_ROOT"
 mkdir -p $RPM_BUILD_ROOT/opt/ARL-UT/Deployment-Server
 mkdir -p $RPM_BUILD_ROOT/etc/systemd/system
-cp -r /builds/arlsummer2020/deployment-services/{ui,server,package.json,package-lock.json} $RPM_BUILD_ROOT/opt/ARL-UT/Deployment-Server
+cp -r /builds/arlsummer2020/deployment-services/{ui,server,package.json,package-lock.json} $RPM_BUILD_ROOT/opt/arlut/Deployment-Server
 cp -r /builds/arlsummer2020/deployment-services/deployment.service $RPM_BUILD_ROOT/etc/systemd/system
 
 exit
 
 %files
-%attr(0644, root, root) /opt/ARL-UT
+%attr(0644, root, root) /opt/arlut
 %attr(0644, root, root) /etc/systemd/system
 
 %pre
@@ -54,7 +54,7 @@ systemctl stop deployment
 systemctl disable deployment
 
 %clean
-rm -rf $RPM_BUILD_ROOT/opt/ARL-UT
+rm -rf $RPM_BUILD_ROOT/opt/arlut
 rm -rf $RPM_BUILD_ROOT/etc/systemd/system
 
 %changelog
