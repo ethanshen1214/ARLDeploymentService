@@ -5,7 +5,7 @@ After=network.target
 [Service]
 Type=simple
 ExecStart=/usr/bin/npm run start-dev
-WorkingDirectory=/opt/ARL-UT/Deployment-Server
+WorkingDirectory=/opt/arlut/Deployment-Server
 
 [Install]
 WantedBy=multi-user.target
