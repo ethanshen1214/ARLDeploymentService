@@ -5,6 +5,7 @@ import { DataTable, TableHeader, Card, CardText, CardActions, RadioGroup, Radio,
 import Script from './scriptInput';
 import axios from 'axios';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
+import Expand from 'react-expand-animated';
 import pipes from '../API_Functions/pipelines.js';
 import projects from '../API_Functions/projects.js';
 
@@ -32,6 +33,8 @@ export default class DeploymentScreen extends Component {
       projectName: '',
       searchResults: [],
       searchTerm: "",
+      expand1: false,
+      expand2: false,
     }
 
   }
@@ -57,6 +60,12 @@ export default class DeploymentScreen extends Component {
         else if (dataJSON.type === 'notEx') {
           alert('File path does not exist.')
         }
+      }
+      if(this.props.match.params.id){
+        this.setState({expand1: false})
+      }
+      else{
+        this.setState({expand1: true})
       }
       this.loadData();
   }
@@ -217,6 +226,16 @@ export default class DeploymentScreen extends Component {
     );
     this.setState({ searchTerm: e.target.value, searchResults: results });
   }
+  expandProjects = () => {
+    this.setState((prevState) => {
+      return {expand1: !prevState.expand1};
+    })
+  }
+  expandScript = () => {
+    this.setState((prevState) => {
+      return {expand2: !prevState.expand2};
+    })
+  }
 
   render () {
     const parsedPipelines = [];
@@ -317,6 +336,8 @@ export default class DeploymentScreen extends Component {
             <div>
               <Grid>
                 <Cell col = {7} className = 'table'>
+                  <button onClick = {this.expandProjects}>Change Project</button>
+                  <Expand open = {this.state.expand1}>
                   <div>
                     <input
                       type="text"
@@ -335,9 +356,11 @@ export default class DeploymentScreen extends Component {
                           <TableHeader name="selectProjectButton" tooltip="Click to change the working project">Load Project</TableHeader>
                     </DataTable> 
                   </div>
-                  
+                  </Expand>
                 </Cell>
                 <Cell col = {5}>
+                  <button onClick = {this.expandScript}>Edit Script</button>
+                  <Expand open = {this.state.expand2}>
                   <Card shadow={3} style={{width: '420px', height: '430px', margin: 'auto', marginTop: '3%'}}>
                     <CardActions border>
                       <Script submitHandler={this.handleScriptSubmit} formTitle={'Current Deployment Script For '+this.state.projectName+':'} height = {200} width = {300} script = {this.state.script}/>
@@ -345,6 +368,7 @@ export default class DeploymentScreen extends Component {
                       {radioGroup}
                     </CardActions>
                   </Card>
+                  </Expand>
                 </Cell>
               </Grid>
             </div>
