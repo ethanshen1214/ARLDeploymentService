@@ -38,12 +38,11 @@ export default class DeploymentScreen extends Component {
 
   async componentDidMount() {   //on startup it checks to see if sessionStorage already has auth_key and/or project_id
       // establishes websocket connection to the server
-      const { match } = this.props;
       socket.onmessage = (data) => {
+        const { match } = this.props;
         var dataJSON = JSON.parse(data.data);
         console.log(dataJSON);
         if (dataJSON.type === 'success') {
-          console.log(dataJSON.projectId, match.params);
           if (dataJSON.projectId === parseInt(match.params.id)){
             this.setState({ currentDeployment: dataJSON.pipelineId }, () => {
               this.loadData();
