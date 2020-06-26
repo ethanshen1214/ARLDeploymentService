@@ -16,15 +16,33 @@ router.get('/getData', (req, res) => {
       return res.json({ success: false, data: 'noDbUrl' });
     }
   });
+
+  router.post('/getOne', (req, res) => {
+      const { projectName } = req.body;
+      console.log(req.body);
+    if(mongooseConnection) {
+        Data.findOne({projectName}, (err, data) => {
+          if (err) return res.json({ success: false, error: err });
+          return res.json({ success: true, data: data });
+        });
+    } else {
+        return res.json({ success: false, data: 'noDbUrl' });
+    }
+  })
     
   // this is our update method
   // this method overwrites existing data in our database
   router.post('/updateData', (req, res) => {
-      const { projectName, update } = req.body;
-      Data.findOneAndUpdate( {projectName: projectName}, update, (err) => {
-        if (err) return res.json({ success: false, error: err });
-        return res.json({ success: true });
-      });
+      if(validateForm(req.body.update)){
+        const { projectName, update } = req.body;
+        Data.findOneAndUpdate( {projectName: projectName}, update, (err) => {
+            if (err) return res.json({ success: false, error: err });
+            return res.json({ success: true });
+        });          
+      }
+      else{
+        return res.json({ success: false, type: 'filePath' });
+      }
   });
     
   // this is our delete method

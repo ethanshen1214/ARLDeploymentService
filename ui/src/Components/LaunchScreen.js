@@ -1,8 +1,7 @@
 import React, {Component} from 'react';
 import '../App.css';
 import { Link } from 'react-router-dom';
-import { DataTable, TableHeader, Card, CardText, CardTitle, CardActions, Spinner, Chip, Grid, Cell } from 'react-mdl';
-import Script from './scriptInput';
+import { DataTable, TableHeader, Card, CardTitle, CardActions, Grid, Cell } from 'react-mdl';
 import axios from 'axios';
 
 const apiEndpointUrl = process.env.REACT_APP_API_ENDPOINT_URL || 'http://localhost:8080';
@@ -50,7 +49,7 @@ export default class LaunchScreen extends Component{
         for(let i = 0; i < responseArray.length; i++){
             let tempProject = {
                 projectName: responseArray[i].projectName,
-                editProjectButton: <button>Edit</button>,
+                editProjectButton: <Link to={`/launch/edit/${responseArray[i].projectName}`}><button>Edit</button></Link>,
                 launchProjectButton: <button>Launch</button>,
                 deleteProjectButton: <button name={responseArray[i].projectName} onClick = {this.deleteHandler}>Delete</button>,
             }
