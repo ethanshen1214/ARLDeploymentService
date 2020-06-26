@@ -21,9 +21,17 @@ export default class LaunchScreen extends Component{
         const {name, value} = e.target;
         this.setState({[name]: value});
     }
-    handleSubmit = (e) => {
+    handleSubmit = async (e) => {
         e.preventDefault();
-        axios.post(`${apiEndpointUrl}/launchDB/putData`, this.state);
+        const result = await axios.post(`${apiEndpointUrl}/launchDB/putData`, this.state);
+        if(!result.data.success){
+            if(result.data.type === 'filePath'){
+                alert('Did not add to database because filepath is invalid');
+            }
+            else if(result.data.type === 'duplicate') {
+                alert('Project is already in the database.\nTo edit, click the edit button in the table');
+            }
+        }
         console.log(this.state);
     }
 

@@ -40,20 +40,36 @@ router.get('/getData', (req, res) => {
   // this is our create method
   // this method adds new data in our database
   router.post('/putData', (req, res) => {
-    let data = new Data();
-    const{ name, startScript, stopScript, path } = req.body;
-    Data.findOne( {name}, (err, project) => {
-      if (project === null) {
-        data.projectName = name;
-        data.startScript = startScript;
-        data.stopScript = stopScript;
-        data.path = path;
-        data.save();
-        return res.json({ success: true });
-      } else {
-        return res.json({ success: false });
-      }
-    });
+    if(validateForm(req.body)){
+        let data = new Data();
+        const{ name, startScript, stopScript, path } = req.body;
+        Data.findOne( {projectName: name}, (err, project) => {
+            if (project === null) {
+                data.projectName = name;
+                data.startScript = startScript;
+                data.stopScript = stopScript;
+                data.path = path;
+                data.save();
+                return res.json({ success: true });
+            } else {
+                return res.json({ success: false, type: 'duplicate' });
+            }
+        });        
+    }
+    else{
+        return res.json({ success: false, type: 'filePath' });
+    }
+
   });
+
+  validateForm = (form) => {
+    if(!path.isAbsolute(`${form.path}`)){
+        return false;
+    }
+    if(!fs.existsSync(`${form.path}`)){
+        return false;
+    }
+    return true;
+  }
 
 module.exports = router;
