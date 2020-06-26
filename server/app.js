@@ -5,6 +5,8 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var bodyParser = require('body-parser');
 var cors = require('cors');
+var helmet = require('helmet')
+
 
 var indexRouter = require('./routes/index');
 var downloadsRouter = require('./routes/downloads');
@@ -18,6 +20,7 @@ var app = express();
 // bodyParser, parses the request body to be a readable json format
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(helmet());
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
