@@ -15,7 +15,11 @@ export default class LaunchScreen extends Component{
             startScript: '',
             stopScript: '',
             path: '',
+            projects: [],
         }
+    }
+    componentDidMount(){
+        this.loadData();
     }
     handleChange = (e) => {
         const {name, value} = e.target;
@@ -32,7 +36,26 @@ export default class LaunchScreen extends Component{
                 alert('Project is already in the database.\nTo edit, click the edit button in the table');
             }
         }
-        console.log(this.state);
+        this.loadData();
+    }
+
+    loadData = async () => {
+        const response = await axios.get(`${apiEndpointUrl}/launchDB/getData`); // get the data already logged in the database
+        if (response.data.data === 'noDbUrl') { // check to see if the dbUrl is valid
+            alert('Invalid DB Endpoint \nEnter a new MongoDB URL on the Config page');
+            return;
+        }
+        const responseArray = Array.from(response.data.data);
+        let parsedProjects = [];
+        for(let i = 0; i < responseArray.length; i++){
+            let tempProject = {
+                projectName: responseArray[i].projectName,
+                editProjectButton: <button>Edit</button>,
+                launchProjectButton: <button>Launch</button>,
+            }
+            parsedProjects.push(tempProject)
+        }
+        this.setState({projects: parsedProjects});
     }
 
     render() {
@@ -54,9 +77,9 @@ export default class LaunchScreen extends Component{
                     <div className = 'table' style={{height:'650px'}}>
                       <DataTable
                             shadow={0}
-                            rows = {DB}
+                            rows = {this.state.projects}
                             style = {{marginTop: '10px'}}>
-                            <TableHeader name="name" tooltip="Project Name">Project Name</TableHeader>
+                            <TableHeader name="projectName" tooltip="Project Name">Project Name</TableHeader>
                             <TableHeader name="editProjectButton" tooltip="Click to change the working project">Edit Project</TableHeader>
                             <TableHeader name="launchProjectButton" tooltip="Currently deployed pipeline">Launch Project</TableHeader>
                       </DataTable> 
