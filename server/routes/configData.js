@@ -3,6 +3,7 @@ var router = express.Router();
 var fs = require('fs');
 const { mongoDb } = require('../config.json');
 const mongoose = require('mongoose');
+const path = require('path');
 
 let dbRoute = mongoDb;
 global.mongooseConnection;
@@ -22,25 +23,28 @@ db.on('error', () => {
 });
 
 router.post('/setMongoURL', (req, res) => {
-  const oldConfig = JSON.parse(fs.readFileSync('./config.json'));
-  if (req.body.authKey !== '') {
-    fs.writeFileSync('./config.json', JSON.stringify({ authKey: oldConfig.authKey, mongoDb: req.body.url, downloadPath: oldConfig.downloadPath }));
-    mongoose.disconnect();
-    // attempts to connect to database on user input and sets a flag to indicate a successful/unsuccessful connection
-    mongoose.connect(req.body.url, { useNewUrlParser: true }).catch(() => console.log('MongoDB URL invalid.'));
-    mongoose.set('useFindAndModify', false);
-    db = mongoose.connection;
-    db.once('open', () => {
-        mongooseConnection = 1;
-      console.log('connected to the database')
-    });
-    db.on('error', () => {
-        mongooseConnection = 0;
-      db.removeAllListeners();
-      db.close();
-    });
-  }
-  res.status(200).end();
+    const oldConfig = JSON.parse(fs.readFileSync('./config.json'));
+    if (req.body.authKey !== '') {
+        fs.writeFileSync('./config.json', JSON.stringify({ authKey: oldConfig.authKey, mongoDb: req.body.url, downloadPath: oldConfig.downloadPath }));
+        mongoose.disconnect();
+        // attempts to connect to database on user input and sets a flag to indicate a successful/unsuccessful connection
+        mongoose.connect(req.body.url, { useNewUrlParser: true }).catch(() => console.log('MongoDB URL invalid.'));
+        mongoose.set('useFindAndModify', false);
+        db = mongoose.connection;
+        db.once('open', () => {
+            mongooseConnection = 1;
+            console.log('connected to the database')
+        });
+        db.on('error', () => {
+            mongooseConnection = 0;
+            db.removeAllListeners();
+            db.close();
+        });
+    }
+    setTimeout(() => { // delay to allow db time to connect
+        res.send(mongooseConnection.toString());
+        res.status(200).end()
+    }, 2500);
 });
 
 router.post('/getAuthKey', (req,res) => {
@@ -67,11 +71,17 @@ router.post('/setAuthKey', (req, res) => {
 })
 
 router.post('/setDownloadPath', (req, res) => {
-    if (req.body.downloadPath !== '') {
+    if (!path.isAbsolute(`${req.body.downloadPath}`)){
+      return res.json({ type: 'notAbs' }).end();
+    }
+    else if (!fs.existsSync(`${req.body.downloadPath}`)){
+      return res.json({ type: 'notEx' }).end();
+    }
+    else if (req.body.downloadPath !== '') {
         const oldConfig = JSON.parse(fs.readFileSync('./config.json'));
         fs.writeFileSync('./config.json', JSON.stringify({ authKey: oldConfig.authKey, mongoDb: oldConfig.mongoDb, downloadPath: req.body.downloadPath }));
+        res.status(200).end();
     }
-    res.status(200).end();
 })
 
 module.exports = router;

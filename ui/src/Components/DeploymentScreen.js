@@ -88,12 +88,12 @@ export default class DeploymentScreen extends Component {
     let authKey = await axios.post(`${apiEndpointUrl}/configData/getAuthKey`);
     this.setState({auth_key: authKey.data});
     const gitLabProjects = await projects.getProjects(this.state.auth_key); // get an array of all the projects associated with a user DOES NOT HANDLE ERROR
-    if (gitLabProjects === false) {
+    if (gitLabProjects === false) { // check to see if the auth_key is valid
       alert('Invalid Authentication Key \nEnter a new key on the Config page');
       return;
     }
     const response = await axios.get(`${apiEndpointUrl}/database/getData`); // get the data already logged in the database
-    if (response.data.data === 'noDbUrl') {
+    if (response.data.data === 'noDbUrl') { // check to see if the dbUrl is valid
       alert('Invalid DB Endpoint \nEnter a new MongoDB URL on the Config page');
       return;
     }

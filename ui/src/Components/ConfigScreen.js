@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import '../App.css';
 import axios from 'axios';
+import projects from '../API_Functions/projects.js';
 
 const apiEndpointUrl = process.env.REACT_APP_API_ENDPOINT_URL || 'http://localhost:8080';
 
@@ -16,9 +17,11 @@ export default class ConfigScreen extends Component {
             savedDownloadPath: '',
         };
     }
+
     componentDidMount(){
         this.getData();
     }
+
     getData = async () => {
         let key = await axios.post(`${apiEndpointUrl}/configData/getAuthKey`);
         let url = await axios.post(`${apiEndpointUrl}/configData/getMongoURL`);
@@ -26,30 +29,49 @@ export default class ConfigScreen extends Component {
         this.setState({ 
             savedAuthKey: key.data, savedMongoDb: url.data, savedDownloadPath: path.data});
     }
+
     handleSubmitAuthKey = async (e) => {
         e.preventDefault();
-        await axios.post(`${apiEndpointUrl}/configData/setAuthKey`, { authKey: this.state.authKey });
+        const result = await projects.getProjects(this.state.authKey);
+        if(!result) {
+            alert('The authentication key entered is invalid.\nPlease try entering another authentication key.');
+        } else {
+            await axios.post(`${apiEndpointUrl}/configData/setAuthKey`, { authKey: this.state.authKey });
+        }
         this.setState({ authKey: '' });
         this.getData();
     }
+
     handleSubmitMongoDB = async (e) => {
         e.preventDefault();
-        await axios.post(`${apiEndpointUrl}/configData/setMongoURL`, { url: this.state.mongoDb });
+        const oldDbUrl = await axios.post(`${apiEndpointUrl}/configData/getMongoURL`);
+        const result = await axios.post(`${apiEndpointUrl}/configData/setMongoURL`, { url: this.state.mongoDb });
+        if (parseInt(result.data) === 0) {
+            alert('The MongoDB Url entered is invalid.\nPlease try entering a valid Url.');
+            await axios.post(`${apiEndpointUrl}/configData/setMongoURL`, { url: oldDbUrl.data }); // reconnects to the previously working database
+        }
         this.setState({ mongoDb: '' });
         this.getData();
     }
+
     handleSubmitDownloadPath = async (e) => {
         e.preventDefault();
-        await axios.post(`${apiEndpointUrl}/configData/setDownloadPath`, { downloadPath: this.state.downloadPath });
+        const result = await axios.post(`${apiEndpointUrl}/configData/setDownloadPath`, { downloadPath: this.state.downloadPath });
+        if (result.data.type) {
+            alert('The path entered is not absolute or does not exist.\nPlease try entering a new path.');
+        }
         this.setState({ downloadPath: '' });
         this.getData();
     }
+
     handleChangeAuthKey = (e) => {
         this.setState({authKey: e.target.value});
     }
+
     handleChangeMongoDB = (e) => {
         this.setState({mongoDb: e.target.value});
     }
+
     handleChangeDownloadPath = (e) => {
         this.setState({downloadPath: e.target.value});
     }
