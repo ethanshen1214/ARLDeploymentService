@@ -5,6 +5,8 @@ import { DataTable, TableHeader, Card, CardText, CardTitle, CardActions, Spinner
 import Script from './scriptInput';
 import axios from 'axios';
 
+const apiEndpointUrl = process.env.REACT_APP_API_ENDPOINT_URL || 'http://localhost:8080';
+
 export default class LaunchScreen extends Component{
     constructor(props){
         super(props);
@@ -12,6 +14,7 @@ export default class LaunchScreen extends Component{
             name: '',
             startScript: '',
             stopScript: '',
+            path: '',
         }
     }
     handleChange = (e) => {
@@ -20,13 +23,14 @@ export default class LaunchScreen extends Component{
     }
     handleSubmit = (e) => {
         e.preventDefault();
+        axios.post(`${apiEndpointUrl}/launchDB/putData`, this.state);
         console.log(this.state);
     }
 
     render() {
         const DB = [];
         return(
-        <div style={{height: '800px', width: '1000px', margin: 'auto'}}>
+        <div style={{height: '900px', width: '1000px', margin: 'auto'}}>
           <div className = 'labels'>
             <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center', }}><h1>GitLab Launch Util</h1></div>
             <div>
@@ -51,7 +55,7 @@ export default class LaunchScreen extends Component{
                     </div>
                 </Cell>
                 <Cell col = {5}>
-                    <Card shadow={3} style={{width: '420px', height: '650px', margin: 'auto', marginTop: '3%'}}>
+                    <Card shadow={3} style={{width: '420px', height: '750px', margin: 'auto', marginTop: '3%'}}>
                       <CardActions border>
                           <CardTitle>Add Project</CardTitle>
                         <form onSubmit={this.handleSubmit} style = {{marginLeft: '20px'}}>
@@ -64,6 +68,18 @@ export default class LaunchScreen extends Component{
                                     name="name"
                                     value={this.state.name}
                                     onChange={this.handleChange}
+                                />
+                            </div>
+                            <div>
+                                <label>Launch Path:</label>
+                            </div>
+                            <div style = {{marginBottom: '20px'}}>
+                                <input
+                                    type="text"
+                                    name="path"
+                                    value={this.state.path}
+                                    onChange={this.handleChange}
+                                    style = {{width: '300px'}}
                                 />
                             </div>
                             <div>

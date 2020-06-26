@@ -96,7 +96,7 @@ export default class DeploymentScreen extends Component {
       alert('Invalid Authentication Key \nEnter a new key on the Config page');
       return;
     }
-    const response = await axios.get(`${apiEndpointUrl}/database/getData`); // get the data already logged in the database
+    const response = await axios.get(`${apiEndpointUrl}/deploymentDB/getData`); // get the data already logged in the database
     if (response.data.data === 'noDbUrl') { // check to see if the dbUrl is valid
       alert('Invalid DB Endpoint \nEnter a new MongoDB URL on the Config page');
       return;
@@ -185,7 +185,7 @@ export default class DeploymentScreen extends Component {
         projects.getProjectName(parseInt(match.params.id), this.state.auth_key, async (err, data) => {
           currName = data;
 
-          await axios.post(`${apiEndpointUrl}/database/putData`, {
+          await axios.post(`${apiEndpointUrl}/deploymentDB/putData`, {
             projectId: parseInt(match.params.id),
             pipelineId: 0,
             script: 'placeholder',
@@ -201,7 +201,7 @@ export default class DeploymentScreen extends Component {
 
   handleScriptSubmit = (value) => {
     const { match } = this.props;
-    axios.post(`${apiEndpointUrl}/database/updateData`, {projectId: parseInt(match.params.id), update: {script: value}});
+    axios.post(`${apiEndpointUrl}/deploymentDB/updateData`, {projectId: parseInt(match.params.id), update: {script: value}});
   }
 
   selectNumPipes = (e) => {  //handler for selecting number of pipelines to display
@@ -211,7 +211,7 @@ export default class DeploymentScreen extends Component {
   downloadHandler = async (e) => {
     const { match } = this.props;
     e.persist();
-    const result = await axios.post(`${apiEndpointUrl}/database/updateData`, {projectId: parseInt(match.params.id), update: {pipelineId: e.target.title}});
+    const result = await axios.post(`${apiEndpointUrl}/deploymentDB/updateData`, {projectId: parseInt(match.params.id), update: {pipelineId: e.target.title}});
     if (result.data.type) {
       alert('File path is not absolute or does not exist.');
     } else {

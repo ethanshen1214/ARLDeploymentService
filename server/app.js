@@ -11,7 +11,8 @@ var helmet = require('helmet')
 var indexRouter = require('./routes/index');
 var downloadsRouter = require('./routes/downloads');
 var hooksRouter = require('./routes/hooks');
-var databaseRouter = require('./routes/database');
+var deploymentDatabaseRouter = require('./routes/deploymentDB');
+var launchDatabaseRouter = require('./routes/launchDB');
 var configRouter = require('./routes/configData');
 
 var app = express();
@@ -36,7 +37,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/downloads', downloadsRouter);
 app.use('/hooks', hooksRouter);
-app.use('/database', databaseRouter);
+app.use('/deploymentDB', deploymentDatabaseRouter);
+app.use('/launchDB', launchDatabaseRouter);
 app.use('/configData', configRouter);
 
 
