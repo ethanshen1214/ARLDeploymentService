@@ -7,7 +7,10 @@
  */
 const fs = require('fs');
 
-fs.writeFileSync('./config.json', JSON.stringify({ authKey: "", mongoDb: "", downloadPath: ""}));
+if(!fs.existsSync('./config.json')){
+  fs.writeFileSync('./config.json', JSON.stringify({ authKey: "", mongoDb: "", downloadPath: ""}));
+}
+
 require('dotenv').config();
 const app = require('../app');
 const debug = require('debug')('server:server');
