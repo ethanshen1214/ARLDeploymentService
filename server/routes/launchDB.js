@@ -31,7 +31,7 @@ router.get('/getData', (req, res) => {
   // this method removes existing data in our database
   router.delete('/deleteData', (req, res) => {
       const { projectName } = req.body;
-      Data.findByIdAndRemove(projectName, (err) => {
+      Data.findOneAndRemove({projectName}, (err) => {
         if (err) return res.send(err);
         return res.json({ success: true });
       });

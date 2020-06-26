@@ -36,7 +36,7 @@ export default class LaunchScreen extends Component{
                 alert('Project is already in the database.\nTo edit, click the edit button in the table');
             }
         }
-        this.loadData();
+        setTimeout(()=>this.loadData(), 2000);
     }
 
     loadData = async () => {
@@ -52,10 +52,15 @@ export default class LaunchScreen extends Component{
                 projectName: responseArray[i].projectName,
                 editProjectButton: <button>Edit</button>,
                 launchProjectButton: <button>Launch</button>,
+                deleteProjectButton: <button name={responseArray[i].projectName} onClick = {this.deleteHandler}>Delete</button>,
             }
             parsedProjects.push(tempProject)
         }
         this.setState({projects: parsedProjects});
+    }
+    deleteHandler = async (e) => {
+        const res = axios.delete(`${apiEndpointUrl}/launchDB/deleteData`, {data: {projectName: e.target.name}});
+        setTimeout(()=>this.loadData(), 2000);
     }
 
     render() {
@@ -80,8 +85,9 @@ export default class LaunchScreen extends Component{
                             rows = {this.state.projects}
                             style = {{marginTop: '10px'}}>
                             <TableHeader name="projectName" tooltip="Project Name">Project Name</TableHeader>
-                            <TableHeader name="editProjectButton" tooltip="Click to change the working project">Edit Project</TableHeader>
-                            <TableHeader name="launchProjectButton" tooltip="Currently deployed pipeline">Launch Project</TableHeader>
+                            <TableHeader name="editProjectButton" tooltip="Edit Project">Edit Project</TableHeader>
+                            <TableHeader name="launchProjectButton" tooltip="Launch Project">Launch Project</TableHeader>
+                            <TableHeader name="deleteProjectButton" tooltip="Delete Project">Delete Project</TableHeader>
                       </DataTable> 
                     </div>
                 </Cell>
