@@ -41,6 +41,10 @@ export default class DeploymentScreen extends Component {
 
   async componentDidMount() {   //on startup it checks to see if sessionStorage already has auth_key and/or project_id
       // establishes websocket connection to the server
+      console.log(this.props.history);
+      if(sessionStorage.getItem('project_id')){
+        this.props.history.push(`/view/${sessionStorage.getItem('project_id')}`)
+      }
       socket.onmessage = (data) => {
         const { match } = this.props;
         var dataJSON = JSON.parse(data.data);
@@ -187,10 +191,9 @@ export default class DeploymentScreen extends Component {
             script: 'placeholder',
             projectName: currName,
           });
+          sessionStorage.setItem('project_id', match.params.id);
         });
-      } else {
-        alert('Invalid project ID or authentication token: \nTry new project ID or close/reopen the tab and re-enter an authentication token');
-      }
+      } 
     } catch (err) {
       console.log(err);
     }
@@ -332,11 +335,12 @@ export default class DeploymentScreen extends Component {
     return(
         <div style={{height: '1300px', width: '1000px', margin: 'auto'}}>
           <div className = 'labels'>
-            <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}><h1>GitLab Deployment Util</h1></div>
+            <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center', }}><h1>GitLab Deployment Util</h1></div>
             <div>
               <Grid>
                 <Cell col = {7} className = 'table'>
                   <button onClick = {this.expandProjects}>Change Project</button>
+                  <p>Loaded: {this.state.projectName}</p>
                   <Expand open = {this.state.expand1}>
                   <div>
                     <input

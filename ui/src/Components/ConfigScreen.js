@@ -26,15 +26,22 @@ export default class ConfigScreen extends Component {
         let key = await axios.post(`${apiEndpointUrl}/configData/getAuthKey`);
         let url = await axios.post(`${apiEndpointUrl}/configData/getMongoURL`);
         let path = await axios.post(`${apiEndpointUrl}/configData/getDownloadPath`);
-        this.setState({ 
-            savedAuthKey: key.data, savedMongoDb: url.data, savedDownloadPath: path.data});
+        if(key.data === ''){
+            this.setState({ 
+                savedAuthKey: 'Unauthenticated', savedMongoDb: url.data, savedDownloadPath: path.data });
+        }
+        else{
+            this.setState({ 
+                savedAuthKey: 'Authenticated', savedMongoDb: url.data, savedDownloadPath: path.data });
+        }
+
     }
 
     handleSubmitAuthKey = async (e) => {
         e.preventDefault();
         const result = await projects.getProjects(this.state.authKey);
         if(!result) {
-            alert('The authentication key entered is invalid.\nPlease try entering another authentication key.');
+            alert('The authentication key entered is invalid.\nPlease try entering another authentication key.\nUsing previously validated authentication key instead.');
         } else {
             await axios.post(`${apiEndpointUrl}/configData/setAuthKey`, { authKey: this.state.authKey });
         }
@@ -82,7 +89,7 @@ export default class ConfigScreen extends Component {
             <h1>Configurations</h1>
             <form onSubmit={this.handleSubmitAuthKey} style = {{marginLeft: '20px', marginTop: '10px'}}>
                 <div style = {{marginBottom: '10px'}}>
-                    <label>Currently Saved Authentication Key: <b>{this.state.savedAuthKey}</b></label>
+                    <label>Validation Status: <b>{this.state.savedAuthKey}</b></label>
                 </div>
                 <div style = {{marginBottom: '30px'}}>
                     <label>Authentication Key:</label>
