@@ -22,6 +22,7 @@ class App extends Component {
                     <Link to='/'>Home</Link>
                     <Link to='/config'>Config</Link>
                     <Link to='/view'>Deployments</Link>
+                    <Link to='/launch'>Launch</Link>
                     <Link to='/help'>Help</Link>
                 </Navigation>
             </Header>
