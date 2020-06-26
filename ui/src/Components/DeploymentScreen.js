@@ -303,8 +303,13 @@ export default class DeploymentScreen extends Component {
           };     
           parsedPipelines.push(tempPipeline);   //add to pipelines array            
         }
-     
       }
+    }
+    if(parsedPipelines.length === 0){
+      const tempPipeline = {
+        sourceProject: 'No project loaded',
+      };
+      parsedPipelines.push(tempPipeline);
     }
 
     let radioGroup;
@@ -338,40 +343,39 @@ export default class DeploymentScreen extends Component {
             <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center', }}><h1>GitLab Deployment Util</h1></div>
             <div>
               <Grid>
-                <Cell col = {7} className = 'table'>
-                  <button onClick = {this.expandProjects}>Change Project</button>
-                  <p>Loaded: {this.state.projectName}</p>
+                <Cell col = {7} >
+                  <p><button onClick = {this.expandProjects}>Change Project</button> Loaded: {this.state.projectName}</p>
                   <Expand open = {this.state.expand1}>
-                  <div>
                     <input
                       type="text"
                       placeholder="Search"
                       value={this.state.searchTerm}
                       onChange={this.handleProjectSearch} 
                       style = {{marginTop: '10px'}}
-                    />
-                    <DataTable
-                          shadow={0}
-                          rows = {this.state.searchResults}
-                          style = {{marginTop: '10px'}}>
-                          <TableHeader name="name" tooltip="Project Name">Project Name</TableHeader>
-                          <TableHeader name="id" tooltip="Project ID">Project ID</TableHeader>
-                          <TableHeader name="pipelineId" tooltip="Currently deployed pipeline">Current Deployment</TableHeader>
-                          <TableHeader name="selectProjectButton" tooltip="Click to change the working project">Load Project</TableHeader>
-                    </DataTable> 
-                  </div>
+                    />                    
+                    <div className = 'table' style={{height:'400px'}}>
+                      <DataTable
+                            shadow={0}
+                            rows = {this.state.searchResults}
+                            style = {{marginTop: '10px'}}>
+                            <TableHeader name="name" tooltip="Project Name">Project Name</TableHeader>
+                            <TableHeader name="id" tooltip="Project ID">Project ID</TableHeader>
+                            <TableHeader name="pipelineId" tooltip="Currently deployed pipeline">Current Deployment</TableHeader>
+                            <TableHeader name="selectProjectButton" tooltip="Click to change the working project">Load Project</TableHeader>
+                      </DataTable> 
+                    </div>
                   </Expand>
                 </Cell>
                 <Cell col = {5}>
                   <button onClick = {this.expandScript}>Edit Script</button>
                   <Expand open = {this.state.expand2}>
-                  <Card shadow={3} style={{width: '420px', height: '430px', margin: 'auto', marginTop: '3%'}}>
-                    <CardActions border>
-                      <Script submitHandler={this.handleScriptSubmit} formTitle={'Current Deployment Script For '+this.state.projectName+':'} height = {200} width = {300} script = {this.state.script}/>
-                      <CardText>Select the number of pipelines to display (default 5)</CardText>
-                      {radioGroup}
-                    </CardActions>
-                  </Card>
+                    <Card shadow={3} style={{width: '420px', height: '430px', margin: 'auto', marginTop: '3%'}}>
+                      <CardActions border>
+                        <Script submitHandler={this.handleScriptSubmit} formTitle={'Current Deployment Script For '+this.state.projectName+':'} height = {200} width = {300} script = {this.state.script}/>
+                        <CardText>Select the number of pipelines to display (default 5)</CardText>
+                        {radioGroup}
+                      </CardActions>
+                    </Card>
                   </Expand>
                 </Cell>
               </Grid>
