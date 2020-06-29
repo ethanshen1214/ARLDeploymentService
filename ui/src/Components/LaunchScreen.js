@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import '../App.css';
 import { Link } from 'react-router-dom';
-import { DataTable, TableHeader, Card, CardTitle, CardActions, Grid, Cell } from 'react-mdl';
+import { DataTable, TableHeader, Card, CardTitle, CardActions, Grid, Cell, Chip, IconButton } from 'react-mdl';
 import axios from 'axios';
 
 const apiEndpointUrl = process.env.REACT_APP_API_ENDPOINT_URL || 'http://localhost:8080';
@@ -39,7 +39,13 @@ export default class LaunchScreen extends Component{
         setTimeout(()=>this.loadData(), 2000);
     }
     handleLaunch = async (e) => {
-        this.setState({launched: true})
+        axios.post(`${apiEndpointUrl}/launch/start`, {projectName: e.target.name});
+        alert('This will stop all other projects before starting this one.');
+        setTimeout(()=>this.loadData(), 2000);
+    }
+    handleStop = async (e) => {
+        axios.post(`${apiEndpointUrl}/launch/stop`, {projectName: e.target.name});
+        setTimeout(()=>this.loadData(), 2000);
     }
 
     loadData = async () => {
@@ -51,13 +57,27 @@ export default class LaunchScreen extends Component{
         const responseArray = Array.from(response.data.data);
         let parsedProjects = [];
         for(let i = 0; i < responseArray.length; i++){
-            let tempProject = {
-                projectName: responseArray[i].projectName,
-                editProjectButton: <Link to={`/launch/edit/${responseArray[i].projectName}`}><button>Edit</button></Link>,
-                launchProjectButton: <button name = {responseArray[i].projectName} onClick = {this.handleLaunch}>Launch</button>,
-                deleteProjectButton: <button name={responseArray[i].projectName} onClick = {this.deleteHandler}>Delete</button>,
+            if(responseArray[i].launched === true){
+                let tempProject = {
+                    projectName: responseArray[i].projectName,
+                    editProjectButton: <Link to={`/launch/edit/${responseArray[i].projectName}`}><button>Edit</button></Link>,
+                    launchProjectButton: <Chip style={{background: '#16d719'}}>Launched</Chip>,
+                    stopProjectButton: <button name = {responseArray[i].projectName} onClick = {this.handleStop}>Stop</button>,
+                    deleteProjectButton: <button name={responseArray[i].projectName} onClick = {this.deleteHandler}>Delete</button>,
+                }
+                parsedProjects.push(tempProject)
             }
-            parsedProjects.push(tempProject)
+            else{
+                let tempProject = {
+                    projectName: responseArray[i].projectName,
+                    editProjectButton: <Link to={`/launch/edit/${responseArray[i].projectName}`}><button>Edit</button></Link>,
+                    launchProjectButton: <button name = {responseArray[i].projectName} onClick = {this.handleLaunch}>Launch</button>,
+                    stopProjectButton: <button name = {responseArray[i].projectName} onClick = {this.handleStop}>Stop</button>,
+                    deleteProjectButton: <button name={responseArray[i].projectName} onClick = {this.deleteHandler}>Delete</button>,
+                }
+                parsedProjects.push(tempProject)                
+            }
+
         }
         this.setState({projects: parsedProjects});
     }
@@ -90,6 +110,7 @@ export default class LaunchScreen extends Component{
                             <TableHeader name="projectName" tooltip="Project Name">Project Name</TableHeader>
                             <TableHeader name="editProjectButton" tooltip="Edit Project">Edit Project</TableHeader>
                             <TableHeader name="launchProjectButton" tooltip="Launch Project">Launch Project</TableHeader>
+                            <TableHeader name="stopProjectButton" tooltip="Stop Project">Stop Project</TableHeader>
                             <TableHeader name="deleteProjectButton" tooltip="Delete Project">Delete Project</TableHeader>
                       </DataTable> 
                     </div>

@@ -4,29 +4,33 @@ const { spawnSync } = require('child_process');
 const router = express.Router();
 const fs = require('fs');
 
-stopProject = async (projectName) => {
+stopProject = (projectName) => {
     Data.findOne({ projectName }, function(err, project){
-        const { stopScript, downloadPath } = project;
-        fs.writeFileSync(`${downloadPath}/stopScript.sh`, stopScript);
-        spawnSync('sh', ['stopScript.sh'], {cwd: downloadPath});
+        const { stopScript, path } = project;
+        fs.writeFileSync(`${path}/stopScript.sh`, stopScript);
+        spawnSync('sh', ['stopScript.sh'], {cwd: path});
     });
 }
 
-router.post('/start', (req, res) => {
+router.post('/start', async (req, res) => {
     const { projectName } = req.body;
-    Data.findOne({ launched: true }, function(err, launchedProject) {
-        if (launchedProject !== null) {
+    Data.findOne({ launched: true }, async function(err, launchedProject) {
+        if (launchedProject.projectName === projectName) {
+            res.send("This project is already started.");
+            res.status(200).end();
+        }
+        else if (launchedProject !== null) {
             await stopProject(launchedProject.projectName);
-            Data.findOneAndUpdate({ projectName: launchedProject }, { launched: false }, function(err, updatedLaunchProject) {
+            Data.findOneAndUpdate({ projectName: launchedProject.projectName }, { launched: false }, function(err, updatedLaunchProject) {
                 Data.findOneAndUpdate({ projectName }, { launched: true }, function(err, updatedProject) {
                     if (updatedProject === null) {
                         res.send("Cannot start a project that does not exist in the database.");
                         res.status(200).end();
                     } else {
                         Data.findOne({ projectName }, function(err, project){
-                            const { startScript, downloadPath } = project;
-                            fs.writeFileSync(`${downloadPath}/startScript.sh`, startScript);
-                            spawnSync('sh', ['startScript.sh'], {cwd: downloadPath});
+                            const { startScript, path } = project;
+                            fs.writeFileSync(`${path}/startScript.sh`, startScript);
+                            spawnSync('sh', ['startScript.sh'], {cwd: path});
                             res.send("Starting project.");
                             res.status(200).end();
                         });
@@ -34,15 +38,15 @@ router.post('/start', (req, res) => {
                 });
             });
         } else {
-            Data.findOneAndUpdate({ projectName }, { launched: true }, function(err, updatedProject) {
+            Data.findOneAndUpdate({ projectName }, { launched: true }, async function(err, updatedProject) {
                 if (updatedProject === null) {
                     res.send("Cannot start a project that does not exist in the database.");
                     res.status(200).end();
                 } else {
                     Data.findOne({ projectName }, function(err, project){
-                        const { startScript, downloadPath } = project;
-                        fs.writeFileSync(`${downloadPath}/startScript.sh`, startScript);
-                        spawnSync('sh', ['startScript.sh'], {cwd: downloadPath});
+                        const { startScript, path } = project;
+                        fs.writeFileSync(`${path}/startScript.sh`, startScript);
+                        spawnSync('sh', ['startScript.sh'], {cwd: path});
                         res.send("Starting project.");
                         res.status(200).end();
                     });
@@ -52,10 +56,16 @@ router.post('/start', (req, res) => {
     });
 });
 
-router.post('/stop', (req, res) => {
+router.post('/stop', async (req, res) => {
     const { projectName } = req.body;
     await stopProject(projectName);
-    res.status(200).end();
+    Data.findOneAndUpdate({ projectName }, { launched: false }, function(err, updatedProject) {
+        if (updatedProject === null) {
+            res.send("Cannot stop a project that does not exist in the database.");
+        }
+        res.status(200).end();
+    })
+    
 });
 
 module.exports = router;
