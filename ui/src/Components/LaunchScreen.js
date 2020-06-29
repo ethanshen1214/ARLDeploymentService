@@ -89,7 +89,7 @@ export default class LaunchScreen extends Component{
     render() {
         const DB = [];
         return(
-        <div style={{height: '900px', width: '1000px', margin: 'auto'}}>
+        <div style={{height: '900px', width: '1100px', margin: 'auto'}}>
           <div className = 'labels'>
             <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center', }}><h1>GitLab Launch Util</h1></div>
             <div>
