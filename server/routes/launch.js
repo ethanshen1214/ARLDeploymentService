@@ -16,7 +16,7 @@ router.post('/start', async (req, res) => {
     const { projectName } = req.body;
     Data.findOne({ launched: true }, async function(err, launchedProject) {
         if (launchedProject !== null && launchedProject.projectName === projectName) {
-            res.send("This project is already started.");
+            res.send("This project is already running.");
             res.status(200).end();
         }
         else if (launchedProject !== null) {
@@ -57,13 +57,12 @@ router.post('/start', async (req, res) => {
 });
 
 router.post('/stop', async (req, res) => {
-    const { projectName } = req.body;
-    await stopProject(projectName);
-    Data.findOneAndUpdate({ projectName }, { launched: false }, function(err, updatedProject) {
+    Data.findOneAndUpdate({ launched: true }, { launched: false }, async function(err, updatedProject) {
         if (updatedProject === null) {
-            res.send("Cannot stop a project that does not exist in the database.");
+            res.send("No projects currently running.");
         } else {
-            res.send("Project stopped.");
+            await stopProject(updatedProject.projectName);
+            res.send("Stopped currently running project.");
         }
         res.status(200).end();
     })
