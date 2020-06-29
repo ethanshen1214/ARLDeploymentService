@@ -14,6 +14,7 @@ var hooksRouter = require('./routes/hooks');
 var deploymentDatabaseRouter = require('./routes/deploymentDB');
 var launchDatabaseRouter = require('./routes/launchDB');
 var configRouter = require('./routes/configData');
+var launchRouter = require('./routes/launch.js');
 
 var app = express();
 
@@ -40,6 +41,7 @@ app.use('/hooks', hooksRouter);
 app.use('/deploymentDB', deploymentDatabaseRouter);
 app.use('/launchDB', launchDatabaseRouter);
 app.use('/configData', configRouter);
+app.use('/launch', launchRouter);
 
 
 // catch 404 and forward to error handler
