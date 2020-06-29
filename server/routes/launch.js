@@ -15,7 +15,7 @@ stopProject = (projectName) => {
 router.post('/start', async (req, res) => {
     const { projectName } = req.body;
     Data.findOne({ launched: true }, async function(err, launchedProject) {
-        if (launchedProject.projectName === projectName) {
+        if (launchedProject !== null && launchedProject.projectName === projectName) {
             res.send("This project is already started.");
             res.status(200).end();
         }
@@ -31,7 +31,7 @@ router.post('/start', async (req, res) => {
                             const { startScript, path } = project;
                             fs.writeFileSync(`${path}/startScript.sh`, startScript);
                             spawnSync('sh', ['startScript.sh'], {cwd: path});
-                            res.send("Starting project.");
+                            res.send("Project started.");
                             res.status(200).end();
                         });
                     }
@@ -62,10 +62,11 @@ router.post('/stop', async (req, res) => {
     Data.findOneAndUpdate({ projectName }, { launched: false }, function(err, updatedProject) {
         if (updatedProject === null) {
             res.send("Cannot stop a project that does not exist in the database.");
+        } else {
+            res.send("Project stopped.");
         }
         res.status(200).end();
     })
-    
 });
 
 module.exports = router;
