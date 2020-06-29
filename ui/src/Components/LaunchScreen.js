@@ -14,6 +14,7 @@ export default class LaunchScreen extends Component{
             startScript: '',
             stopScript: '',
             path: '',
+            launched: false,
             projects: [],
         }
     }
@@ -22,7 +23,7 @@ export default class LaunchScreen extends Component{
     }
     handleChange = (e) => {
         const {name, value} = e.target;
-        this.setState({[name]: value});
+        this.setState({[name]: value, launched: false});
     }
     handleSubmit = async (e) => {
         e.preventDefault();
@@ -37,6 +38,9 @@ export default class LaunchScreen extends Component{
         }
         setTimeout(()=>this.loadData(), 2000);
     }
+    handleLaunch = async (e) => {
+        this.setState({launched: true})
+    }
 
     loadData = async () => {
         const response = await axios.get(`${apiEndpointUrl}/launchDB/getData`); // get the data already logged in the database
@@ -50,7 +54,7 @@ export default class LaunchScreen extends Component{
             let tempProject = {
                 projectName: responseArray[i].projectName,
                 editProjectButton: <Link to={`/launch/edit/${responseArray[i].projectName}`}><button>Edit</button></Link>,
-                launchProjectButton: <button>Launch</button>,
+                launchProjectButton: <button name = {responseArray[i].projectName} onClick = {this.handleLaunch}>Launch</button>,
                 deleteProjectButton: <button name={responseArray[i].projectName} onClick = {this.deleteHandler}>Delete</button>,
             }
             parsedProjects.push(tempProject)

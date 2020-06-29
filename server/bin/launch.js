@@ -8,6 +8,7 @@ const LaunchSchema = new Schema(
     startScript: String,
     stopScript: String,
     path: String,
+    launched: Boolean,
   },
   { timestamps: true }
 );

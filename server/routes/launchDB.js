@@ -60,13 +60,14 @@ router.get('/getData', (req, res) => {
   router.post('/putData', (req, res) => {
     if(validateForm(req.body)){
         let data = new Data();
-        const{ name, startScript, stopScript, path } = req.body;
+        const{ name, startScript, stopScript, path, launched } = req.body;
         Data.findOne( {projectName: name}, (err, project) => {
             if (project === null) {
                 data.projectName = name;
                 data.startScript = startScript;
                 data.stopScript = stopScript;
                 data.path = path;
+                data.launched = launched;
                 data.save();
                 return res.json({ success: true });
             } else {
