@@ -33,42 +33,40 @@ router.post('/start', async (req, res) => {
                 res.status(200).end();
             } else {
                 await Data.findOneAndUpdate({ projectName: launchedProject.projectName }, { launched: false }).exec();
-                const updatedProject = await Data.findOneAndUpdate({ projectName }, { launched: true })
-                if (updatedProject === null) {
+                const newProject = await Data.findOne({ projectName }).exec();
+                if (newProject === null) {
                     res.send("Previous project halted.\nCannot start a project that does not exist in the database.");
                     res.status(200).end();
                 } else {
-                    const project = await Data.findOne({ projectName }).exec();
-                    const { startScript, path } = project;
+                    const { startScript, path } = newProject;
                     if(fs.existsSync(path)) {
                         fs.writeFileSync(`${path}/startScript.sh`, startScript);
                         spawnSync('sh', ['startScript.sh'], {cwd: path});
+                        await Data.findOneAndUpdate({ projectName }, { launched: true }).exec();
                         res.send("Previous project halted.\nNew project started.");
                         res.status(200).end();
                     } else {
-                        await Data.findOneAndUpdate({ projectName }, { launched: false }).exec();
-                        res.send("Previous project halted.\nNew project not started because filed path to that project is no longer valid.");
+                        res.send("Previous project halted.\nNew project not started because file path to that project is no longer valid.");
                         res.status(200).end();
                     }
-                }  
+                }
             }
         }
         else {
-            const updatedProject = await Data.findOneAndUpdate({ projectName }, { launched: true })
-            if (updatedProject === null) {
+            const newProject = await Data.findOne({ projectName }).exec();
+            if (newProject === null) {
                 res.send("Cannot start a project that does not exist in the database.");
                 res.status(200).end();
             } else {
-                const project = await Data.findOne({ projectName }).exec();
-                const { startScript, path } = project;
+                const { startScript, path } = newProject;
                 if(fs.existsSync(path)) {
                     fs.writeFileSync(`${path}/startScript.sh`, startScript);
                     spawnSync('sh', ['startScript.sh'], {cwd: path});
-                    res.send("Previous project halted.\nNew project started.");
+                    await Data.findOneAndUpdate({ projectName }, { launched: true }).exec();
+                    res.send("New project started.");
                     res.status(200).end();
                 } else {
-                    await Data.findOneAndUpdate({ projectName }, { launched: false }).exec();
-                    res.send("Previous project halted.\nNew project not started because file path to that project is no longer valid.");
+                    res.send("New project not started because file path to that project is no longer valid.");
                     res.status(200).end();
                 }
             }  
