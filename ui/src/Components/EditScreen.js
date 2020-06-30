@@ -3,6 +3,7 @@ import '../App.css';
 import { Link } from 'react-router-dom';
 import { Card, CardTitle, CardActions} from 'react-mdl';
 import axios from 'axios';
+import swal from 'sweetalert';
 const apiEndpointUrl = process.env.REACT_APP_API_ENDPOINT_URL || 'http://localhost:8080';
 
 export default class EditScreen extends Component{
@@ -32,11 +33,18 @@ export default class EditScreen extends Component{
         const result = await axios.post(`${apiEndpointUrl}/launchDB/updateData`, {projectName: projectName, update: this.state});
         if(!result.data.success){
             if(result.data.type === 'filePath'){
-                alert('Did not update database because filepath is invalid');
+                swal({
+                    title: "Error",
+                    text: "Did not update database because filepath is invalid",
+                    icon: "warning",
+                });
             }
         }
         else{
-            alert('Changes successfully saved.');
+            swal({
+                text: "Changes successfully saved.",
+                icon: "success",
+            });
         }
     }
     render(){

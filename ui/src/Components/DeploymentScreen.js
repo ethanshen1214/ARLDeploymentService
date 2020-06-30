@@ -6,6 +6,7 @@ import Script from './scriptInput';
 import axios from 'axios';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 import Expand from 'react-expand-animated';
+import swal from 'sweetalert';
 import pipes from '../API_Functions/pipelines.js';
 import projects from '../API_Functions/projects.js';
 
@@ -59,10 +60,18 @@ export default class DeploymentScreen extends Component {
           this.loadData();
         }
         else if (dataJSON.type === 'notAbs') {
-          alert('File path is not absolute.')
+          swal({
+            title: "Error",
+            text: "File path is not absoulute.",
+            icon: "warning",
+          });
         }
         else if (dataJSON.type === 'notEx') {
-          alert('File path does not exist.')
+          swal({
+            title: "Error",
+            text: "File path does not exist",
+            icon: "warning",
+        });
         }
       }
       if(this.props.match.params.id){
@@ -93,12 +102,20 @@ export default class DeploymentScreen extends Component {
     this.setState({auth_key: authKey.data});
     const gitLabProjects = await projects.getProjects(this.state.auth_key); // get an array of all the projects associated with a user DOES NOT HANDLE ERROR
     if (gitLabProjects === false) { // check to see if the auth_key is valid
-      alert('Invalid Authentication Key \nEnter a new key on the Config page');
+      swal({
+        title: "Error",
+        text: "Invalid Authentication Key \nEnter a new key on the Config page",
+        icon: "warning",
+    });
       return;
     }
     const response = await axios.get(`${apiEndpointUrl}/deploymentDB/getData`); // get the data already logged in the database
     if (response.data.data === 'noDbUrl') { // check to see if the dbUrl is valid
-      alert('Invalid DB Endpoint \nEnter a new MongoDB URL on the Config page');
+      swal({
+        title: "Error",
+        text: "Invalid DB Endpoint \nEnter a new MongoDB URL on the Config page",
+        icon: "warning",
+    });
       return;
     }
     const responseArray = Array.from(response.data.data);
@@ -213,7 +230,11 @@ export default class DeploymentScreen extends Component {
     e.persist();
     const result = await axios.post(`${apiEndpointUrl}/deploymentDB/updateData`, {projectId: parseInt(match.params.id), update: {pipelineId: e.target.title}});
     if (result.data.type) {
-      alert('File path is not absolute or does not exist.');
+      swal({
+        title: "Error",
+        text: "File path is not absolute or does not exist.",
+        icon: "warning",
+    });
     } else {
       axios.post(`${apiEndpointUrl}/downloads`, {
         pipelineId: e.target.title,
