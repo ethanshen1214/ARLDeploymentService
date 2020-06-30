@@ -90,24 +90,32 @@ export default class LaunchScreen extends Component{
                             icon: "warning",
                         });
                     }
-                }else{
-                    swal("Starting new project", {icon: "success"});
                 }
-                
                 setTimeout(()=>this.loadData(), 2000);
             }
         })
     }
     handleStop = async (e) => {
-        const response = await axios.post(`${apiEndpointUrl}/launch/stop`);
-        if(!response.data.success){
-            swal({
-                title: "Error",
-                text: "No projects currently running",
-                icon: "warning",
-            });
-        }
-        setTimeout(()=>this.loadData(), 2000);
+        swal({
+            title: "Are you sure?",
+            text: "Continuing will halt the currently running project.",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true
+        })
+        .then(async (willStop) => {
+            if (willStop) {
+                const response = await axios.post(`${apiEndpointUrl}/launch/stop`);
+                if(!response.data.success){
+                    swal({
+                        title: "Error",
+                        text: "No projects currently running",
+                        icon: "warning",
+                    });
+                }
+                setTimeout(()=>this.loadData(), 2000);
+            }
+        });
     }
 
     loadData = async () => {
