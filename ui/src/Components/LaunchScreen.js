@@ -3,6 +3,7 @@ import '../App.css';
 import { Link } from 'react-router-dom';
 import { DataTable, TableHeader, Card, CardTitle, CardActions, Grid, Cell, Chip, IconButton } from 'react-mdl';
 import axios from 'axios';
+import swal from 'sweetalert';
 
 const apiEndpointUrl = process.env.REACT_APP_API_ENDPOINT_URL || 'http://localhost:8080';
 
@@ -32,18 +33,38 @@ export default class LaunchScreen extends Component{
         const result = await axios.post(`${apiEndpointUrl}/launchDB/putData`, this.state);
         if(!result.data.success){
             if(result.data.type === 'filePath'){
-                alert('Did not add to database because filepath is invalid');
+                swal({
+                    title: "Error",
+                    text: "Project not added to the database. The file path provided is not absolute or does not exist.",
+                    icon: "warning",
+                });
             }
             else if(result.data.type === 'duplicate') {
-                alert('Project is already in the database.\nTo edit, click the edit button in the table');
+                swal({
+                    title: "Error",
+                    text: "'Project is already in the database.\nTo edit, click the edit button in the table'.",
+                    icon: "warning",
+                });
             }
         }
         setTimeout(()=>this.loadData(), 2000);
     }
     handleLaunch = async (e) => {
-        axios.post(`${apiEndpointUrl}/launch/start`, {projectName: e.target.name});
-        alert('This will stop all other projects before starting this one.');
-        setTimeout(()=>this.loadData(), 2000);
+        e.persist();
+        swal({
+            title: "Are you sure?",
+            text: "The previously running project will be halted, and the new project will be started.",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true
+        })
+        .then((newLaunch) => {
+            if (newLaunch) {
+                axios.post(`${apiEndpointUrl}/launch/start`, {projectName: e.target.name});
+                swal("Starting new project", {icon: "success"});
+                setTimeout(()=>this.loadData(), 2000);
+            }
+        })
     }
     handleStop = async (e) => {
         axios.post(`${apiEndpointUrl}/launch/stop`);
@@ -53,7 +74,11 @@ export default class LaunchScreen extends Component{
     loadData = async () => {
         const response = await axios.get(`${apiEndpointUrl}/launchDB/getData`); // get the data already logged in the database
         if (response.data.data === 'noDbUrl') { // check to see if the dbUrl is valid
-            alert('Invalid DB Endpoint \nEnter a new MongoDB URL on the Config page');
+            swal({
+                title: "Error",
+                text: "Invalid DB Endpoint \nEnter a new MongoDB URL on the Config page.",
+                icon: "warning",
+            });
             return;
         }
         const responseArray = Array.from(response.data.data);
