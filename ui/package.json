@@ -15,6 +15,7 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.1",
     "reactstrap": "^8.4.1",
+    "sweetalert": "^2.1.2",
     "websocket": "^1.0.31"
   },
   "scripts": {

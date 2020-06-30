@@ -23,19 +23,22 @@ router.post('/start', async (req, res) => {
     try {
         const launchedProject = await Data.findOne({ launched: true }).exec();
         if (launchedProject !== null && launchedProject.projectName === projectName) {
-            res.send("This project is already running.");
+            //res.send("This project is already running.");
+            res.json({success: false, type: 'alreadyRunning'});
             res.status(200).end();
         }
         else if (launchedProject !== null) {
             const projectStopped = await stopProject(launchedProject.projectName);
             if(!projectStopped) {
-                res.send("Could not halt previously running project because file path to that project is no longer valid.\nCancelling start project command.");
+                //res.send("Could not halt previously running project because file path to that project is no longer valid.\nCancelling start project command.");
+                res.json({success: false, type: 'oldPath'});
                 res.status(200).end();
             } else {
                 await Data.findOneAndUpdate({ projectName: launchedProject.projectName }, { launched: false }).exec();
                 const newProject = await Data.findOne({ projectName }).exec();
                 if (newProject === null) {
-                    res.send("Previous project halted.\nCannot start a project that does not exist in the database.");
+                    //res.send("Previous project halted.\nCannot start a project that does not exist in the database.");
+                    res.json({success: false, type: 'nonExistent'});
                     res.status(200).end();
                 } else {
                     const { startScript, path } = newProject;
@@ -43,10 +46,12 @@ router.post('/start', async (req, res) => {
                         fs.writeFileSync(`${path}/startScript.sh`, startScript);
                         spawnSync('sh', ['startScript.sh'], {cwd: path});
                         await Data.findOneAndUpdate({ projectName }, { launched: true }).exec();
-                        res.send("Previous project halted.\nNew project started.");
+                        //res.send("Previous project halted.\nNew project started.");
+                        res.json({success: true});
                         res.status(200).end();
                     } else {
-                        res.send("Previous project halted.\nNew project not started because file path to that project is no longer valid.");
+                        //res.send("Previous project halted.\nNew project not started because file path to that project is no longer valid.");
+                        res.json({success: false, type: 'newPath'});
                         res.status(200).end();
                     }
                 }
@@ -55,7 +60,8 @@ router.post('/start', async (req, res) => {
         else {
             const newProject = await Data.findOne({ projectName }).exec();
             if (newProject === null) {
-                res.send("Cannot start a project that does not exist in the database.");
+                //res.send("Cannot start a project that does not exist in the database.");
+                res.json({success: false, type: 'nonExistent'});
                 res.status(200).end();
             } else {
                 const { startScript, path } = newProject;
@@ -63,10 +69,12 @@ router.post('/start', async (req, res) => {
                     fs.writeFileSync(`${path}/startScript.sh`, startScript);
                     spawnSync('sh', ['startScript.sh'], {cwd: path});
                     await Data.findOneAndUpdate({ projectName }, { launched: true }).exec();
-                    res.send("New project started.");
+                    //res.send("New project started.");
+                    res.json({success: true});
                     res.status(200).end();
                 } else {
-                    res.send("New project not started because file path to that project is no longer valid.");
+                    //res.send("New project not started because file path to that project is no longer valid.");
+                    res.json({success: false, type: 'newPath'});
                     res.status(200).end();
                 }
             }  
@@ -81,10 +89,12 @@ router.post('/start', async (req, res) => {
 router.post('/stop', async (req, res) => {
     Data.findOneAndUpdate({ launched: true }, { launched: false }, async function(err, updatedProject) {
         if (updatedProject === null) {
-            res.send("No projects currently running.");
+            //res.send("No projects currently running.");
+            res.json({success: false, type: 'noProjectRunning'})
         } else {
             await stopProject(updatedProject.projectName);
-            res.send("Stopped currently running project.");
+            //res.send("Stopped currently running project.");
+            res.json({success: true});
         }
         res.status(200).end();
     })

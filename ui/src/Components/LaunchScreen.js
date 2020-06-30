@@ -58,16 +58,55 @@ export default class LaunchScreen extends Component{
             buttons: true,
             dangerMode: true
         })
-        .then((newLaunch) => {
+        .then(async (newLaunch) => {
             if (newLaunch) {
-                axios.post(`${apiEndpointUrl}/launch/start`, {projectName: e.target.name});
-                swal("Starting new project", {icon: "success"});
+                const response = await axios.post(`${apiEndpointUrl}/launch/start`, {projectName: e.target.name});
+                if(!response.data.success){
+                    if(response.data.type === 'alreadyRunning'){
+                        swal({
+                            title: "Error",
+                            text: "Project is already running.",
+                            icon: "warning",
+                        });
+                    }
+                    else if(response.data.type === 'oldPath'){
+                        swal({
+                            title: "Error",
+                            text: "Could not halt previously running project because file path to that project is no longer valid.\nCancelling start project command.",
+                            icon: "warning",
+                        });
+                    }
+                    else if(response.data.type === 'nonExistent'){
+                        swal({
+                            title: "Error",
+                            text: "Cannot start a project that does not exist in the database.\nCancelling start project command.",
+                            icon: "warning",
+                        });
+                    }
+                    else if(response.data.type === 'newPath'){
+                        swal({
+                            title: "Error",
+                            text: "New project not started because file path to that project is not valid.\nCancelling start project command.",
+                            icon: "warning",
+                        });
+                    }
+                }else{
+                    swal("Starting new project", {icon: "success"});
+                }
+                
                 setTimeout(()=>this.loadData(), 2000);
             }
         })
     }
     handleStop = async (e) => {
-        axios.post(`${apiEndpointUrl}/launch/stop`);
+        const response = await axios.post(`${apiEndpointUrl}/launch/stop`);
+        if(!response.data.success){
+            swal({
+                title: "Error",
+                text: "No projects currently running",
+                icon: "warning",
+            });
+        }
         setTimeout(()=>this.loadData(), 2000);
     }
 
