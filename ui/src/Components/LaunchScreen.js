@@ -44,7 +44,7 @@ export default class LaunchScreen extends Component{
         setTimeout(()=>this.loadData(), 2000);
     }
     handleStop = async (e) => {
-        axios.post(`${apiEndpointUrl}/launch/stop`, {projectName: e.target.name});
+        axios.post(`${apiEndpointUrl}/launch/stop`);
         setTimeout(()=>this.loadData(), 2000);
     }
 
@@ -62,7 +62,6 @@ export default class LaunchScreen extends Component{
                     projectName: responseArray[i].projectName,
                     editProjectButton: <Link to={`/launch/edit/${responseArray[i].projectName}`}><button>Edit</button></Link>,
                     launchProjectButton: <Chip style={{background: '#16d719'}}>Launched</Chip>,
-                    stopProjectButton: <button name = {responseArray[i].projectName} onClick = {this.handleStop}>Stop</button>,
                     deleteProjectButton: <button name={responseArray[i].projectName} onClick = {this.deleteHandler}>Delete</button>,
                 }
                 parsedProjects.push(tempProject)
@@ -72,7 +71,6 @@ export default class LaunchScreen extends Component{
                     projectName: responseArray[i].projectName,
                     editProjectButton: <Link to={`/launch/edit/${responseArray[i].projectName}`}><button>Edit</button></Link>,
                     launchProjectButton: <button name = {responseArray[i].projectName} onClick = {this.handleLaunch}>Launch</button>,
-                    stopProjectButton: <button name = {responseArray[i].projectName} onClick = {this.handleStop}>Stop</button>,
                     deleteProjectButton: <button name={responseArray[i].projectName} onClick = {this.deleteHandler}>Delete</button>,
                 }
                 parsedProjects.push(tempProject)                
@@ -89,7 +87,7 @@ export default class LaunchScreen extends Component{
     render() {
         const DB = [];
         return(
-        <div style={{height: '900px', width: '1100px', margin: 'auto'}}>
+        <div style={{height: '900px', width: '900px', margin: 'auto'}}>
           <div className = 'labels'>
             <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center', }}><h1>GitLab Launch Util</h1></div>
             <div>
@@ -101,7 +99,8 @@ export default class LaunchScreen extends Component{
                       value={this.state.searchTerm}
                       onChange={this.handleProjectSearch} 
                       style = {{marginTop: '10px'}}
-                    />                    
+                    />    
+                    <button onClick={this.handleStop} style={{float:'right', marginRight: '33px'}}>Stop current project</button>           
                     <div className = 'table' style={{height:'650px'}}>
                       <DataTable
                             shadow={0}
@@ -110,7 +109,6 @@ export default class LaunchScreen extends Component{
                             <TableHeader name="projectName" tooltip="Project Name">Project Name</TableHeader>
                             <TableHeader name="editProjectButton" tooltip="Edit Project">Edit Project</TableHeader>
                             <TableHeader name="launchProjectButton" tooltip="Launch Project">Launch Project</TableHeader>
-                            <TableHeader name="stopProjectButton" tooltip="Stop Project">Stop Project</TableHeader>
                             <TableHeader name="deleteProjectButton" tooltip="Delete Project">Delete Project</TableHeader>
                       </DataTable> 
                     </div>
