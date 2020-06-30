@@ -16,6 +16,8 @@ export default class LaunchScreen extends Component{
             path: '',
             launched: false,
             projects: [],
+            searchResults: [],
+            searchTerm: "",
         }
     }
     componentDidMount(){
@@ -77,11 +79,17 @@ export default class LaunchScreen extends Component{
             }
 
         }
-        this.setState({projects: parsedProjects});
+        this.setState({searchResults: parsedProjects, projects: parsedProjects});
     }
     deleteHandler = async (e) => {
         const res = axios.delete(`${apiEndpointUrl}/launchDB/deleteData`, {data: {projectName: e.target.name}});
         setTimeout(()=>this.loadData(), 2000);
+    }
+    handleProjectSearch = (e) => {
+        const results = this.state.projects.filter(project =>
+          project.projectName.toLowerCase().includes(e.target.value.toLowerCase())
+        );
+        this.setState({ searchTerm: e.target.value, searchResults: results });
     }
 
     render() {
@@ -104,7 +112,7 @@ export default class LaunchScreen extends Component{
                     <div className = 'table' style={{height:'650px'}}>
                       <DataTable
                             shadow={0}
-                            rows = {this.state.projects}
+                            rows = {this.state.searchResults}
                             style = {{marginTop: '10px'}}>
                             <TableHeader name="projectName" tooltip="Project Name">Project Name</TableHeader>
                             <TableHeader name="editProjectButton" tooltip="Edit Project">Edit Project</TableHeader>
