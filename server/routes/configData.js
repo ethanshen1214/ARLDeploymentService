@@ -25,11 +25,11 @@ db.on('error', () => {
 router.post('/setMongoURL', (req, res) => {
     const oldConfig = JSON.parse(fs.readFileSync('./config.json'));
     if (req.body.authKey !== '') {
-        fs.writeFileSync('./config.json', JSON.stringify({ authKey: oldConfig.authKey, mongoDb: req.body.url, downloadPath: oldConfig.downloadPath }));
+        fs.writeFileSync('./config.json', JSON.stringify({ authKey: oldConfig.authKey, gitlabUrl: oldConfig.gitlabUrl, mongoDb: req.body.url, downloadPath: oldConfig.downloadPath }));
         mongoose.disconnect();
         // attempts to connect to database on user input and sets a flag to indicate a successful/unsuccessful connection
         mongoose.connect(req.body.url, { useNewUrlParser: true }).catch(() => console.log('MongoDB URL invalid.'));
-        mongoose.set('useFindAndModify', false);
+        mongoose.set('useFindAndModify', false); 
         db = mongoose.connection;
         db.once('open', () => {
             mongooseConnection = 1;
@@ -65,7 +65,7 @@ router.post('/getDownloadPath', (req, res) => {
 router.post('/setAuthKey', (req, res) => {
     if (req.body.authKey !== '') {
         const oldConfig = JSON.parse(fs.readFileSync('./config.json'));
-        fs.writeFileSync('./config.json', JSON.stringify({ authKey: req.body.authKey, mongoDb: oldConfig.mongoDb, downloadPath: oldConfig.downloadPath }));
+        fs.writeFileSync('./config.json', JSON.stringify({ authKey: req.body.authKey, gitlabUrl: oldConfig.gitlabUrl, mongoDb: oldConfig.mongoDb, downloadPath: oldConfig.downloadPath }));
     }
     res.status(200).end();
 })
@@ -79,9 +79,26 @@ router.post('/setDownloadPath', (req, res) => {
     }
     else if (req.body.downloadPath !== '') {
         const oldConfig = JSON.parse(fs.readFileSync('./config.json'));
-        fs.writeFileSync('./config.json', JSON.stringify({ authKey: oldConfig.authKey, mongoDb: oldConfig.mongoDb, downloadPath: req.body.downloadPath }));
+        fs.writeFileSync('./config.json', JSON.stringify({ authKey: oldConfig.authKey, gitlabUrl: oldConfig.gitlabUrl, mongoDb: oldConfig.mongoDb, downloadPath: req.body.downloadPath }));
         res.status(200).end();
     }
 })
+
+router.post('/setGitlabUrl', (req, res) => {
+    console.log(req.body.gitlabUrl);
+    if(req.body.gitlabUrl !== 'https:///api/v4'){
+        const oldConfig = JSON.parse(fs.readFileSync('./config.json'));
+        fs.writeFileSync('./config.json', JSON.stringify({ authKey: oldConfig.authKey, gitlabUrl: req.body.gitlabUrl, mongoDb: oldConfig.mongoDb, downloadPath: oldConfig.downloadPath }));
+    }
+    res.status(200).end();
+})
+
+router.post('/getGitlabUrl', (req, res) => {
+    res.send(JSON.parse(fs.readFileSync('./config.json')).gitlabUrl);
+    res.status(200).end();
+})
+
+
+
 
 module.exports = router;

@@ -11,9 +11,11 @@ export default class ConfigScreen extends Component {
         super(props);
         this.state = {
             authKey: '',
+            gitlab: '',
             mongoDb: '',
             downloadPath: '',
             savedAuthKey: '',
+            savedGitlab: '',
             savedMongoDb: '',
             savedDownloadPath: '',
         };
@@ -25,15 +27,16 @@ export default class ConfigScreen extends Component {
 
     getData = async () => {
         let key = await axios.post(`${apiEndpointUrl}/configData/getAuthKey`);
+        let gitlabUrl = await axios.post(`${apiEndpointUrl}/configData/getGitlabUrl`);
         let url = await axios.post(`${apiEndpointUrl}/configData/getMongoURL`);
         let path = await axios.post(`${apiEndpointUrl}/configData/getDownloadPath`);
         if(key.data === ''){
             this.setState({ 
-                savedAuthKey: 'Unauthenticated', savedMongoDb: url.data, savedDownloadPath: path.data });
+                savedAuthKey: 'Unauthenticated', savedGitlab: gitlabUrl.data, savedMongoDb: url.data, savedDownloadPath: path.data });
         }
         else{
             this.setState({ 
-                savedAuthKey: 'Authenticated', savedMongoDb: url.data, savedDownloadPath: path.data });
+                savedAuthKey: 'Authenticated', savedGitlab: gitlabUrl.data, savedMongoDb: url.data, savedDownloadPath: path.data });
         }
 
     }
@@ -44,11 +47,12 @@ export default class ConfigScreen extends Component {
         if(!result) {
             swal({
                 title: "Error",
-                text: "The authentication key entered is invalid.\nPlease try entering another authentication key.\nUsing previously validated authentication key instead.",
+                text: "The authentication key or gitlab host url entered is invalid.\nPlease try entering another authentication key or url.\nUsing previously validated authentication key instead.",
                 icon: "warning",
             });
         } else {
             await axios.post(`${apiEndpointUrl}/configData/setAuthKey`, { authKey: this.state.authKey });
+            await axios.post(`${apiEndpointUrl}/configData/setGitlabUrl`, { gitlabUrl: `https://${this.state.gitlab}/api/v4` });
         }
         this.setState({ authKey: '' });
         this.getData();
@@ -87,6 +91,9 @@ export default class ConfigScreen extends Component {
     handleChangeAuthKey = (e) => {
         this.setState({authKey: e.target.value});
     }
+    handleChangeGitlab = (e) => {
+        this.setState({gitlab: e.target.value});
+    }
 
     handleChangeMongoDB = (e) => {
         this.setState({mongoDb: e.target.value});
@@ -111,8 +118,17 @@ export default class ConfigScreen extends Component {
                         value={this.state.authKey} 
                         onChange={this.handleChangeAuthKey} 
                         style={{ marginLeft: '90px', marginRight: '20px', marginBottom: '10px' }}
+                        /><br/>
+                    <label>Gitlab URL: </label>
+                    <input
+                        type="text" 
+                        value={this.state.gitlab} 
+                        onChange={this.handleChangeGitlab} 
+                        style={{ width: '300px', marginLeft: '134px', marginRight: '10px', marginBottom: '10px '}}
                         />
-                    <input type="submit" value="Save Changes" />
+
+                    <input type="submit" value="Save Changes" /><br/>
+                    <p>Ex: gitlab.domain-name.com (do not include 'https://')</p>
                     <p>(Changes may take a couple seconds to save)</p>
                 </div>
             </form>

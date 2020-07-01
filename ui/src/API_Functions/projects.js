@@ -1,9 +1,10 @@
 const https = require('https');
-const { apiUrl } = require('./config.js');
 const axios = require('axios');
+const apiEndpointUrl = process.env.REACT_APP_API_ENDPOINT_URL || 'http://localhost:8080';
 
-exports.getProjectName = (projectId, key, callback) => {
-    const path = `${apiUrl}/projects/${projectId}`;
+exports.getProjectName = async (projectId, key, callback) => {
+    const apiUrl = await axios.post(`${apiEndpointUrl}/configData/getGitlabUrl`);
+    const path = `${apiUrl.data}/projects/${projectId}`;
     const token = `?private_token=${key}`;
     const query = path + token;
   
@@ -23,7 +24,9 @@ exports.getProjectName = (projectId, key, callback) => {
 };
 
 exports.getProjects = async (key) => {
-  const path = `${apiUrl}/projects`;
+  const apiUrl = await axios.post(`${apiEndpointUrl}/configData/getGitlabUrl`);
+  console.log(apiUrl);
+  const path = `${apiUrl.data}/projects`;
   const token = `?private_token=${key}&membership=true&simple=true`;
   const query = path + token;
 

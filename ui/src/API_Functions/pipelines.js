@@ -1,6 +1,7 @@
 const https = require('https');
 const querystring = require('querystring');
-const { apiUrl } = require('./config.js');
+const axios = require('axios');
+const apiEndpointUrl = process.env.REACT_APP_API_ENDPOINT_URL || 'http://localhost:8080';
 
 const request = (url, data = '') => new Promise((resolve, reject) => {
     const req = https.request(url, (res) => {
@@ -30,8 +31,9 @@ const request = (url, data = '') => new Promise((resolve, reject) => {
     req.end();
 });
   
-const getPipeline = (projectId, pipelineId, token) => {
-    const path = `${apiUrl}/projects/${projectId}/pipelines/${pipelineId}`;
+const getPipeline = async (projectId, pipelineId, token) => {
+    const apiUrl = await axios.post(`${apiEndpointUrl}/configData/getGitlabUrl`);
+    const path = `${apiUrl.data}/projects/${projectId}/pipelines/${pipelineId}`;
     const options = `private_token=${token}`;
     const url = `${path}?${options}`;
   
@@ -40,8 +42,9 @@ const getPipeline = (projectId, pipelineId, token) => {
       .catch((err) => console.error('Failed to get pipeline ', err));
 };
   
-exports.getPipelinesForProject = (projectId, token) => {
-    const path = `${apiUrl}/projects/${projectId}/pipelines`;
+exports.getPipelinesForProject = async (projectId, token) => {
+    const apiUrl = await axios.post(`${apiEndpointUrl}/configData/getGitlabUrl`);
+    const path = `${apiUrl.data}/projects/${projectId}/pipelines`;
     const options = {
         private_token: token,
         defaultHistoryLength: 10,
