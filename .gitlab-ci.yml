@@ -1,0 +1,12 @@
+image: centos:centos8.2.2004
+
+build:
+  script:
+    - yum -y install rpm-build
+    - rpmbuild --target noarch -bb deployment.spec
+    - cd ../../../../root/rpmbuild/RPMS
+    - cp -r ./noarch ../../../builds/arlsummer2020/deployment-services
+
+  artifacts:
+    paths:
+      - ./noarch

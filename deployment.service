@@ -1,0 +1,11 @@
+[Unit]
+Description=Deployment-Service.
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/npm run start-dev
+WorkingDirectory=/opt/arlut/Deployment-Server
+
+[Install]
+WantedBy=multi-user.target

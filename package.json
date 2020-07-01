@@ -1,0 +1,20 @@
+{
+  "name": "deployment-server",
+  "version": "1.0.0",
+  "description": "WIP",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "concurrently \"(cd server && npm install && npm run start)\" \"(cd ui && npm install && npm run start)\"",
+    "start-dev": "concurrently \"(cd server && npm run start)\" \"(cd ui && npm run start)\"",
+    "api": "cd server && npm install && npm run start",
+    "api-dev": "cd server && npm run start",
+    "ui": "cd ui && npm install && npm run start",
+    "ui-dev": "cd ui && npm run start"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^5.2.0"
+  }
+}

@@ -1,3 +1,14 @@
-# Overview
+## Available Scripts
 
-This is the main repository for source coderelated to the deployment services.
+### To Launch the API Server and UI Server
+Within the root directory of the project run the following commands:  
+npm install  
+npm run start
+
+### Launch API Server
+Within the root directory of the project, to start the API server independently run the following command:  
+npm run api
+
+### Launch UI Server
+Within the root directory of the project, to start the UI server independently run the following command:  
+npm run ui
