@@ -11,9 +11,11 @@ export default class ConfigScreen extends Component {
         super(props);
         this.state = {
             authKey: '',
+            gitlab: '',
             mongoDb: '',
             downloadPath: '',
             savedAuthKey: '',
+            savedGitlab: '',
             savedMongoDb: '',
             savedDownloadPath: '',
         };
@@ -25,15 +27,16 @@ export default class ConfigScreen extends Component {
 
     getData = async () => {
         let key = await axios.post(`${apiEndpointUrl}/configData/getAuthKey`);
+        let gitlabUrl = await axios.post(`${apiEndpointUrl}/configData/getGitlabUrl`)
         let url = await axios.post(`${apiEndpointUrl}/configData/getMongoURL`);
         let path = await axios.post(`${apiEndpointUrl}/configData/getDownloadPath`);
         if(key.data === ''){
             this.setState({ 
-                savedAuthKey: 'Unauthenticated', savedMongoDb: url.data, savedDownloadPath: path.data });
+                savedAuthKey: 'Unauthenticated', savedGitlab: gitlabUrl, savedMongoDb: url.data, savedDownloadPath: path.data });
         }
         else{
             this.setState({ 
-                savedAuthKey: 'Authenticated', savedMongoDb: url.data, savedDownloadPath: path.data });
+                savedAuthKey: 'Authenticated', savedGitlab: gitlabUrl, savedMongoDb: url.data, savedDownloadPath: path.data });
         }
 
     }
@@ -52,6 +55,10 @@ export default class ConfigScreen extends Component {
         }
         this.setState({ authKey: '' });
         this.getData();
+    }
+    handleSubmitGitlab = async (e) => {
+        e.preventDefault();
+        const result = await axios.post(`${apiEndpointUrl}/configData/setGitlabUrl`, { gitlabUrl: this.state.gitlab });
     }
 
     handleSubmitMongoDB = async (e) => {
@@ -88,6 +95,10 @@ export default class ConfigScreen extends Component {
         this.setState({authKey: e.target.value});
     }
 
+    handleChangeGitlab = (e) => {
+        this.setState({gitlab: e.target.value});
+    }
+
     handleChangeMongoDB = (e) => {
         this.setState({mongoDb: e.target.value});
     }
@@ -114,6 +125,22 @@ export default class ConfigScreen extends Component {
                         />
                     <input type="submit" value="Save Changes" />
                     <p>(Changes may take a couple seconds to save)</p>
+                </div>
+            </form>
+            <form onSubmit={this.handleSubmitMongoDB} style = {{marginLeft: '20px', marginTop: '10px'}}>
+                <div style = {{marginBottom: '10px'}}>
+                    <label>Currently Saved Gitlab URL: <b>{this.state.savedGitlab}</b></label>
+                </div>
+                <div style = {{marginBottom: '30px'}}>
+                    <label>Gitlab URL: </label>
+                    <input
+                        type="text" 
+                        value={this.state.gitlab} 
+                        onChange={this.handleChangeGitlab} 
+                        style={{ width: '650px', marginLeft: '134px', marginRight: '10px', marginBottom: '10px '}}
+                        />
+                    <input type="submit" value="Save Changes" />
+                    <p>(Changes may take a couple seconds to save)</p>                    
                 </div>
             </form>
             <form onSubmit={this.handleSubmitMongoDB} style = {{marginLeft: '20px', marginTop: '10px'}}>
