@@ -90,6 +90,20 @@ export default class LaunchScreen extends Component{
                             icon: "warning",
                         });
                     }
+                    else if(response.data.type === 'failedProcessStop'){
+                        swal({
+                            title: "Error",
+                            text: "Child process failed. Could not stop previous project.\nCancelling start project command.",
+                            icon: "warning",
+                        });
+                    }
+                    else if(response.data.type === 'failedProcessStart'){
+                        swal({
+                            title: "Error",
+                            text: "Child process failed. Could not start new project.\nCancelling start project command.",
+                            icon: "warning",
+                        });
+                    }
                 }
                 setTimeout(()=>this.loadData(), 2000);
             }
@@ -107,11 +121,27 @@ export default class LaunchScreen extends Component{
             if (willStop) {
                 const response = await axios.post(`${apiEndpointUrl}/launch/stop`);
                 if(!response.data.success){
-                    swal({
-                        title: "Error",
-                        text: "No projects currently running",
-                        icon: "warning",
-                    });
+                    if(response.data.type === 'noProjectRunning'){
+                        swal({
+                            title: "Error",
+                            text: "No projects currently running.\nCancelling stop project command.",
+                            icon: "warning",
+                        });
+                    }
+                    else if(response.data.type === 'failedProjectStop'){
+                        swal({
+                            title: "Error",
+                            text: "Child process failed. Could not stop previous project.\nCancelling stop project command.",
+                            icon: "warning",
+                        });
+                    }
+                    else if(response.data.type === 'filePath'){
+                        swal({
+                            title: "Error",
+                            text: "File path for the previous project is no longer valid.\nCancelling stop project command.",
+                            icon: "warning",
+                        });
+                    }
                 }
                 setTimeout(()=>this.loadData(), 2000);
             }
