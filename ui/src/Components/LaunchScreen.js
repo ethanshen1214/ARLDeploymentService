@@ -30,22 +30,31 @@ export default class LaunchScreen extends Component{
     }
     handleSubmit = async (e) => {
         e.preventDefault();
-        const result = await axios.post(`${apiEndpointUrl}/launchDB/putData`, this.state);
-        if(!result.data.success){
-            if(result.data.type === 'filePath'){
-                swal({
-                    title: "Error",
-                    text: "Project not added to the database. The file path provided is not absolute or does not exist.",
-                    icon: "warning",
-                });
+        if (this.state.stopScript === '' || this.state.startScript === '') {
+            swal({
+                title: "Error",
+                text: "Project not added to the database. Start script and stop script cannot be empty.",
+                icon: "warning",
+            });
+        } else {
+            const result = await axios.post(`${apiEndpointUrl}/launchDB/putData`, this.state);
+            if(!result.data.success){
+                if(result.data.type === 'filePath'){
+                    swal({
+                        title: "Error",
+                        text: "Project not added to the database. The file path provided is not absolute or does not exist.",
+                        icon: "warning",
+                    });
+                }
+                else if(result.data.type === 'duplicate') {
+                    swal({
+                        title: "Error",
+                        text: "'Project is already in the database.\nTo edit, click the edit button in the table'.",
+                        icon: "warning",
+                    });
+                }
             }
-            else if(result.data.type === 'duplicate') {
-                swal({
-                    title: "Error",
-                    text: "'Project is already in the database.\nTo edit, click the edit button in the table'.",
-                    icon: "warning",
-                });
-            }
+            this.setState({ name: '', startScript: '', stopScript: '', path: '' });
         }
         setTimeout(()=>this.loadData(), 2000);
     }

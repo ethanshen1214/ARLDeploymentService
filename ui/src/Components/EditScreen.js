@@ -30,21 +30,29 @@ export default class EditScreen extends Component{
     handleSubmit = async (e) => {
         const projectName = this.props.match.params.name;
         e.preventDefault();
-        const result = await axios.post(`${apiEndpointUrl}/launchDB/updateData`, {projectName: projectName, update: this.state});
-        if(!result.data.success){
-            if(result.data.type === 'filePath'){
+        if (this.state.stopScript === '' || this.state.startScript === '') {
+            swal({
+                title: "Error",
+                text: "Project not updated. Start script and stop script cannot be empty.",
+                icon: "warning",
+            });
+        } else {
+            const result = await axios.post(`${apiEndpointUrl}/launchDB/updateData`, {projectName: projectName, update: this.state});
+            if(!result.data.success){
+                if(result.data.type === 'filePath'){
+                    swal({
+                        title: "Error",
+                        text: "Did not update database because filepath is invalid",
+                        icon: "warning",
+                    });
+                }
+            }
+            else{
                 swal({
-                    title: "Error",
-                    text: "Did not update database because filepath is invalid",
-                    icon: "warning",
+                    text: "Changes successfully saved.",
+                    icon: "success",
                 });
             }
-        }
-        else{
-            swal({
-                text: "Changes successfully saved.",
-                icon: "success",
-            });
         }
     }
     render(){
