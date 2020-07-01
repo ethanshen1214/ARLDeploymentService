@@ -1,16 +1,25 @@
 import React, {Component} from 'react';
+import { Tabs, Tab } from 'react-mdl';
 import '../App.css';
 
 export default class HelpScreen extends Component {
+  constructor(props){
+    super(props);
+    this.state = {
+      activeTab: 0,
+    }
+  }
     render() {
-      return (
-        <div className='labels' style={{marginLeft: '80px', marginRight: '80px'}}>
-            <h1>Help Page</h1>
-            <h2>General</h2>
-            <p>
-              If nothing is showing up on the Deployments page, it is likely that the Authentication key or MongoDB URL is invalid.
-              Follow the steps below to re-configure the appropriate parameters.
-            </p>
+      if(this.state.activeTab === 0){
+        return(
+          <div className='labels' style={{marginLeft: '80px', marginRight: '80px'}}>
+          <h1>Help Page</h1>
+            <Tabs activeTab={this.state.activeTab} onChange={(tabId) => this.setState({ activeTab: tabId })} ripple>
+                <Tab>Configurations</Tab>
+                <Tab>Deployment Service</Tab>
+                <Tab>Launch Service</Tab>
+            </Tabs>
+          
             <h2>Authentication Key Setup</h2>
             <p>
                 Get an authentication key from gitlab and set the appropriate accesses. 
@@ -31,7 +40,49 @@ export default class HelpScreen extends Component {
                 After that, change the port numbers in the client side .env file to match the server port number for websockets and the API endpoint.
                 The client port number can also be changed if desired.
             </p>
-        </div>
-      );
+          </div>
+        )
+      }
+      else if(this.state.activeTab === 1){
+        return(
+          <div className='labels' style={{marginLeft: '80px', marginRight: '80px'}}>
+            <h1>Help Page</h1>
+            <Tabs activeTab={this.state.activeTab} onChange={(tabId) => this.setState({ activeTab: tabId })} ripple>
+                <Tab>Configurations</Tab>
+                <Tab>Deployment Service</Tab>
+                <Tab>Launch Service</Tab>
+            </Tabs>
+            <h2>Script input</h2>
+            <p>
+              Enter a script that will execute after the project artifacts are downloaded and unzipped from Gitlab.
+              The current working directory of this script is the root directory of the artifact, which can be edited on the config page.
+            </p>
+          </div>
+        )
+      }
+      else if(this.state.activeTab === 2){
+        return(
+          <div className='labels' style={{marginLeft: '80px', marginRight: '80px'}}>
+            <h1>Help Page</h1>
+            <Tabs activeTab={this.state.activeTab} onChange={(tabId) => this.setState({ activeTab: tabId })} ripple>
+                <Tab>Configurations</Tab>
+                <Tab>Deployment Service</Tab>
+                <Tab>Launch Service</Tab>
+            </Tabs>
+            <h2>Adding a Project</h2>
+            <p>
+              1) The Project Name must be unique.<br/>
+              2) The Launch Path determines where the app will try to find the project in your local directory. It must be an absolute path (from root) to work.<br/>
+              3) The Start Script will be run to start or launch the selected project.
+              4) The Stop Script will be run to end the selected project.
+            </p>
+            <h2>General</h2>
+            <p>
+              1) Starting a project will stop the previously running project to conserve system resources.
+              2) Only one project can be running at once.
+            </p>
+          </div>
+        )
+      }
     }
   }

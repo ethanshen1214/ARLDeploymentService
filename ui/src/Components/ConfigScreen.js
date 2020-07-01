@@ -137,7 +137,7 @@ export default class ConfigScreen extends Component {
             </form>
             <form onSubmit={this.handleSubmitDownloadPath} style = {{marginLeft: '20px', marginTop: '10px'}}>
                 <div style = {{marginBottom: '10px'}}>
-                    <label>Currently Saved Download Path: <b>{this.state.savedDownloadPath}</b></label>
+                    <label>Currently Saved Download Path For Deployments: <b>{this.state.savedDownloadPath}</b></label>
                 </div>
                 <div style = {{marginBottom: '30px'}}>
                     <label>Download Path: </label>
