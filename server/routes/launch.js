@@ -6,22 +6,19 @@ const fs = require('fs');
 
 stopProject = async (projectName) => {
     let projectStopped = {type: "", success: true};
-    const result = await Data.findOne({ projectName }, function(err, project){
-        if(fs.existsSync(project.path)){
-            const { stopScript, path } = project;
-            const commands = stopScript.split(/\r\n|\n|\r/).map(cmd => cmd.split(" "));
-            for (let i = 0; i < commands.length; i++) {
-                cmd = commands[i];
-                const child = spawnSync(cmd[0], cmd.slice(1), { cwd: path });
-                if (child.stderr.toString().trim()) {
-                    projectStopped = {type: "failedProcess", success: false};
-                    break;
-                }
-            }
-        } else {
-            projectStopped = {type: "filePath", success: false};
+    const project = await Data.findOne({ projectName }).exec();
+    const { stopScript, path } = project;
+    if(fs.existsSync(path)){
+        let r = Math.random().toString(36).substring(7);
+        fs.writeFileSync(`${path}/stopScript${r}.sh`, stopScript);
+        const child =  spawnSync('sh', [`stopScript${r}.sh`], {cwd: path});
+        spawnSync('rm', [`stopScript${r}.sh`], { cwd: path });
+        if (child.stderr.toString().trim()) {
+            projectStopped = {type: "failedProcess", success: false};
         }
-    });
+    } else {
+        projectStopped = {type: "filePath", success: false};
+    }
     return projectStopped;
 }
 
@@ -53,18 +50,18 @@ router.post('/start', async (req, res) => {
                 } else {
                     const { startScript, path } = newProject;
                     if(fs.existsSync(path)) {
-                        const commands = startScript.split(/\r\n|\n|\r/).map(cmd => cmd.split(" "));
-                        for (let i = 0; i < commands.length; i++) {
-                            cmd = commands[i];
-                            const child = spawnSync(cmd[0], cmd.slice(1), { cwd: path });
-                            if (child.stderr.toString().trim()) {
-                                res.json({success: false, type: 'failedProcessStart', message: "Cannot start new project due to error in user input start script.\nCancelling start project command."});
-                                return res.status(200).end();
-                            }
+                        let r = Math.random().toString(36).substring(7);
+                        fs.writeFileSync(`${path}/startScript${r}.sh`, startScript);
+                        const child =  spawnSync('sh', [`startScript${r}.sh`], {cwd: path});
+                        spawnSync('rm', [`startScript${r}.sh`], { cwd: path });
+                        if (child.stderr.toString().trim()) {
+                            res.json({ type: "failedProcessStart", success: false });
+                            res.status(200).end();
+                        } else {
+                            await Data.findOneAndUpdate({ projectName }, { launched: true }).exec();
+                            res.json({success: true, message: "Previous project halted.\nNew project started."});
+                            res.status(200).end();
                         }
-                        await Data.findOneAndUpdate({ projectName }, { launched: true }).exec();
-                        res.json({success: true, message: "Previous project halted.\nNew project started."});
-                        res.status(200).end();
                     } else {
                         res.json({success: false, type: 'newPath', message: "Previous project halted.\nNew project not started because file path to that project is no longer valid."});
                         res.status(200).end();
@@ -80,18 +77,19 @@ router.post('/start', async (req, res) => {
             } else {
                 const { startScript, path } = newProject;
                 if(fs.existsSync(path)) {
-                    const commands = startScript.split(/\r\n|\n|\r/).map(cmd => cmd.split(" "));
-                    for (let i = 0; i < commands.length; i++) {
-                        cmd = commands[i];
-                        const child = spawnSync(cmd[0], cmd.slice(1), { cwd: path });
-                        if (child.stderr.toString().trim()) {
-                            res.json({success: false, type: 'failedProcessStart', message: "Cannot start new project due to error in user input start script.\nCancelling start project command."});
-                            return res.status(200).end();
-                        }
+                    let r = Math.random().toString(36).substring(7);
+                    fs.writeFileSync(`${path}/startScript${r}.sh`, startScript);
+                    const child =  spawnSync('sh', [`startScript${r}.sh`], {cwd: path});
+                    spawnSync('rm', [`startScript${r}.sh`], { cwd: path });
+                    if (child.stderr.toString().trim()) {
+                        console.log(child.stderr.toString().trim());
+                        res.json({ type: "failedProcessStart", success: false });
+                        res.status(200).end();
+                    } else {
+                        await Data.findOneAndUpdate({ projectName }, { launched: true }).exec();
+                        res.json({success: true, message: "Previous project halted.\nNew project started."});
+                        res.status(200).end();
                     }
-                    await Data.findOneAndUpdate({ projectName }, { launched: true }).exec();
-                    res.json({success: true, message: "Previous project halted.\nNew project started."});
-                    res.status(200).end();
                 } else {
                     res.json({success: false, type: 'newPath', message: "New project not started because file path to that project is no longer valid."});
                     res.status(200).end();
