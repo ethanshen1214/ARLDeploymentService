@@ -30,13 +30,17 @@ export default class ConfigScreen extends Component {
         let gitlabUrl = await axios.post(`${apiEndpointUrl}/configData/getGitlabUrl`);
         let url = await axios.post(`${apiEndpointUrl}/configData/getMongoURL`);
         let path = await axios.post(`${apiEndpointUrl}/configData/getDownloadPath`);
+        let gitlabHost = gitlabUrl.data.match(/gitlab\..+\.com/g);
+        if (gitlabHost === null) {
+            gitlabHost = "gitlab.com";
+        }
         if(key.data === ''){
             this.setState({ 
-                savedAuthKey: 'Unauthenticated', savedGitlab: gitlabUrl.data, savedMongoDb: url.data, savedDownloadPath: path.data });
+                savedAuthKey: 'Unauthenticated', savedGitlab: gitlabHost, savedMongoDb: url.data, savedDownloadPath: path.data });
         }
         else{
             this.setState({ 
-                savedAuthKey: 'Authenticated', savedGitlab: gitlabUrl.data, savedMongoDb: url.data, savedDownloadPath: path.data });
+                savedAuthKey: 'Authenticated', savedGitlab: gitlabHost, savedMongoDb: url.data, savedDownloadPath: path.data });
         }
 
     }
@@ -109,7 +113,7 @@ export default class ConfigScreen extends Component {
             <h1>Configurations</h1>
             <form onSubmit={this.handleSubmitAuthKey} style = {{marginLeft: '20px', marginTop: '10px'}}>
                 <div style = {{marginBottom: '10px'}}>
-                    <label>Validation Status: <b>{this.state.savedAuthKey}</b></label>
+                    <label>Validation Status: <b>{this.state.savedAuthKey} for {this.state.savedGitlab}</b></label>
                 </div>
                 <div style = {{marginBottom: '30px'}}>
                     <label>Authentication Key:</label>
