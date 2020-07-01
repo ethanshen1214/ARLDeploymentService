@@ -11,11 +11,9 @@ export default class ConfigScreen extends Component {
         super(props);
         this.state = {
             authKey: '',
-            gitlab: '',
             mongoDb: '',
             downloadPath: '',
             savedAuthKey: '',
-            savedGitlab: '',
             savedMongoDb: '',
             savedDownloadPath: '',
         };
@@ -27,16 +25,15 @@ export default class ConfigScreen extends Component {
 
     getData = async () => {
         let key = await axios.post(`${apiEndpointUrl}/configData/getAuthKey`);
-        let gitlabUrl = await axios.post(`${apiEndpointUrl}/configData/getGitlabUrl`);
         let url = await axios.post(`${apiEndpointUrl}/configData/getMongoURL`);
         let path = await axios.post(`${apiEndpointUrl}/configData/getDownloadPath`);
         if(key.data === ''){
             this.setState({ 
-                savedAuthKey: 'Unauthenticated', savedGitlab: gitlabUrl, savedMongoDb: url.data, savedDownloadPath: path.data });
+                savedAuthKey: 'Unauthenticated', savedMongoDb: url.data, savedDownloadPath: path.data });
         }
         else{
             this.setState({ 
-                savedAuthKey: 'Authenticated', savedGitlab: gitlabUrl, savedMongoDb: url.data, savedDownloadPath: path.data });
+                savedAuthKey: 'Authenticated', savedMongoDb: url.data, savedDownloadPath: path.data });
         }
 
     }
