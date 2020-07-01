@@ -34,6 +34,11 @@ export default class HelpScreen extends Component {
                 <br/>
                 Local installation: <a href = 'https://docs.mongodb.com/guides/server/install/' target = "_blank" rel="noopener noreferrer">https://docs.mongodb.com/guides/server/install/</a>
             </p>
+            <h2>Deployment Path Setup</h2>
+            <p>
+                Input a path to determine where the projects will be deployed. 
+                It must be an absolute path from root to work.
+            </p>
             <h2>Ports Setup</h2>
             <p>
                 Edit the port number in the server side .env file to determine the port to run the server on. 
@@ -73,12 +78,17 @@ export default class HelpScreen extends Component {
             <p>
               1) The Project Name must be unique.<br/>
               2) The Launch Path determines where the app will try to find the project in your local directory. It must be an absolute path (from root) to work.<br/>
-              3) The Start Script will be run to start or launch the selected project.
+              3) The Start Script will be run to start or launch the selected project.<br/>
               4) The Stop Script will be run to end the selected project.
+            </p>
+            <h2>Launch From Command Line</h2>
+            <p>
+              <b>Example Start command:</b> curl --header "Content-Type: application/json" --request POST --data '{'{'}"projectName": "name-of-project"{'}'}' http://localhost:8080/launch/start<br/>
+              <b>Example Stop command:</b> curl --header "Content-Type: application/json" --request POST http://localhost:8080/launch/stop
             </p>
             <h2>General</h2>
             <p>
-              1) Starting a project will stop the previously running project to conserve system resources.
+              1) Starting a project will stop the previously running project to conserve system resources.<br/>
               2) Only one project can be running at once.
             </p>
           </div>
