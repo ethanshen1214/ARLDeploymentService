@@ -1,10 +1,14 @@
-const getGitlabHost = () => {
+import axios from 'axios';
+const apiEndpointUrl = process.env.REACT_APP_API_ENDPOINT_URL || 'http://localhost:8080';
+
+const getGitlabHost = async () => {
     const hostEnvVar = 'GITLAB_HOST';
     const defaultHost = 'gitlab.com';
     const gitlabHostFromEnv = process.env[hostEnvVar];
+    const gitlabHostFromConfig = await axios.post(`${apiEndpointUrl}/configData/getGitlabUrl`);
   
-    const host = gitlabHostFromEnv || defaultHost;
-    if (!gitlabHostFromEnv) {
+    const host = gitlabHostFromConfig || defaultHost;
+    if (!gitlabHostFromConfig) {
       console.warn(`${hostEnvVar} environment variable not set.`);
     }
   

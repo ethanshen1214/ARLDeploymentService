@@ -27,7 +27,7 @@ export default class ConfigScreen extends Component {
 
     getData = async () => {
         let key = await axios.post(`${apiEndpointUrl}/configData/getAuthKey`);
-        let gitlabUrl = await axios.post(`${apiEndpointUrl}/configData/getGitlabUrl`)
+        let gitlabUrl = await axios.post(`${apiEndpointUrl}/configData/getGitlabUrl`);
         let url = await axios.post(`${apiEndpointUrl}/configData/getMongoURL`);
         let path = await axios.post(`${apiEndpointUrl}/configData/getDownloadPath`);
         if(key.data === ''){

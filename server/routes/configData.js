@@ -87,7 +87,7 @@ router.post('/setDownloadPath', (req, res) => {
 router.post('/setGitlabUrl', (req, res) => {
     if(req.body.authKey !== ''){
         const oldConfig = JSON.parse(fs.readFileSync('./config.json'));
-        fs.writeFileSync('./config.json', JSON.stringify({ authKey: oldConfig.authKey, gitlabUrl: req.body.gitlabUrl, mongoDb: oldConfig.mongoDb, downloadPath: req.body.downloadPath }));
+        fs.writeFileSync('./config.json', JSON.stringify({ authKey: oldConfig.authKey, gitlabUrl: req.body.gitlabUrl, mongoDb: oldConfig.mongoDb, downloadPath: oldConfig.downloadPath }));
     }
     res.status(200).end();
 })
