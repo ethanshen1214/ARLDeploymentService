@@ -116,10 +116,10 @@ router.post('/stop', async (req, res) => {
             } else {
                 await Data.findOneAndUpdate({ projectName: updatedProject.projectName }, { launched: true }).exec();
                 if (result.type === "filePath") {
-                    res.json({ success: false, type: 'failedProcessStop', message: "Could not halt previously running project because file path to that project is no longer valid." })
+                    res.json({ success: false, type: 'filePath', message: "Could not halt previously running project because file path to that project is no longer valid." })
                 }
                 else if (result.type === "failedProcess") {
-                    res.json({ success: false, type: 'filePath', message: "Previously running project not stopped due to error in user input stop script." })
+                    res.json({ success: false, type: 'failedProcessStop', message: "Previously running project not stopped due to error in user input stop script." })
                 }
             }
         }

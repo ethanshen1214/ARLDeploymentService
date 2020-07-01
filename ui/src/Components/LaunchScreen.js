@@ -120,6 +120,7 @@ export default class LaunchScreen extends Component{
         .then(async (willStop) => {
             if (willStop) {
                 const response = await axios.post(`${apiEndpointUrl}/launch/stop`);
+                console.log(response);
                 if(!response.data.success){
                     if(response.data.type === 'noProjectRunning'){
                         swal({
@@ -128,7 +129,7 @@ export default class LaunchScreen extends Component{
                             icon: "warning",
                         });
                     }
-                    else if(response.data.type === 'failedProjectStop'){
+                    else if(response.data.type === 'failedProcessStop'){
                         swal({
                             title: "Error",
                             text: "Child process failed. Could not stop previous project.\nCancelling stop project command.",
