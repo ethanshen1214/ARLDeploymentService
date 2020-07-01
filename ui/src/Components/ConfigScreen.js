@@ -56,10 +56,6 @@ export default class ConfigScreen extends Component {
         this.setState({ authKey: '' });
         this.getData();
     }
-    handleSubmitGitlab = async (e) => {
-        e.preventDefault();
-        const result = await axios.post(`${apiEndpointUrl}/configData/setGitlabUrl`, { gitlabUrl: this.state.gitlab });
-    }
 
     handleSubmitMongoDB = async (e) => {
         e.preventDefault();
@@ -95,10 +91,6 @@ export default class ConfigScreen extends Component {
         this.setState({authKey: e.target.value});
     }
 
-    handleChangeGitlab = (e) => {
-        this.setState({gitlab: e.target.value});
-    }
-
     handleChangeMongoDB = (e) => {
         this.setState({mongoDb: e.target.value});
     }
@@ -125,22 +117,6 @@ export default class ConfigScreen extends Component {
                         />
                     <input type="submit" value="Save Changes" />
                     <p>(Changes may take a couple seconds to save)</p>
-                </div>
-            </form>
-            <form onSubmit={this.handleSubmitMongoDB} style = {{marginLeft: '20px', marginTop: '10px'}}>
-                <div style = {{marginBottom: '10px'}}>
-                    <label>Currently Saved Gitlab URL: <b>{this.state.savedGitlab}</b></label>
-                </div>
-                <div style = {{marginBottom: '30px'}}>
-                    <label>Gitlab URL: </label>
-                    <input
-                        type="text" 
-                        value={this.state.gitlab} 
-                        onChange={this.handleChangeGitlab} 
-                        style={{ width: '650px', marginLeft: '134px', marginRight: '10px', marginBottom: '10px '}}
-                        />
-                    <input type="submit" value="Save Changes" />
-                    <p>(Changes may take a couple seconds to save)</p>                    
                 </div>
             </form>
             <form onSubmit={this.handleSubmitMongoDB} style = {{marginLeft: '20px', marginTop: '10px'}}>
