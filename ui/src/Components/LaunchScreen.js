@@ -19,7 +19,7 @@ export default class LaunchScreen extends Component{
             projects: [],
             searchResults: [],
             searchTerm: "",
-            error: {},
+            error: '',
         }
     }
     componentDidMount(){
@@ -170,6 +170,7 @@ export default class LaunchScreen extends Component{
         }
         const responseArray = Array.from(response.data.data);
         let parsedProjects = [];
+        let errorFlag = false;
         for(let i = 0; i < responseArray.length; i++){
             if(responseArray[i].launched === true){
                 let tempProject = {
@@ -190,10 +191,14 @@ export default class LaunchScreen extends Component{
                 parsedProjects.push(tempProject)                
             }
             if(responseArray[i].launched === null) {
-                this.setState({error: { active: true, project: responseArray[i].projectName } });
+                errorFlag = {type: true, project: responseArray[i].projectName};
             }
         }
-        this.setState({searchResults: parsedProjects, projects: parsedProjects});
+        if (errorFlag) {
+            this.setState({ searchResults: parsedProjects, projects: parsedProjects, error: errorFlag.project });
+        } else {
+            this.setState({ searchResults: parsedProjects, projects: parsedProjects, error: '' });
+        }
     }
     deleteHandler = async (e) => {
         const res = axios.delete(`${apiEndpointUrl}/launchDB/deleteData`, {data: {projectName: e.target.name}});
@@ -209,8 +214,8 @@ export default class LaunchScreen extends Component{
     render() {
         const DB = [];
         let error;
-        if (this.state.error.project) {
-            error = <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center', }}><h1 style={{color: 'orange'}}>Script Error in {this.state.error.project}</h1></div>;
+        if (this.state.error) {
+            error = <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center', }}><h1 style={{color: 'orange'}}>Script Error in {this.state.error}</h1></div>;
         } else {
             error = <React.Fragment></React.Fragment>;
         }

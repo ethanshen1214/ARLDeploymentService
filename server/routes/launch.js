@@ -9,10 +9,7 @@ stopProject = async (projectName) => {
     const project = await Data.findOne({ projectName }).exec();
     const { stopScript, path } = project;
     if(fs.existsSync(path)){
-        let r = Math.random().toString(36).substring(7);
-        fs.writeFileSync(`${path}/stopScript${r}.sh`, stopScript);
-        const child =  spawnSync('sh', [`stopScript${r}.sh`], { cwd: path });
-        spawnSync('rm', [`stopScript${r}.sh`], { cwd: path });
+        const child =  spawnSync('bash', [`-c`, `${stopScript}`], { cwd: path });
         const errorMessage = child.stderr.toString().trim();
         if (child.stderr.toString().trim()) {
             projectStopped = { type: "failedProcess", success: false, message: errorMessage };
@@ -52,10 +49,8 @@ router.post('/start', async (req, res) => {
                 } else {
                     const { startScript, path } = newProject;
                     if(fs.existsSync(path)) {
-                        let r = Math.random().toString(36).substring(7);
-                        fs.writeFileSync(`${path}/startScript${r}.sh`, startScript);
                         const child =  spawnSync('sh', [`startScript${r}.sh`], { cwd: path });
-                        spawnSync('rm', [`startScript${r}.sh`], { cwd: path });
+                        spawnSync('bash', [`-c`, `${startScript}`], { cwd: path });
                         const errorMessage = child.stderr.toString().trim();
                         if (errorMessage) {
                             await Data.findOneAndUpdate({ projectName }, { launched: null }).exec();
@@ -81,10 +76,7 @@ router.post('/start', async (req, res) => {
             } else {
                 const { startScript, path } = newProject;
                 if(fs.existsSync(path)) {
-                    let r = Math.random().toString(36).substring(7);
-                    fs.writeFileSync(`${path}/startScript${r}.sh`, startScript);
-                    const child =  spawnSync('sh', [`startScript${r}.sh`], { cwd: path });
-                    spawnSync('rm', [`startScript${r}.sh`], { cwd: path });
+                    const child =  spawnSync('bash', [`-c`, `${startScript}`], { cwd: path });
                     const errorMessage = child.stderr.toString().trim();
                     if (errorMessage) {
                         await Data.findOneAndUpdate({ projectName }, { launched: null }).exec();
