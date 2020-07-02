@@ -3,6 +3,7 @@ const WebSocketServer = require('websocket').server;
 let connection;
 
 const sendSocketData = data => {
+    console.log("Socket Data Send", data)
     connection.sendUTF(JSON.stringify(data));
 }
 

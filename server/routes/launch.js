@@ -1,19 +1,24 @@
 const express = require('express');
 const Data = require('../bin/launch');
-const { spawnSync } = require('child_process');
+const { spawn } = require('child_process');
 const router = express.Router();
 const fs = require('fs');
+
+const { sendSocketData } = require('../bin/sockets');
 
 stopProject = async (projectName) => {
     let projectStopped = {type: "", success: true};
     const project = await Data.findOne({ projectName }).exec();
     const { stopScript, path } = project;
     if(fs.existsSync(path)){
-        const child =  spawnSync('bash', [`-c`, `${stopScript}`], { cwd: path });
-        const errorMessage = child.stderr.toString().trim();
-        if (child.stderr.toString().trim()) {
-            projectStopped = { type: "failedProcess", success: false, message: errorMessage };
-        }
+        const child =  spawn('bash', [`-c`, `${stopScript}`], { cwd: path });
+        child.stderr.on('data', async (data) => {
+            const errorMessage = data.toString().trim();
+            if(errorMessage) {
+                await Data.findOneAndUpdate({ projectName }, { launched: null }).exec();
+                sendSocketData({ type: "failedProcessStop", message: errorMessage });
+            }
+        });
     } else {
         projectStopped = { type: "filePath", success: false };
     }
@@ -49,18 +54,17 @@ router.post('/start', async (req, res) => {
                 } else {
                     const { startScript, path } = newProject;
                     if(fs.existsSync(path)) {
-                        const child =  spawnSync('sh', [`startScript${r}.sh`], { cwd: path });
-                        spawnSync('bash', [`-c`, `${startScript}`], { cwd: path });
-                        const errorMessage = child.stderr.toString().trim();
-                        if (errorMessage) {
-                            await Data.findOneAndUpdate({ projectName }, { launched: null }).exec();
-                            res.json({ type: "failedProcessStart", success: false, message: `${errorMessage}` });
-                            res.status(200).end();
-                        } else {
-                            await Data.findOneAndUpdate({ projectName }, { launched: true }).exec();
-                            res.json({ success: true, message: "Previous project halted.\nNew project started." });
-                            res.status(200).end();
-                        }
+                        const child = spawn('bash', [`-c`, `${startScript}`], { cwd: path });
+                        child.stderr.on('data', async (data) => {
+                            const errorMessage = data.toString().trim();
+                            if(errorMessage) {
+                                await Data.findOneAndUpdate({ projectName }, { launched: null }).exec();
+                                sendSocketData({ type: "failedProcessStart", message: errorMessage });
+                            }
+                        });
+                        await Data.findOneAndUpdate({ projectName }, { launched: true }).exec();
+                        res.json({ success: true, message: "Previous project halted.\nNew project started." });
+                        res.status(200).end();
                     } else {
                         res.json({ success: false, type: 'newPath', message: "Previous project halted.\nNew project not started because file path to that project is no longer valid." });
                         res.status(200).end();
@@ -76,17 +80,17 @@ router.post('/start', async (req, res) => {
             } else {
                 const { startScript, path } = newProject;
                 if(fs.existsSync(path)) {
-                    const child =  spawnSync('bash', [`-c`, `${startScript}`], { cwd: path });
-                    const errorMessage = child.stderr.toString().trim();
-                    if (errorMessage) {
-                        await Data.findOneAndUpdate({ projectName }, { launched: null }).exec();
-                        res.json({ type: "failedProcessStart", success: false, message: `${errorMessage}` });
-                        res.status(200).end();
-                    } else {
-                        await Data.findOneAndUpdate({ projectName }, { launched: true }).exec();
-                        res.json({ success: true, message: "Previous project halted.\nNew project started." });
-                        res.status(200).end();
-                    }
+                    const child =  spawn('bash', [`-c`, `${startScript}`], { cwd: path });
+                    child.stderr.on('data', async (data) => {
+                        const errorMessage = data.toString().trim();
+                        if(errorMessage) {
+                            await Data.findOneAndUpdate({ projectName }, { launched: null }).exec();
+                            sendSocketData({ type: "failedProcessStart", message: errorMessage });
+                        }
+                    });
+                    await Data.findOneAndUpdate({ projectName }, { launched: true }).exec();
+                    res.json({ success: true, message: "Previous project halted.\nNew project started." });
+                    res.status(200).end();
                 } else {
                     res.json({success: false, type: 'newPath', message: "New project not started because file path to that project is no longer valid."});
                     res.status(200).end();

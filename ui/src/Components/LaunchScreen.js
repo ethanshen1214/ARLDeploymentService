@@ -4,8 +4,12 @@ import { Link } from 'react-router-dom';
 import { DataTable, TableHeader, Card, CardTitle, CardActions, Grid, Cell, Chip, IconButton } from 'react-mdl';
 import axios from 'axios';
 import swal from 'sweetalert';
+import { w3cwebsocket as W3CWebSocket } from "websocket";
 
 const apiEndpointUrl = process.env.REACT_APP_API_ENDPOINT_URL || 'http://localhost:8080';
+const webSocketUrl = process.env.REACT_APP_WEBSOCKET_ENDPOINT_URL || 'ws://localhost:8080';
+
+const socket = new W3CWebSocket(webSocketUrl);
 
 export default class LaunchScreen extends Component{
     constructor(props){
@@ -23,6 +27,25 @@ export default class LaunchScreen extends Component{
         }
     }
     componentDidMount(){
+        socket.onmessage = (data) => {
+            const dataJSON = JSON.parse(data.data);
+            console.log('Received Socket', dataJSON.type === "failedProcessStart")
+            if (dataJSON.type === "failedProcessStart") {
+                swal({
+                    title: "Error",
+                    text: `Child start process failed.\n${dataJSON.message}.\nCancelling start project command.`,
+                    icon: "warning",
+                });
+            }
+            else if (dataJSON.type === "failedProcessStop") {
+                swal({
+                    title: "Error",
+                    text: `Child stop process failed.\n${dataJSON.message}.`,
+                    icon: "warning",
+                });
+            }
+        }
+
         this.loadData();
     }
     handleChange = (e) => {
