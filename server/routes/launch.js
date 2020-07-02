@@ -11,13 +11,14 @@ stopProject = async (projectName) => {
     if(fs.existsSync(path)){
         let r = Math.random().toString(36).substring(7);
         fs.writeFileSync(`${path}/stopScript${r}.sh`, stopScript);
-        const child =  spawnSync('sh', [`stopScript${r}.sh`], {cwd: path});
+        const child =  spawnSync('sh', [`stopScript${r}.sh`], { cwd: path });
         spawnSync('rm', [`stopScript${r}.sh`], { cwd: path });
+        const errorMessage = child.stderr.toString().trim();
         if (child.stderr.toString().trim()) {
-            projectStopped = {type: "failedProcess", success: false};
+            projectStopped = { type: "failedProcess", success: false, message: errorMessage };
         }
     } else {
-        projectStopped = {type: "filePath", success: false};
+        projectStopped = { type: "filePath", success: false };
     }
     return projectStopped;
 }
@@ -27,43 +28,46 @@ router.post('/start', async (req, res) => {
     try {
         const launchedProject = await Data.findOne({ launched: true }).exec();
         if (launchedProject !== null && launchedProject.projectName === projectName) {
-            res.json({success: false, type: 'alreadyRunning', message: "This project is already running."});
+            res.json({ success: false, type: 'alreadyRunning', message: "This project is already running." });
             res.status(200).end();
         }
         else if (launchedProject !== null) {
             const projectStopped = await stopProject(launchedProject.projectName);
             if(!projectStopped.success) {
                 if (projectStopped.type === "filePath") {
-                    res.json({success: false, type: 'oldPath', message: "Could not halt previously running project because file path to that project is no longer valid.\nCancelling start project command."});
+                    res.json({ success: false, type: 'oldPath', message: "Could not halt previously running project because file path to that project is no longer valid.\nCancelling start project command." });
                     res.status(200).end();
                 }
                 else if(projectStopped.type === "failedProcess") {
-                    res.json({success: false, type: 'failedProcessStop', message: "Previously running project not stopped due to error in user input stop script.\nCancelling start project command."});
+                    await Data.findOneAndUpdate({ projectName: launchedProject.projectName }, { launched: null }).exec();
+                    res.json({ success: false, type: 'failedProcessStop', message: `${projectStopped.message}` });
                     res.status(200).end();
                 }
             } else {
                 await Data.findOneAndUpdate({ projectName: launchedProject.projectName }, { launched: false }).exec();
                 const newProject = await Data.findOne({ projectName }).exec();
                 if (newProject === null) {
-                    res.json({success: false, type: 'nonExistent', message: "Previous project halted.\nCannot start a project that does not exist in the database."});
+                    res.json({ success: false, type: 'nonExistent', message: "Previous project halted.\nCannot start a project that does not exist in the database." });
                     res.status(200).end();
                 } else {
                     const { startScript, path } = newProject;
                     if(fs.existsSync(path)) {
                         let r = Math.random().toString(36).substring(7);
                         fs.writeFileSync(`${path}/startScript${r}.sh`, startScript);
-                        const child =  spawnSync('sh', [`startScript${r}.sh`], {cwd: path});
+                        const child =  spawnSync('sh', [`startScript${r}.sh`], { cwd: path });
                         spawnSync('rm', [`startScript${r}.sh`], { cwd: path });
-                        if (child.stderr.toString().trim()) {
-                            res.json({ type: "failedProcessStart", success: false });
+                        const errorMessage = child.stderr.toString().trim();
+                        if (errorMessage) {
+                            await Data.findOneAndUpdate({ projectName }, { launched: null }).exec();
+                            res.json({ type: "failedProcessStart", success: false, message: `${errorMessage}` });
                             res.status(200).end();
                         } else {
                             await Data.findOneAndUpdate({ projectName }, { launched: true }).exec();
-                            res.json({success: true, message: "Previous project halted.\nNew project started."});
+                            res.json({ success: true, message: "Previous project halted.\nNew project started." });
                             res.status(200).end();
                         }
                     } else {
-                        res.json({success: false, type: 'newPath', message: "Previous project halted.\nNew project not started because file path to that project is no longer valid."});
+                        res.json({ success: false, type: 'newPath', message: "Previous project halted.\nNew project not started because file path to that project is no longer valid." });
                         res.status(200).end();
                     }
                 }
@@ -72,22 +76,23 @@ router.post('/start', async (req, res) => {
         else {
             const newProject = await Data.findOne({ projectName }).exec();
             if (newProject === null) {
-                res.json({success: false, type: 'nonExistent', message: "Cannot start a project that does not exist in the database."});
+                res.json({ success: false, type: 'nonExistent', message: "Cannot start a project that does not exist in the database." });
                 res.status(200).end();
             } else {
                 const { startScript, path } = newProject;
                 if(fs.existsSync(path)) {
                     let r = Math.random().toString(36).substring(7);
                     fs.writeFileSync(`${path}/startScript${r}.sh`, startScript);
-                    const child =  spawnSync('sh', [`startScript${r}.sh`], {cwd: path});
+                    const child =  spawnSync('sh', [`startScript${r}.sh`], { cwd: path });
                     spawnSync('rm', [`startScript${r}.sh`], { cwd: path });
-                    if (child.stderr.toString().trim()) {
-                        console.log(child.stderr.toString().trim());
-                        res.json({ type: "failedProcessStart", success: false });
+                    const errorMessage = child.stderr.toString().trim();
+                    if (errorMessage) {
+                        await Data.findOneAndUpdate({ projectName }, { launched: null }).exec();
+                        res.json({ type: "failedProcessStart", success: false, message: `${errorMessage}` });
                         res.status(200).end();
                     } else {
                         await Data.findOneAndUpdate({ projectName }, { launched: true }).exec();
-                        res.json({success: true, message: "Previous project halted.\nNew project started."});
+                        res.json({ success: true, message: "Previous project halted.\nNew project started." });
                         res.status(200).end();
                     }
                 } else {
@@ -106,18 +111,19 @@ router.post('/start', async (req, res) => {
 router.post('/stop', async (req, res) => {
     Data.findOneAndUpdate({ launched: true }, { launched: false }, async function(err, updatedProject) {
         if (updatedProject === null) {
-            res.json({success: false, type: 'noProjectRunning', message: "No projects currently running."})
+            res.json({ success: false, type: 'noProjectRunning', message: "No projects currently running." })
         } else {
             const result = await stopProject(updatedProject.projectName);
             if (result.success) {
-                res.json({success: true, type: 'projectStopped', message: "Project stopped."});
+                res.json({ success: true, type: 'projectStopped', message: "Project stopped." });
             } else {
-                await Data.findOneAndUpdate({ projectName: updatedProject.projectName }, { launched: true }).exec();
                 if (result.type === "filePath") {
+                    await Data.findOneAndUpdate({ projectName: updatedProject.projectName }, { launched: true }).exec();
                     res.json({ success: false, type: 'filePath', message: "Could not halt previously running project because file path to that project is no longer valid." })
                 }
                 else if (result.type === "failedProcess") {
-                    res.json({ success: false, type: 'failedProcessStop', message: "Previously running project not stopped due to error in user input stop script." })
+                    await Data.findOneAndUpdate({ projectName: updatedProject.projectName }, { launched: null }).exec();
+                    res.json({ success: false, type: 'failedProcessStop', message: `${result.message}` })
                 }
             }
         }

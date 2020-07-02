@@ -19,6 +19,7 @@ export default class LaunchScreen extends Component{
             projects: [],
             searchResults: [],
             searchTerm: "",
+            error: {},
         }
     }
     componentDidMount(){
@@ -102,14 +103,14 @@ export default class LaunchScreen extends Component{
                     else if(response.data.type === 'failedProcessStop'){
                         swal({
                             title: "Error",
-                            text: "Child process failed. Could not stop previous project.\nCancelling start project command.",
+                            text: `Child stop process failed.\n${response.data.message}.\nCancelling stop project command.`,
                             icon: "warning",
                         });
                     }
                     else if(response.data.type === 'failedProcessStart'){
                         swal({
                             title: "Error",
-                            text: "Child process failed. Could not start new project.\nCancelling start project command.",
+                            text: `Child start process failed.\n${response.data.message}.\nCancelling start project command.`,
                             icon: "warning",
                         });
                     }
@@ -129,7 +130,6 @@ export default class LaunchScreen extends Component{
         .then(async (willStop) => {
             if (willStop) {
                 const response = await axios.post(`${apiEndpointUrl}/launch/stop`);
-                console.log(response);
                 if(!response.data.success){
                     if(response.data.type === 'noProjectRunning'){
                         swal({
@@ -141,7 +141,7 @@ export default class LaunchScreen extends Component{
                     else if(response.data.type === 'failedProcessStop'){
                         swal({
                             title: "Error",
-                            text: "Child process failed. Could not stop previous project.\nCancelling stop project command.",
+                            text: `Child stop process failed.\n${response.data.message}.\nCancelling stop project command.`,
                             icon: "warning",
                         });
                     }
@@ -189,7 +189,9 @@ export default class LaunchScreen extends Component{
                 }
                 parsedProjects.push(tempProject)                
             }
-
+            if(responseArray[i].launched === null) {
+                this.setState({error: { active: true, project: responseArray[i].projectName } });
+            }
         }
         this.setState({searchResults: parsedProjects, projects: parsedProjects});
     }
@@ -206,10 +208,17 @@ export default class LaunchScreen extends Component{
 
     render() {
         const DB = [];
+        let error;
+        if (this.state.error.project) {
+            error = <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center', }}><h1 style={{color: 'orange'}}>Script Error in {this.state.error.project}</h1></div>;
+        } else {
+            error = <React.Fragment></React.Fragment>;
+        }
         return(
         <div style={{height: '900px', width: '900px', margin: 'auto'}}>
           <div className = 'labels'>
             <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center', }}><h1>GitLab Launch Util</h1></div>
+            {error}
             <div>
               <Grid>
                 <Cell col = {7} >
