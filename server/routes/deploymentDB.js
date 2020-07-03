@@ -16,6 +16,8 @@ router.get('/getData', (req, res) => {
     return res.json({ success: false, data: 'noDbUrl' });
   }
 });
+
+router.get('/')
   
 // this is our update method
 // this method overwrites existing data in our database

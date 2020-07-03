@@ -14,7 +14,6 @@ export default function Paths() {
             <Route path="/view" component={DeploymentScreen} />
             <Route path="/help" component={HelpScreen} />
             <Route path="/config" component={ConfigScreen}/>
-            <Route path="/launch/edit/:name" component={EditScreen}/>
             <Route path="/launch" component={LaunchScreen}/>
             <Route path="/" component={HomeScreen} />
         </Switch>
