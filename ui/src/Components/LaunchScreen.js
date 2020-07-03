@@ -26,6 +26,7 @@ export default class LaunchScreen extends Component{
             error: '',
         }
     }
+
     componentDidMount(){
         socket.onmessage = (data) => {
             const dataJSON = JSON.parse(data.data);
@@ -44,14 +45,38 @@ export default class LaunchScreen extends Component{
                     icon: "warning",
                 });
             }
+            else if (dataJSON.type === "faultyStopPath") {
+                swal({
+                    title: "Error",
+                    text: "Could not halt previously running project because file path to that project is no longer valid.\nCancelling start project command.",
+                    icon: "warning",
+                });
+            }
+            else if (dataJSON.type === "faultyStartPath") {
+                swal({
+                    title: "Error",
+                    text: "New project not started because file path to that project is not valid.\nCancelling start project command.",
+                    icon: "warning",
+                });
+            }
+            else if (dataJSON.type === "noProjectRunning") {
+                swal({
+                    title: "Error",
+                    text: "No projects currently running.\nCancelling stop project command.",
+                    icon: "warning",
+                });
+            }
+            setTimeout(()=>this.loadData(), 2000);
         }
 
         this.loadData();
     }
+
     handleChange = (e) => {
         const {name, value} = e.target;
         this.setState({[name]: value, launched: false});
     }
+
     handleSubmit = async (e) => {
         e.preventDefault();
         if (this.state.stopScript === '' || this.state.startScript === '') {
@@ -82,6 +107,7 @@ export default class LaunchScreen extends Component{
         }
         setTimeout(()=>this.loadData(), 2000);
     }
+
     handleLaunch = async (e) => {
         e.persist();
         swal({
@@ -94,54 +120,11 @@ export default class LaunchScreen extends Component{
         .then(async (newLaunch) => {
             if (newLaunch) {
                 const response = await axios.post(`${apiEndpointUrl}/launch/start`, {projectName: e.target.name});
-                if(!response.data.success){
-                    if(response.data.type === 'alreadyRunning'){
-                        swal({
-                            title: "Error",
-                            text: "Project is already running.",
-                            icon: "warning",
-                        });
-                    }
-                    else if(response.data.type === 'oldPath'){
-                        swal({
-                            title: "Error",
-                            text: "Could not halt previously running project because file path to that project is no longer valid.\nCancelling start project command.",
-                            icon: "warning",
-                        });
-                    }
-                    else if(response.data.type === 'nonExistent'){
-                        swal({
-                            title: "Error",
-                            text: "Cannot start a project that does not exist in the database.\nCancelling start project command.",
-                            icon: "warning",
-                        });
-                    }
-                    else if(response.data.type === 'newPath'){
-                        swal({
-                            title: "Error",
-                            text: "New project not started because file path to that project is not valid.\nCancelling start project command.",
-                            icon: "warning",
-                        });
-                    }
-                    else if(response.data.type === 'failedProcessStop'){
-                        swal({
-                            title: "Error",
-                            text: `Child stop process failed.\n${response.data.message}.\nCancelling stop project command.`,
-                            icon: "warning",
-                        });
-                    }
-                    else if(response.data.type === 'failedProcessStart'){
-                        swal({
-                            title: "Error",
-                            text: `Child start process failed.\n${response.data.message}.\nCancelling start project command.`,
-                            icon: "warning",
-                        });
-                    }
-                }
                 setTimeout(()=>this.loadData(), 2000);
             }
         })
     }
+
     handleStop = async (e) => {
         swal({
             title: "Are you sure?",
@@ -153,29 +136,6 @@ export default class LaunchScreen extends Component{
         .then(async (willStop) => {
             if (willStop) {
                 const response = await axios.post(`${apiEndpointUrl}/launch/stop`);
-                if(!response.data.success){
-                    if(response.data.type === 'noProjectRunning'){
-                        swal({
-                            title: "Error",
-                            text: "No projects currently running.\nCancelling stop project command.",
-                            icon: "warning",
-                        });
-                    }
-                    else if(response.data.type === 'failedProcessStop'){
-                        swal({
-                            title: "Error",
-                            text: `Child stop process failed.\n${response.data.message}.\nCancelling stop project command.`,
-                            icon: "warning",
-                        });
-                    }
-                    else if(response.data.type === 'filePath'){
-                        swal({
-                            title: "Error",
-                            text: "File path for the previous project is no longer valid.\nCancelling stop project command.",
-                            icon: "warning",
-                        });
-                    }
-                }
                 setTimeout(()=>this.loadData(), 2000);
             }
         });
@@ -223,10 +183,12 @@ export default class LaunchScreen extends Component{
             this.setState({ searchResults: parsedProjects, projects: parsedProjects, error: '' });
         }
     }
+
     deleteHandler = async (e) => {
         const res = axios.delete(`${apiEndpointUrl}/launchDB/deleteData`, {data: {projectName: e.target.name}});
         setTimeout(()=>this.loadData(), 2000);
     }
+
     handleProjectSearch = (e) => {
         const results = this.state.projects.filter(project =>
           project.projectName.toLowerCase().includes(e.target.value.toLowerCase())
