@@ -85,9 +85,18 @@ export default class LaunchScreen extends Component{
         const {name, value} = e.target;
         this.setState({[name]: value, launched: false});
     }
+
     handleChangeEdit = (e) => {
         const {name, value} = e.target;
         this.setState({edit: {[name]: value}});
+    }
+
+    closeAddModal = () => {
+        this.setState({ addModalIsOpen: false });
+    }
+
+    closeEditModal = () => {
+        this.setState({ editModalIsOpen: false });
     }
 
     handleSubmit = async (e) => {
@@ -120,6 +129,7 @@ export default class LaunchScreen extends Component{
         }
         setTimeout(()=>this.loadData(), 2000);
     }
+
     handleSubmitEdit = async (e) => {
         const projectName = this.state.edit.name;
         e.preventDefault();
@@ -337,6 +347,8 @@ export default class LaunchScreen extends Component{
                             </div>
                             <div>
                                 <input type="submit" value="Add Project" />
+                                {' | '}
+                                <button onClick={this.closeAddModal}>Return</button>
                             </div>
                         </form>
                     </CardActions>
@@ -385,7 +397,8 @@ export default class LaunchScreen extends Component{
                             </div>
                             <div>
                                 <input type="submit" value="Save Changes" />
-                                <Link to={`/launch`}><button>Return</button></Link>
+                                {' | '}
+                                <button onClick={this.closeEditModal}>Return</button>
                             </div>
                         </form>
                       </CardActions>
