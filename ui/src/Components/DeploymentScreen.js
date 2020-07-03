@@ -110,13 +110,12 @@ export default class DeploymentScreen extends Component {
         title: "Error",
         text: "Invalid DB Endpoint \nEnter a new MongoDB URL on the Config page",
         icon: "warning",
-    });
+      });
       return;
     }
     const responseArray = Array.from(response.data.data);
     const mappedPipelines = new Map(responseArray.map(obj => [obj.projectId, obj.pipelineId])); // create map for projectId to currently deployed pipelineId for faster matching
     const { match } = this.props;
-
 
     // create list of possibly deployable projects to display to user
     const currProjects = [];
@@ -173,9 +172,9 @@ export default class DeploymentScreen extends Component {
     let currDep;
     let currScript;
     let currName;
-    const apiPipelinesResults = await axios.post(`${apiEndpointUrl}/gitlabAPI/getPipelinesForProject`, { projectId: parseInt(match.params.id) });
-    const pipelines = apiPipelinesResults.data.pipelines;
     if(parseInt(match.params.id)){
+      const apiPipelinesResults = await axios.post(`${apiEndpointUrl}/gitlabAPI/getPipelinesForProject`, { projectId: parseInt(match.params.id) });
+      const pipelines = apiPipelinesResults.data.pipelines;
       for (let i = 0; i < response.data.data.length; i++) {
         if (response.data.data[i].projectId == parseInt(match.params.id)){
           currDep = response.data.data[i].pipelineId;
@@ -185,7 +184,7 @@ export default class DeploymentScreen extends Component {
       }
       this.setState({ pipelines: pipelines, currentDeployment: currDep, script: currScript, projectName: currName, searchResults: currProjects} );
     } else{
-      this.setState({ pipelines: pipelines, searchResults: currProjects, projectName: '' });
+      this.setState({ pipelines: [], searchResults: currProjects, projectName: '' });
     }
   }
   
