@@ -1,7 +1,6 @@
 const https = require('https');
 const querystring = require('querystring');
-const axios = require('axios');
-const apiEndpointUrl = process.env.REACT_APP_API_ENDPOINT_URL || 'http://localhost:8080';
+const fs = require('fs');
 
 const request = (url, data = '') => new Promise((resolve, reject) => {
     const req = https.request(url, (res) => {
@@ -31,10 +30,10 @@ const request = (url, data = '') => new Promise((resolve, reject) => {
     req.end();
 });
   
-const getPipeline = async (projectId, pipelineId, token) => {
-    const apiUrl = await axios.post(`${apiEndpointUrl}/configData/getGitlabUrl`);
-    const path = `${apiUrl.data}/projects/${projectId}/pipelines/${pipelineId}`;
-    const options = `private_token=${token}`;
+const getPipeline = async (projectId, pipelineId) => {
+    const config = JSON.parse(fs.readFileSync('./config.json'));
+    const path = `${config.gitlabUrl}/projects/${projectId}/pipelines/${pipelineId}`;
+    const options = `private_token=${config.authKey}`;
     const url = `${path}?${options}`;
   
     return request(url)
@@ -42,21 +41,21 @@ const getPipeline = async (projectId, pipelineId, token) => {
       .catch((err) => console.error('Failed to get pipeline ', err));
 };
   
-exports.getPipelinesForProject = async (projectId, token) => {
-    const apiUrl = await axios.post(`${apiEndpointUrl}/configData/getGitlabUrl`);
-    const path = `${apiUrl.data}/projects/${projectId}/pipelines`;
+exports.getPipelinesForProject = async (projectId) => {
+    const config = JSON.parse(fs.readFileSync('./config.json'));
+    const path = `${config.gitlabUrl}/projects/${projectId}/pipelines`;
     const options = {
-        private_token: token,
+        private_token: config.authKey,
         defaultHistoryLength: 10,
     };
     const url = `${path}?${querystring.stringify(options)}`;
     return request(url)
         .then((res) => JSON.parse(res.body))
         .then((body) => body
-        .map((pipeline) => getPipeline(projectId, pipeline.id, token)))
+        .map((pipeline) => getPipeline(projectId, pipeline.id)))
         .then((promises) => Promise.all(promises).then((pipelines) => pipelines))
         .then((pipelines) => pipelines.sort((a, b) => b.id - a.id))
         .catch((err) => {
-        // console.error('Failed to get pipelines', err);
+          console.error('Failed to get pipelines ', err)
         });
 };  

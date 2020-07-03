@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import '../App.css';
 import axios from 'axios';
-import projects from '../API_Functions/projects.js';
 import swal from 'sweetalert';
 
 const apiEndpointUrl = process.env.REACT_APP_API_ENDPOINT_URL || 'http://localhost:8080';
@@ -26,7 +25,6 @@ export default class ConfigScreen extends Component {
     }
 
     getData = async () => {
-        let key = await axios.post(`${apiEndpointUrl}/configData/getAuthKey`);
         let gitlabUrl = await axios.post(`${apiEndpointUrl}/configData/getGitlabUrl`);
         let url = await axios.post(`${apiEndpointUrl}/configData/getMongoURL`);
         let path = await axios.post(`${apiEndpointUrl}/configData/getDownloadPath`);
@@ -34,7 +32,8 @@ export default class ConfigScreen extends Component {
         if (gitlabHost === null) {
             gitlabHost = "gitlab.com";
         }
-        if(key.data === ''){
+        const result = await axios.post(`${apiEndpointUrl}/gitlabAPI/getProjects`);
+        if(result.data.projects === false){
             this.setState({ 
                 savedAuthKey: 'Unauthenticated', savedGitlab: gitlabHost, savedMongoDb: url.data, savedDownloadPath: path.data });
         }
@@ -47,8 +46,8 @@ export default class ConfigScreen extends Component {
 
     handleSubmitAuthKey = async (e) => {
         e.preventDefault();
-        const result = await projects.getProjects(this.state.authKey);
-        if(!result) {
+        const result = await axios.post(`${apiEndpointUrl}/gitlabAPI/getProjects`);
+        if(result.data.projects === false) {
             swal({
                 title: "Error",
                 text: "The authentication key or gitlab host url entered is invalid.\nPlease try entering another authentication key or url.\nUsing previously validated authentication key instead.",

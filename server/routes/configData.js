@@ -47,11 +47,6 @@ router.post('/setMongoURL', (req, res) => {
     }, 2500);
 });
 
-router.post('/getAuthKey', (req,res) => {
-    res.send(JSON.parse(fs.readFileSync('./config.json')).authKey);
-    res.status(200).end();
-})
-
 router.post('/getMongoURL', (req,res) => {
     res.send(JSON.parse(fs.readFileSync('./config.json')).mongoDb);
     res.status(200).end();

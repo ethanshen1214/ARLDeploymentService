@@ -36,7 +36,7 @@ exports.getJobsByPipeline = (projectId, pipelineId, key, callback) => {
   
 
 exports.getArtifactPath = async (jobId, projectId, key) => {
-  const apiUrl = JSON.parse(fs.readFileSync('./config.json')).gitlabUrl;
+    const apiUrl = JSON.parse(fs.readFileSync('./config.json')).gitlabUrl;
     const path = `${apiUrl}/projects/${projectId}/jobs/${jobId}/artifacts`;
     const token = `?private_token=${key}`;
     const query = path + token;

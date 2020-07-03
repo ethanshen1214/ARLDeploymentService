@@ -15,6 +15,7 @@ var deploymentDatabaseRouter = require('./routes/deploymentDB');
 var launchDatabaseRouter = require('./routes/launchDB');
 var configRouter = require('./routes/configData');
 var launchRouter = require('./routes/launch.js');
+var gitlabApiRouter = require('./routes/gitlabAPI.js');
 
 var app = express();
 
@@ -42,6 +43,7 @@ app.use('/deploymentDB', deploymentDatabaseRouter);
 app.use('/launchDB', launchDatabaseRouter);
 app.use('/configData', configRouter);
 app.use('/launch', launchRouter);
+app.use('/gitlabAPI', gitlabApiRouter);
 
 
 // catch 404 and forward to error handler

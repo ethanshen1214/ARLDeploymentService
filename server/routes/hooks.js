@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const { spawnSync } = require('child_process');
-const jobs = require('../bin/jobs.js');
+const jobs = require('../gitlabApiFunctions/jobs.js');
 const { sendSocketData } = require('../bin/sockets')
 const fs = require('fs');
 const Data = require('../bin/data');

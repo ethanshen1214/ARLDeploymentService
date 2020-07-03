@@ -7,8 +7,6 @@ import axios from 'axios';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 import Expand from 'react-expand-animated';
 import swal from 'sweetalert';
-import pipes from '../API_Functions/pipelines.js';
-import projects from '../API_Functions/projects.js';
 
 //zJLxDfYVS87Ar2NRp52K
 //mongodb+srv://joemama:joemama@cluster0-vh0zy.gcp.mongodb.net/test?retryWrites=true&w=majority
@@ -27,7 +25,6 @@ export default class DeploymentScreen extends Component {
     super(props);
     this.state = {
       pipelines: [],
-      auth_key: '',
       numPipelines: 5,
       currentDeployment: 'no deployment',
       script: 'placeholder',
@@ -42,7 +39,6 @@ export default class DeploymentScreen extends Component {
 
   async componentDidMount() {   //on startup it checks to see if sessionStorage already has auth_key and/or project_id
       // establishes websocket connection to the server
-      console.log(this.props.history);
       if(sessionStorage.getItem('project_id')){
         this.props.history.push(`/view/${sessionStorage.getItem('project_id')}`)
       }
@@ -98,17 +94,16 @@ export default class DeploymentScreen extends Component {
   }
 
   loadData = async () => {
-    let authKey = await axios.post(`${apiEndpointUrl}/configData/getAuthKey`);
-    this.setState({auth_key: authKey.data});
-    const gitLabProjects = await projects.getProjects(this.state.auth_key); // get an array of all the projects associated with a user DOES NOT HANDLE ERROR
-    if (gitLabProjects === false) { // check to see if the auth_key is valid
+    const apiProjectsResults = await axios.post(`${apiEndpointUrl}/gitlabAPI/getProjects`); // get an array of all the projects associated with a user DOES NOT HANDLE ERROR
+    if (apiProjectsResults.data.projects === false) { // check to see if the auth_key is valid
       swal({
         title: "Error",
         text: "Invalid Authentication Key \nEnter a new key on the Config page",
         icon: "warning",
-    });
+      });
       return;
     }
+    const gitLabProjects = apiProjectsResults.data.projects;
     const response = await axios.get(`${apiEndpointUrl}/deploymentDB/getData`); // get the data already logged in the database
     if (response.data.data === 'noDbUrl') { // check to see if the dbUrl is valid
       swal({
@@ -178,7 +173,8 @@ export default class DeploymentScreen extends Component {
     let currDep;
     let currScript;
     let currName;
-    const result = await pipes.getPipelinesForProject(parseInt(match.params.id), this.state.auth_key);
+    const apiPipelinesResults = await axios.post(`${apiEndpointUrl}/gitlabAPI/getPipelinesForProject`, { projectId: parseInt(match.params.id) });
+    const pipelines = apiPipelinesResults.data.pipelines;
     if(parseInt(match.params.id)){
       for (let i = 0; i < response.data.data.length; i++) {
         if (response.data.data[i].projectId == parseInt(match.params.id)){
@@ -187,29 +183,26 @@ export default class DeploymentScreen extends Component {
           currName = response.data.data[i].projectName;
         }
       }
-      this.setState({ pipelines: result, currentDeployment: currDep, script: currScript, projectName: currName, searchResults: currProjects} );
+      this.setState({ pipelines: pipelines, currentDeployment: currDep, script: currScript, projectName: currName, searchResults: currProjects} );
     } else{
-      this.setState({ pipelines: [], searchResults: currProjects, projectName: '' });
+      this.setState({ pipelines: pipelines, searchResults: currProjects, projectName: '' });
     }
   }
   
   handleProjectSubmit = async () => {  //handler for submitting project ID
     const { match } = this.props;
     try {
-      const result = await pipes.getPipelinesForProject(parseInt(match.params.id), this.state.auth_key);
+      const result = await axios.post(`${apiEndpointUrl}/gitlabAPI/getPipelinesForProject`, { projectId: parseInt(match.params.id) });
       if (typeof result != 'undefined') {
-        var currName;
-        projects.getProjectName(parseInt(match.params.id), this.state.auth_key, async (err, data) => {
-          currName = data;
-
-          await axios.post(`${apiEndpointUrl}/deploymentDB/putData`, {
-            projectId: parseInt(match.params.id),
-            pipelineId: 0,
-            script: 'placeholder',
-            projectName: currName,
-          });
-          sessionStorage.setItem('project_id', match.params.id);
+        const apiNameCall = await axios.post(`${apiEndpointUrl}/gitlabAPI/getProjectName`, { projectId: parseInt(match.params.id) });
+        const projectName = apiNameCall.data.projectName;
+        await axios.post(`${apiEndpointUrl}/deploymentDB/putData`, {
+          projectId: parseInt(match.params.id),
+          pipelineId: 0,
+          script: 'placeholder',
+          projectName: projectName,
         });
+        sessionStorage.setItem('project_id', match.params.id);
       } 
     } catch (err) {
       console.log(err);
@@ -250,6 +243,7 @@ export default class DeploymentScreen extends Component {
     );
     this.setState({ searchTerm: e.target.value, searchResults: results });
   }
+
   expandProjects = () => {
     this.setState((prevState) => {
       return {expand1: !prevState.expand1};
