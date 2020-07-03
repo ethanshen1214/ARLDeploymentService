@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import { DataTable, TableHeader, Card, CardTitle, CardActions, Grid, Cell, Chip, IconButton } from 'react-mdl';
 import axios from 'axios';
 import swal from 'sweetalert';
+import Modal from 'react-modal';
+import Edit from './EditScreen';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 
 const apiEndpointUrl = process.env.REACT_APP_API_ENDPOINT_URL || 'http://localhost:8080';
@@ -23,7 +25,14 @@ export default class LaunchScreen extends Component{
             projects: [],
             searchResults: [],
             searchTerm: "",
-            error: '',
+            editModalIsOpen: false,
+            addModalIsOpen: false,
+            edit: {
+                name: '',
+                startScript: '',
+                stopScript: '',
+                path: '',
+            }
         }
     }
 
@@ -76,6 +85,10 @@ export default class LaunchScreen extends Component{
         const {name, value} = e.target;
         this.setState({[name]: value, launched: false});
     }
+    handleChangeEdit = (e) => {
+        const {name, value} = e.target;
+        this.setState({edit: {[name]: value}});
+    }
 
     handleSubmit = async (e) => {
         e.preventDefault();
@@ -103,9 +116,38 @@ export default class LaunchScreen extends Component{
                     });
                 }
             }
-            this.setState({ name: '', startScript: '', stopScript: '', path: '' });
+            this.setState({ name: '', startScript: '', stopScript: '', path: '', addModalIsOpen: false });
         }
         setTimeout(()=>this.loadData(), 2000);
+    }
+    handleSubmitEdit = async (e) => {
+        const projectName = this.state.edit.name;
+        e.preventDefault();
+        if (this.state.edit.stopScript === '' || this.state.edit.startScript === '') {
+            swal({
+                title: "Error",
+                text: "Project not updated. Start script and stop script cannot be empty.",
+                icon: "warning",
+            });
+        } else {
+            const result = await axios.post(`${apiEndpointUrl}/launchDB/updateData`, {projectName: projectName, update: this.state.edit});
+            if(!result.data.success){
+                if(result.data.type === 'filePath'){
+                    swal({
+                        title: "Error",
+                        text: "Did not update database because filepath is invalid",
+                        icon: "warning",
+                    });
+                }
+            }
+            else{
+                swal({
+                    text: "Changes successfully saved.",
+                    icon: "success",
+                });
+            }
+        }
+        this.setState({editModalIsOpen: false});
     }
 
     handleLaunch = async (e) => {
@@ -140,6 +182,12 @@ export default class LaunchScreen extends Component{
             }
         });
     }
+    handleEdit = async (e) =>{
+        //this.setState({editModalIsOpen: true, edit: {name: e.target.name}});
+        const projectName = e.target.name;
+        const response = await axios.post(`${apiEndpointUrl}/launchDB/getOne`, {projectName: projectName});
+        this.setState({editModalIsOpen: true, edit: {name: projectName, startScript: response.data.data.startScript, stopScript: response.data.data.stopScript, path: response.data.data.path}})
+    }
 
     loadData = async () => {
         const response = await axios.get(`${apiEndpointUrl}/launchDB/getData`); // get the data already logged in the database
@@ -153,12 +201,12 @@ export default class LaunchScreen extends Component{
         }
         const responseArray = Array.from(response.data.data);
         let parsedProjects = [];
-        let errorFlag = false;
         for(let i = 0; i < responseArray.length; i++){
             if(responseArray[i].launched === true){
                 let tempProject = {
                     projectName: responseArray[i].projectName,
-                    editProjectButton: <Link to={`/launch/edit/${responseArray[i].projectName}`}><button>Edit</button></Link>,
+                    // editProjectButton: <Link to={`/launch/edit/${responseArray[i].projectName}`}><button>Edit</button></Link>,
+                    editProjectButton: <button onClick = {this.handleEdit} name = {responseArray[i].projectName}>Edit</button>,
                     launchProjectButton: <Chip style={{background: '#16d719'}}>Launched</Chip>,
                     deleteProjectButton: <button name={responseArray[i].projectName} onClick = {this.deleteHandler}>Delete</button>,
                     status: 'launched',
@@ -168,7 +216,8 @@ export default class LaunchScreen extends Component{
             else if(responseArray[i].launched === null){
                 let tempProject = {
                     projectName: responseArray[i].projectName,
-                    editProjectButton: <Link to={`/launch/edit/${responseArray[i].projectName}`}><button>Edit</button></Link>,
+                    //editProjectButton: <Link to={`/launch/edit/${responseArray[i].projectName}`}><button>Edit</button></Link>,
+                    editProjectButton: <button onClick = {this.handleEdit} name = {responseArray[i].projectName}>Edit</button>,
                     launchProjectButton: <button name = {responseArray[i].projectName} onClick = {this.handleLaunch}>Launch</button>,
                     deleteProjectButton: <button name={responseArray[i].projectName} onClick = {this.deleteHandler}>Delete</button>,
                     status:'failed',
@@ -178,22 +227,16 @@ export default class LaunchScreen extends Component{
             else{
                 let tempProject = {
                     projectName: responseArray[i].projectName,
-                    editProjectButton: <Link to={`/launch/edit/${responseArray[i].projectName}`}><button>Edit</button></Link>,
+                    //editProjectButton: <Link to={`/launch/edit/${responseArray[i].projectName}`}><button>Edit</button></Link>,
+                    editProjectButton: <button onClick = {this.handleEdit} name = {responseArray[i].projectName}>Edit</button>,
                     launchProjectButton: <button name = {responseArray[i].projectName} onClick = {this.handleLaunch}>Launch</button>,
                     deleteProjectButton: <button name={responseArray[i].projectName} onClick = {this.deleteHandler}>Delete</button>,
                     status:'stopped',
                 }
                 parsedProjects.push(tempProject)                      
             }
-            if(responseArray[i].launched === null) {
-                errorFlag = {type: true, project: responseArray[i].projectName};
-            }
         }
-        if (errorFlag) {
-            this.setState({ searchResults: parsedProjects, projects: parsedProjects, error: errorFlag.project });
-        } else {
-            this.setState({ searchResults: parsedProjects, projects: parsedProjects, error: '' });
-        }
+        this.setState({ searchResults: parsedProjects, projects: parsedProjects });
     }
 
     deleteHandler = async (e) => {
@@ -207,48 +250,43 @@ export default class LaunchScreen extends Component{
         );
         this.setState({ searchTerm: e.target.value, searchResults: results });
     }
+    
+    addProject = (e) => {
+        this.setState({ addModalIsOpen: true });
+    }
 
     render() {
-        const DB = [];
-        let error;
-        if (this.state.error) {
-            error = <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center', }}><h1 style={{color: 'orange'}}>Script Error in {this.state.error}</h1></div>;
-        } else {
-            error = <React.Fragment></React.Fragment>;
-        }
+
         return(
-        <div style={{height: '900px', width: '900px', margin: 'auto'}}>
+        <div style={{height: '900px', width: '650px', margin: 'auto'}}>
           <div className = 'labels'>
             <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center', }}><h1>GitLab Launch Util</h1></div>
-            {error}
+            <button onClick = {this.addProject}>Add Project</button>
             <div>
-              <Grid>
-                <Cell col = {7} >
-                    <input
-                      type="text"
-                      placeholder="Search"
-                      value={this.state.searchTerm}
-                      onChange={this.handleProjectSearch} 
-                      style = {{marginTop: '10px'}}
-                    />    
-                    <button onClick={this.handleStop} style={{float:'right', marginRight: '33px'}}>Stop current project</button>           
-                    <div className = 'table' style={{height:'650px'}}>
-                      <DataTable
-                            shadow={0}
-                            rows = {this.state.searchResults}
-                            style = {{marginTop: '10px'}}>
-                            <TableHeader name="projectName" tooltip="Project Name">Project Name</TableHeader>
-                            <TableHeader name="editProjectButton" tooltip="Edit Project">Edit Project</TableHeader>
-                            <TableHeader name="launchProjectButton" tooltip="Launch Project">Launch Project</TableHeader>
-                            <TableHeader name="deleteProjectButton" tooltip="Delete Project">Delete Project</TableHeader>
-                            <TableHeader name="status" tooltip="status">Launch Status</TableHeader>
-                      </DataTable> 
-                    </div>
-                </Cell>
-                <Cell col = {5}>
+                <input
+                    type="text"
+                    placeholder="Search"
+                    value={this.state.searchTerm}
+                    onChange={this.handleProjectSearch} 
+                    style = {{marginTop: '10px'}}
+                />    
+                <button onClick={this.handleStop} style={{float:'right', marginRight: '33px'}}>Stop current project</button>           
+                <div className = 'table' style={{height:'650px'}}>
+                    <DataTable
+                        shadow={0}
+                        rows = {this.state.searchResults}
+                        style = {{marginTop: '10px'}}>
+                        <TableHeader name="projectName" tooltip="Project Name">Project Name</TableHeader>
+                        <TableHeader name="editProjectButton" tooltip="Edit Project">Edit Project</TableHeader>
+                        <TableHeader name="launchProjectButton" tooltip="Launch Project">Launch Project</TableHeader>
+                        <TableHeader name="deleteProjectButton" tooltip="Delete Project">Delete Project</TableHeader>
+                        <TableHeader name="status" tooltip="status">Launch Status</TableHeader>
+                    </DataTable> 
+                </div>
+                <Modal isOpen = {this.state.addModalIsOpen} style = {{overlay: {zIndex: 9999}}}>
                     <Card shadow={3} style={{width: '420px', height: '750px', margin: 'auto', marginTop: '3%'}}>
-                      <CardActions border>
-                          <CardTitle>Add Project</CardTitle>
+                    <CardActions border>
+                        <CardTitle>Add Project</CardTitle>
                         <form onSubmit={this.handleSubmit} style = {{marginLeft: '20px'}}>
                             <div>
                                 <label>Project Name:</label>
@@ -301,10 +339,58 @@ export default class LaunchScreen extends Component{
                                 <input type="submit" value="Add Project" />
                             </div>
                         </form>
+                    </CardActions>
+                    </Card>                        
+                </Modal>
+                <Modal isOpen = {this.state.editModalIsOpen} style = {{overlay: {zIndex: 9999}}}>
+                    <Card shadow={3} style={{width: '420px', height: '750px', margin: 'auto', marginTop: '3%'}}>
+                      <CardActions border>
+                          <CardTitle>Editing: {this.state.edit.name}</CardTitle>
+                        <form onSubmit={this.handleSubmitEdit} style = {{marginLeft: '20px'}}>
+                            <div>
+                                <label>Launch Path:</label>
+                            </div>
+                            <div style = {{marginBottom: '20px'}}>
+                                <input
+                                    type="text"
+                                    name="path"
+                                    value={this.state.edit.path}
+                                    onChange={this.handleChangeEdit}
+                                    style = {{width: '300px'}}
+                                />
+                            </div>
+                            <div>
+                                <label>Start Script:</label>
+                            </div>
+                            <div style = {{marginBottom: '20px'}}>
+                                <textarea
+                                    type="text" 
+                                    name="startScript"
+                                    value={this.state.edit.startScript} 
+                                    onChange={this.handleChangeEdit} 
+                                    style = {{ marginRight: '20px', height: '200px', width: '300px'}}
+                                    />
+                            </div>
+                            <div>
+                                <label>Stop Script:</label>
+                            </div>
+                            <div style = {{marginBottom: '20px'}}>
+                                <textarea
+                                    type="text" 
+                                    name="stopScript"
+                                    value={this.state.edit.stopScript} 
+                                    onChange={this.handleChangeEdit} 
+                                    style = {{ marginRight: '20px', height: '200px', width: '300px'}}
+                                    />
+                            </div>
+                            <div>
+                                <input type="submit" value="Save Changes" />
+                                <Link to={`/launch`}><button>Return</button></Link>
+                            </div>
+                        </form>
                       </CardActions>
                     </Card>
-                </Cell>
-              </Grid>
+                </Modal>
             </div>
           </div>
         </div>
