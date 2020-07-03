@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { DataTable, TableHeader, Card, CardTitle, CardActions, Grid, Cell, Chip, IconButton } from 'react-mdl';
 import axios from 'axios';
 import swal from 'sweetalert';
+import Modal from 'react-modal';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 
 const apiEndpointUrl = process.env.REACT_APP_API_ENDPOINT_URL || 'http://localhost:8080';
@@ -23,7 +24,6 @@ export default class LaunchScreen extends Component{
             projects: [],
             searchResults: [],
             searchTerm: "",
-            error: '',
         }
     }
 
@@ -153,7 +153,6 @@ export default class LaunchScreen extends Component{
         }
         const responseArray = Array.from(response.data.data);
         let parsedProjects = [];
-        let errorFlag = false;
         for(let i = 0; i < responseArray.length; i++){
             if(responseArray[i].launched === true){
                 let tempProject = {
@@ -185,15 +184,8 @@ export default class LaunchScreen extends Component{
                 }
                 parsedProjects.push(tempProject)                      
             }
-            if(responseArray[i].launched === null) {
-                errorFlag = {type: true, project: responseArray[i].projectName};
-            }
         }
-        if (errorFlag) {
-            this.setState({ searchResults: parsedProjects, projects: parsedProjects, error: errorFlag.project });
-        } else {
-            this.setState({ searchResults: parsedProjects, projects: parsedProjects, error: '' });
-        }
+        this.setState({ searchResults: parsedProjects, projects: parsedProjects });
     }
 
     deleteHandler = async (e) => {
@@ -209,18 +201,11 @@ export default class LaunchScreen extends Component{
     }
 
     render() {
-        const DB = [];
-        let error;
-        if (this.state.error) {
-            error = <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center', }}><h1 style={{color: 'orange'}}>Script Error in {this.state.error}</h1></div>;
-        } else {
-            error = <React.Fragment></React.Fragment>;
-        }
+
         return(
-        <div style={{height: '900px', width: '900px', margin: 'auto'}}>
+        <div style={{height: '900px', width: '1130px', margin: 'auto'}}>
           <div className = 'labels'>
             <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center', }}><h1>GitLab Launch Util</h1></div>
-            {error}
             <div>
               <Grid>
                 <Cell col = {7} >
