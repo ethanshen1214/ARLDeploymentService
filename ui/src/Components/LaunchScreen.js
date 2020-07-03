@@ -161,17 +161,29 @@ export default class LaunchScreen extends Component{
                     editProjectButton: <Link to={`/launch/edit/${responseArray[i].projectName}`}><button>Edit</button></Link>,
                     launchProjectButton: <Chip style={{background: '#16d719'}}>Launched</Chip>,
                     deleteProjectButton: <button name={responseArray[i].projectName} onClick = {this.deleteHandler}>Delete</button>,
+                    status: 'launched',
                 }
                 parsedProjects.push(tempProject)
             }
+            else if(responseArray[i].launched === null){
+                let tempProject = {
+                    projectName: responseArray[i].projectName,
+                    editProjectButton: <Link to={`/launch/edit/${responseArray[i].projectName}`}><button>Edit</button></Link>,
+                    launchProjectButton: <button name = {responseArray[i].projectName} onClick = {this.handleLaunch}>Launch</button>,
+                    deleteProjectButton: <button name={responseArray[i].projectName} onClick = {this.deleteHandler}>Delete</button>,
+                    status:'failed',
+                }
+                parsedProjects.push(tempProject) 
+            }            
             else{
                 let tempProject = {
                     projectName: responseArray[i].projectName,
                     editProjectButton: <Link to={`/launch/edit/${responseArray[i].projectName}`}><button>Edit</button></Link>,
                     launchProjectButton: <button name = {responseArray[i].projectName} onClick = {this.handleLaunch}>Launch</button>,
                     deleteProjectButton: <button name={responseArray[i].projectName} onClick = {this.deleteHandler}>Delete</button>,
+                    status:'stopped',
                 }
-                parsedProjects.push(tempProject)                
+                parsedProjects.push(tempProject)                      
             }
             if(responseArray[i].launched === null) {
                 errorFlag = {type: true, project: responseArray[i].projectName};
@@ -229,6 +241,7 @@ export default class LaunchScreen extends Component{
                             <TableHeader name="editProjectButton" tooltip="Edit Project">Edit Project</TableHeader>
                             <TableHeader name="launchProjectButton" tooltip="Launch Project">Launch Project</TableHeader>
                             <TableHeader name="deleteProjectButton" tooltip="Delete Project">Delete Project</TableHeader>
+                            <TableHeader name="status" tooltip="status">Launch Status</TableHeader>
                       </DataTable> 
                     </div>
                 </Cell>
