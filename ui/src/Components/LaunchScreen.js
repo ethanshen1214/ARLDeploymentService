@@ -25,7 +25,7 @@ export default class LaunchScreen extends Component{
             projects: [],
             searchResults: [],
             searchTerm: "",
-            editModalIsOpen: true,
+            editModalIsOpen: false,
             addModalIsOpen: false,
             edit: {
                 name: '',
@@ -283,8 +283,7 @@ export default class LaunchScreen extends Component{
                         <TableHeader name="status" tooltip="status">Launch Status</TableHeader>
                     </DataTable> 
                 </div>
-                <Modal 
-                    isOpen = {this.state.addModalIsOpen}>
+                <Modal isOpen = {this.state.addModalIsOpen} style = {{overlay: {zIndex: 9999}}}>
                     <Card shadow={3} style={{width: '420px', height: '750px', margin: 'auto', marginTop: '3%'}}>
                     <CardActions border>
                         <CardTitle>Add Project</CardTitle>
@@ -343,7 +342,7 @@ export default class LaunchScreen extends Component{
                     </CardActions>
                     </Card>                        
                 </Modal>
-                <Modal isOpen = {this.state.editModalIsOpen}>
+                <Modal isOpen = {this.state.editModalIsOpen} style = {{overlay: {zIndex: 9999}}}>
                     <Card shadow={3} style={{width: '420px', height: '750px', margin: 'auto', marginTop: '3%'}}>
                       <CardActions border>
                           <CardTitle>Editing: {this.state.edit.name}</CardTitle>
