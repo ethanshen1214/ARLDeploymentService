@@ -17,7 +17,12 @@ router.get('/getData', (req, res) => {
   }
 });
 
-router.get('/')
+router.get('/getOne', (req, res) => {
+  Data.findOne({ projectId: req.body.projectId }, (err, project) => {
+    if (err) return res.json({ success: false, error: err });
+    return res.json({ success: true, data: project })
+  })
+});
   
 // this is our update method
 // this method overwrites existing data in our database
