@@ -358,7 +358,7 @@ export default class LaunchScreen extends Component{
                     </Card>                        
                 </Modal>
                 <Modal isOpen = {this.state.editModalIsOpen} style = {{overlay: {zIndex: 9999}}}>
-                    <Card shadow={3} style={{width: '420px', height: '750px', margin: 'auto', marginTop: '3%'}}>
+                    <Card shadow={3} style={{width: '420px', height: '650px', margin: 'auto', marginTop: '3%'}}>
                       <CardActions border>
                           <CardTitle>Editing: {this.state.edit.name}</CardTitle>
                         <form onSubmit={this.handleSubmitEdit} style = {{marginLeft: '20px'}}>
@@ -368,7 +368,7 @@ export default class LaunchScreen extends Component{
                             <div style = {{marginBottom: '20px'}}>
                                 <input
                                     type="text"
-                                    name="path"
+                                    name="path" 
                                     value={this.state.edit.path}
                                     onChange={this.handleChangeEdit}
                                     style = {{width: '300px'}}

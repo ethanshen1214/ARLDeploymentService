@@ -259,9 +259,18 @@ export default class DeploymentScreen extends Component {
   handleEdit = async (e) => {
     const projectId = e.target.name;
     const response = await axios.post(`${apiEndpointUrl}/deploymentDB/getOne`, {projectId: projectId});
-    const projectName = response.data.data.projectName;
-    const projectScript = response.data.data.script;
-    this.setState({editModalIsOpen: true, edit: {name: projectName, script: projectScript}});
+    if(response.data.data === null){
+      swal({
+        title: "Error",
+        text: "Project is not in database yet. Load the project before editing",
+        icon: "warning",
+      });
+    }
+    else{
+      const projectName = response.data.data.projectName;
+      const projectScript = response.data.data.script;
+      this.setState({editModalIsOpen: true, edit: {name: projectName, script: projectScript}});      
+    }
   }
 
   render () {
