@@ -1,11 +1,10 @@
 import React, {Component} from 'react';
 import '../App.css';
 import { Link } from 'react-router-dom';
-import { DataTable, TableHeader, Card, CardText, CardActions, RadioGroup, Radio, Spinner, Chip, Grid, Cell } from 'react-mdl';
+import { DataTable, TableHeader, Card, CardText, CardActions, RadioGroup, Radio, Spinner, Chip } from 'react-mdl';
 import Script from './scriptInput';
 import axios from 'axios';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
-import Expand from 'react-expand-animated';
 import swal from 'sweetalert';
 import Modal from 'react-modal';
 
@@ -32,8 +31,6 @@ export default class DeploymentScreen extends Component {
       projectName: '',
       searchResults: [],
       searchTerm: "",
-      expand1: false,
-      expand2: false,
       editModalIsOpen: false,
       edit: {
         name: '',
@@ -43,7 +40,8 @@ export default class DeploymentScreen extends Component {
 
   }
 
-  async componentDidMount() {   //on startup it checks to see if sessionStorage already has auth_key and/or project_id
+  //on startup it checks to see if sessionStorage already has auth_key and/or project_id and loads data into state
+  async componentDidMount() {   
       // establishes websocket connection to the server
       if(sessionStorage.getItem('project_id')){
         this.props.history.push(`/view/${sessionStorage.getItem('project_id')}`)
@@ -61,7 +59,7 @@ export default class DeploymentScreen extends Component {
         else if (dataJSON.type === 'pending') {
           this.loadData();
         }
-        else if (dataJSON.type === 'notAbs') {
+        else if (dataJSON.type === 'notAbs') {  //checks for errors pushed through socket
           swal({
             title: "Error",
             text: "File path is not absoulute.",
@@ -75,12 +73,6 @@ export default class DeploymentScreen extends Component {
             icon: "warning",
         });
         }
-      }
-      if(this.props.match.params.id){
-        this.setState({expand1: false})
-      }
-      else{
-        this.setState({expand1: true})
       }
       this.loadData();
   }
@@ -99,6 +91,7 @@ export default class DeploymentScreen extends Component {
     }
   }
 
+  //makes the appropriate api calls to grab all the necessary info for the deployment service
   loadData = async () => {
     const apiProjectsResults = await axios.post(`${apiEndpointUrl}/gitlabAPI/getProjects`); // get an array of all the projects associated with a user DOES NOT HANDLE ERROR
     if (apiProjectsResults.data.projects === false) { // check to see if the auth_key is valid
@@ -198,14 +191,15 @@ export default class DeploymentScreen extends Component {
     }
   }
   
-  handleProjectSubmit = async () => {  //handler for submitting project ID
+  //handler for submitting a project ID
+  handleProjectSubmit = async () => {
     const { match } = this.props;
     try {
       const result = await axios.post(`${apiEndpointUrl}/gitlabAPI/getPipelinesForProject`, { projectId: parseInt(match.params.id) });
-      if (typeof result != 'undefined') {
+      if (typeof result != 'undefined') { //checks if project exists
         const apiNameCall = await axios.post(`${apiEndpointUrl}/gitlabAPI/getProjectName`, { projectId: parseInt(match.params.id) });
         const projectName = apiNameCall.data.projectName;
-        await axios.post(`${apiEndpointUrl}/deploymentDB/putData`, {
+        await axios.post(`${apiEndpointUrl}/deploymentDB/putData`, {  //puts project into DB
           projectId: parseInt(match.params.id),
           pipelineId: 0,
           script: 'placeholder',
@@ -218,19 +212,22 @@ export default class DeploymentScreen extends Component {
     }
   }
 
+  //handler for submitting a launch script
   handleScriptSubmit = (value) => {
     const { match } = this.props;
     axios.post(`${apiEndpointUrl}/deploymentDB/updateData`, {projectId: parseInt(match.params.id), update: {script: value}});
     this.setState({editModalIsOpen: false});
   }
-
-  selectNumPipes = (e) => {  //handler for selecting number of pipelines to display
+  //handler for selecting number of pipelines to display
+  selectNumPipes = (e) => {  
     this.setState({numPipelines: parseInt(e.target.value)});
   }
 
+  //handler for downloading project artifacts and deployment
   downloadHandler = async (e) => {
     const { match } = this.props;
     e.persist();
+    //updates DB with new current deployment
     const result = await axios.post(`${apiEndpointUrl}/deploymentDB/updateData`, {projectId: parseInt(match.params.id), update: {pipelineId: e.target.title}});
     if (result.data.type) {
       swal({
@@ -239,7 +236,7 @@ export default class DeploymentScreen extends Component {
         icon: "warning",
     });
     } else {
-      axios.post(`${apiEndpointUrl}/downloads`, {
+      axios.post(`${apiEndpointUrl}/downloads`, {   //api call for deploying
         pipelineId: e.target.title,
         projectId: parseInt(match.params.id),
       });
@@ -247,23 +244,18 @@ export default class DeploymentScreen extends Component {
     }
   }
 
+  //handler for project search filter
   handleProjectSearch = (e) => {
     const results = baseSearchState.filter(project =>
       project.title.toLowerCase().includes(e.target.value.toLowerCase())
     );
     this.setState({ searchTerm: e.target.value, searchResults: results });
   }
-
-  expandProjects = () => {
-    this.setState((prevState) => {
-      return {expand1: !prevState.expand1};
-    })
-  }
-
+  //closes edit project modal
   closeModal = () =>{
     this.setState({editModalIsOpen: false});
   }
-
+  //opens edit project modal and loads data from DB
   handleEdit = async (e) => {
     const projectId = e.target.name;
     const response = await axios.post(`${apiEndpointUrl}/deploymentDB/getOne`, {projectId: projectId});
@@ -337,7 +329,7 @@ export default class DeploymentScreen extends Component {
         }
       }
     }
-    if(parsedPipelines.length === 0){
+    if(parsedPipelines.length === 0){   //check if a project has no pipelines
       const tempPipeline = {
         sourceProject: 'No project loaded',
       };
@@ -345,7 +337,7 @@ export default class DeploymentScreen extends Component {
     }
 
     let radioGroup;
-    switch(this.state.numPipelines) {
+    switch(this.state.numPipelines) {   //handles changing the radio button display to reflect the number of pipelines displayed
       case 1:
         radioGroup = <RadioGroup name="demo2" value = '1' onChange ={this.selectNumPipes} style = {{display: 'flex',alignItems: 'center',justifyContent: 'center', }}>
                         <Radio value= '1' >1{" |"}&nbsp;</Radio>

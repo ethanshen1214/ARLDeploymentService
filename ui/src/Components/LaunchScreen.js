@@ -5,7 +5,6 @@ import { DataTable, TableHeader, Card, CardTitle, CardActions, Grid, Cell, Chip,
 import axios from 'axios';
 import swal from 'sweetalert';
 import Modal from 'react-modal';
-import Edit from './EditScreen';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 
 const apiEndpointUrl = process.env.REACT_APP_API_ENDPOINT_URL || 'http://localhost:8080';
@@ -36,6 +35,7 @@ export default class LaunchScreen extends Component{
         }
     }
 
+    //catches all errors pushed through socket and loads data
     componentDidMount(){
         socket.onmessage = (data) => {
             const dataJSON = JSON.parse(data.data);
@@ -80,25 +80,26 @@ export default class LaunchScreen extends Component{
 
         this.loadData();
     }
-
+    //handles changes in the text fields for adding a project
     handleChange = (e) => {
         const {name, value} = e.target;
         this.setState({[name]: value, launched: false});
     }
-
+    //handles changes in the text fields for editing a project
     handleChangeEdit = (e) => {
         const {name, value} = e.target;
         this.setState({edit: {[name]: value}});
     }
-
+    //closes modal for add project
     closeAddModal = () => {
         this.setState({ addModalIsOpen: false });
     }
-
+    //closes modal for edit project
     closeEditModal = () => {
         this.setState({ editModalIsOpen: false });
     }
 
+    //makes api call to send new project to DB, loads data
     handleSubmit = async (e) => {
         e.preventDefault();
         if (this.state.stopScript === '' || this.state.startScript === '') {
@@ -130,6 +131,7 @@ export default class LaunchScreen extends Component{
         setTimeout(()=>this.loadData(), 2000);
     }
 
+    //makes api call to update a project in DB
     handleSubmitEdit = async (e) => {
         const projectName = this.state.edit.name;
         e.preventDefault();
@@ -160,6 +162,7 @@ export default class LaunchScreen extends Component{
         this.setState({editModalIsOpen: false});
     }
 
+    //makes api call to launch a project using the inputted start script
     handleLaunch = async (e) => {
         e.persist();
         swal({
@@ -177,7 +180,8 @@ export default class LaunchScreen extends Component{
         })
     }
 
-    handleStop = async (e) => {
+    //makes api call to stop project using the inputted stop script
+    handleStop = async () => {
         swal({
             title: "Are you sure?",
             text: "Continuing will halt the currently running project.",
@@ -192,13 +196,14 @@ export default class LaunchScreen extends Component{
             }
         });
     }
+    //opens edit modal and loads appropriate data
     handleEdit = async (e) =>{
-        //this.setState({editModalIsOpen: true, edit: {name: e.target.name}});
         const projectName = e.target.name;
         const response = await axios.post(`${apiEndpointUrl}/launchDB/getOne`, {projectName: projectName});
         this.setState({editModalIsOpen: true, edit: {name: projectName, startScript: response.data.data.startScript, stopScript: response.data.data.stopScript, path: response.data.data.path}})
     }
 
+    //makes an api call to the database and loads the data into state
     loadData = async () => {
         const response = await axios.get(`${apiEndpointUrl}/launchDB/getData`); // get the data already logged in the database
         if (response.data.data === 'noDbUrl') { // check to see if the dbUrl is valid
@@ -212,10 +217,9 @@ export default class LaunchScreen extends Component{
         const responseArray = Array.from(response.data.data);
         let parsedProjects = [];
         for(let i = 0; i < responseArray.length; i++){
-            if(responseArray[i].launched === true){
+            if(responseArray[i].launched === true){     //checks status of project launch
                 let tempProject = {
                     projectName: responseArray[i].projectName,
-                    // editProjectButton: <Link to={`/launch/edit/${responseArray[i].projectName}`}><button>Edit</button></Link>,
                     editProjectButton: <button onClick = {this.handleEdit} name = {responseArray[i].projectName}>Edit</button>,
                     launchProjectButton: <Chip style={{background: '#16d719'}}>Launched</Chip>,
                     deleteProjectButton: <button name={responseArray[i].projectName} onClick = {this.deleteHandler}>Delete</button>,
@@ -226,7 +230,6 @@ export default class LaunchScreen extends Component{
             else if(responseArray[i].launched === null){
                 let tempProject = {
                     projectName: responseArray[i].projectName,
-                    //editProjectButton: <Link to={`/launch/edit/${responseArray[i].projectName}`}><button>Edit</button></Link>,
                     editProjectButton: <button onClick = {this.handleEdit} name = {responseArray[i].projectName}>Edit</button>,
                     launchProjectButton: <button name = {responseArray[i].projectName} onClick = {this.handleLaunch}>Launch</button>,
                     deleteProjectButton: <button name={responseArray[i].projectName} onClick = {this.deleteHandler}>Delete</button>,
@@ -237,7 +240,6 @@ export default class LaunchScreen extends Component{
             else{
                 let tempProject = {
                     projectName: responseArray[i].projectName,
-                    //editProjectButton: <Link to={`/launch/edit/${responseArray[i].projectName}`}><button>Edit</button></Link>,
                     editProjectButton: <button onClick = {this.handleEdit} name = {responseArray[i].projectName}>Edit</button>,
                     launchProjectButton: <button name = {responseArray[i].projectName} onClick = {this.handleLaunch}>Launch</button>,
                     deleteProjectButton: <button name={responseArray[i].projectName} onClick = {this.deleteHandler}>Delete</button>,
@@ -249,24 +251,25 @@ export default class LaunchScreen extends Component{
         this.setState({ searchResults: parsedProjects, projects: parsedProjects });
     }
 
+    //handles delete button and makes api call to DB for delete
     deleteHandler = async (e) => {
         const res = axios.delete(`${apiEndpointUrl}/launchDB/deleteData`, {data: {projectName: e.target.name}});
         setTimeout(()=>this.loadData(), 2000);
     }
 
+    //handler for project search filter
     handleProjectSearch = (e) => {
         const results = this.state.projects.filter(project =>
           project.projectName.toLowerCase().includes(e.target.value.toLowerCase())
         );
         this.setState({ searchTerm: e.target.value, searchResults: results });
     }
-    
-    addProject = (e) => {
+    //opens modal for adding project
+    addProject = () => {
         this.setState({ addModalIsOpen: true });
     }
 
     render() {
-
         return(
         <div style={{height: '900px', width: '650px', margin: 'auto'}}>
           <div className = 'labels'>

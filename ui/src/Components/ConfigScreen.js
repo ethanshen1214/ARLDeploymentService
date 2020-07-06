@@ -19,11 +19,13 @@ export default class ConfigScreen extends Component {
             savedDownloadPath: '',
         };
     }
-
+    
+    //gets data on mount
     componentDidMount(){
         this.getData();
     }
 
+    //makes api calls to get config data from config.json
     getData = async () => {
         let gitlabUrl = await axios.post(`${apiEndpointUrl}/configData/getGitlabUrl`);
         let url = await axios.post(`${apiEndpointUrl}/configData/getMongoURL`);
@@ -32,7 +34,7 @@ export default class ConfigScreen extends Component {
         if (gitlabHost === null) {
             gitlabHost = "gitlab.com";
         }
-        const result = await axios.post(`${apiEndpointUrl}/gitlabAPI/getProjects`);
+        const result = await axios.post(`${apiEndpointUrl}/gitlabAPI/getProjects`);     //check for valid authentication key
         if(result.data.projects === false){
             this.setState({ 
                 savedAuthKey: 'Unauthenticated', savedGitlab: gitlabHost, savedMongoDb: url.data, savedDownloadPath: path.data });
@@ -41,9 +43,9 @@ export default class ConfigScreen extends Component {
             this.setState({ 
                 savedAuthKey: 'Authenticated', savedGitlab: gitlabHost, savedMongoDb: url.data, savedDownloadPath: path.data });
         }
-
     }
 
+    //handler for submitting the authentication key and gitlab host url to config.json - displays error returned from api
     handleSubmitAuthKey = async (e) => {
         e.preventDefault();
         const result = await axios.post(`${apiEndpointUrl}/gitlabAPI/getProjects`);
@@ -61,6 +63,7 @@ export default class ConfigScreen extends Component {
         this.getData();
     }
 
+    //handler for submitting mongoDB host url to config.json - displays error returned from api
     handleSubmitMongoDB = async (e) => {
         e.preventDefault();
         const oldDbUrl = await axios.post(`${apiEndpointUrl}/configData/getMongoURL`);
@@ -77,6 +80,7 @@ export default class ConfigScreen extends Component {
         this.getData();
     }
 
+    //handler for submitting download path to config.json - displays error returned from api
     handleSubmitDownloadPath = async (e) => {
         e.preventDefault();
         const result = await axios.post(`${apiEndpointUrl}/configData/setDownloadPath`, { downloadPath: this.state.downloadPath });
@@ -91,6 +95,7 @@ export default class ConfigScreen extends Component {
         this.getData();
     }
 
+    //handlers for changing state when characters are typed into the text fields
     handleChangeAuthKey = (e) => {
         this.setState({authKey: e.target.value});
     }
@@ -101,7 +106,6 @@ export default class ConfigScreen extends Component {
     handleChangeMongoDB = (e) => {
         this.setState({mongoDb: e.target.value});
     }
-
     handleChangeDownloadPath = (e) => {
         this.setState({downloadPath: e.target.value});
     }

@@ -5,10 +5,9 @@ import DeploymentScreen from './DeploymentScreen';
 import HelpScreen from './HelpScreen';
 import ConfigScreen from './ConfigScreen';
 import LaunchScreen from './LaunchScreen';
-import EditScreen from './EditScreen';
 
 export default function Paths() {
-    return(
+    return( //router component that controls which page is loaded
         <Switch>
             <Route path="/view/:id" component={DeploymentScreen} />
             <Route path="/view" component={DeploymentScreen} />

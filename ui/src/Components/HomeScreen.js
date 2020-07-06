@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import '../App.css';
 
 export default class HomeScreen extends Component {
-    render() {
+    render() {  //landing page
       return (
         <div className = 'labels'>
           <div style={{display: 'flex',alignItems: 'center',justifyContent: 'center', marginTop:'50px'}}>

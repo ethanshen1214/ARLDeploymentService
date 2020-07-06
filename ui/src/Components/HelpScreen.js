@@ -9,7 +9,7 @@ export default class HelpScreen extends Component {
       activeTab: 0,
     }
   }
-    render() {
+    render() {  //help page
       if(this.state.activeTab === 0){
         return(
           <div className='labels' style={{marginLeft: '80px', marginRight: '80px'}}>

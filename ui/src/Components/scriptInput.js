@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from "prop-types";
 
-export default class Form extends React.Component {
+export default class Form extends React.Component { //component for an input form
     static propTypes = {
         submitHandler: PropTypes.func,
         formTitle: PropTypes.string,
@@ -48,7 +48,6 @@ export default class Form extends React.Component {
           <div>
             <input type="submit" value="Save Changes" />
           </div>
-          
         </form>
       );
     }
