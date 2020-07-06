@@ -7,6 +7,7 @@ import axios from 'axios';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 import Expand from 'react-expand-animated';
 import swal from 'sweetalert';
+import Modal from 'react-modal';
 
 //zJLxDfYVS87Ar2NRp52K
 //mongodb+srv://joemama:joemama@cluster0-vh0zy.gcp.mongodb.net/test?retryWrites=true&w=majority
@@ -33,6 +34,11 @@ export default class DeploymentScreen extends Component {
       searchTerm: "",
       expand1: false,
       expand2: false,
+      editModalIsOpen: false,
+      edit: {
+        name: '',
+        script: '',
+      }
     }
 
   }
@@ -128,7 +134,8 @@ export default class DeploymentScreen extends Component {
             title: gitLabProjects[i].name,
             id: gitLabProjects[i].id,
             pipelineId: mappedPipeline,
-            selectProjectButton: <Chip style={{background: '#16d719', height: '20px'}}></Chip>
+            selectProjectButton: <Chip style={{background: '#16d719', height: '20px'}}></Chip>,
+            edit: <button onClick = {this.handleEdit} name = {gitLabProjects[i].id}>Edit</button>,
           }
           currProjects.push(tempProject);        
         }
@@ -138,7 +145,8 @@ export default class DeploymentScreen extends Component {
             title: gitLabProjects[i].name,
             id: gitLabProjects[i].id,
             pipelineId: 'no deployment',
-            selectProjectButton: <Chip style={{background: '#16d719', height: '20px'}}></Chip>
+            selectProjectButton: <Chip style={{background: '#16d719', height: '20px'}}></Chip>,
+            edit: <button onClick = {this.handleEdit} name = {gitLabProjects[i].id}>Edit</button>,
           }
           currProjects.push(tempProject);  
         }     
@@ -150,7 +158,8 @@ export default class DeploymentScreen extends Component {
             title: gitLabProjects[i].name,
             id: gitLabProjects[i].id,
             pipelineId: mappedPipeline,
-            selectProjectButton: <Link to={`/view/${gitLabProjects[i].id}`}><button>Load</button></Link>
+            selectProjectButton: <Link to={`/view/${gitLabProjects[i].id}`}><button>Load</button></Link>,
+            edit: <button onClick = {this.handleEdit} name = {gitLabProjects[i].id}>Edit</button>,
           }
           currProjects.push(tempProject);        
         }
@@ -160,7 +169,8 @@ export default class DeploymentScreen extends Component {
             title: gitLabProjects[i].name,
             id: gitLabProjects[i].id,
             pipelineId: 'no deployment',
-            selectProjectButton: <Link to={`/view/${gitLabProjects[i].id}`}><button>Load</button></Link>
+            selectProjectButton: <Link to={`/view/${gitLabProjects[i].id}`}><button>Load</button></Link>,
+            edit: <button onClick = {this.handleEdit} name = {gitLabProjects[i].id}>Edit</button>,
           }
           currProjects.push(tempProject);  
         }        
@@ -211,6 +221,7 @@ export default class DeploymentScreen extends Component {
   handleScriptSubmit = (value) => {
     const { match } = this.props;
     axios.post(`${apiEndpointUrl}/deploymentDB/updateData`, {projectId: parseInt(match.params.id), update: {script: value}});
+    this.setState({editModalIsOpen: false});
   }
 
   selectNumPipes = (e) => {  //handler for selecting number of pipelines to display
@@ -248,10 +259,17 @@ export default class DeploymentScreen extends Component {
       return {expand1: !prevState.expand1};
     })
   }
-  expandScript = () => {
-    this.setState((prevState) => {
-      return {expand2: !prevState.expand2};
-    })
+
+  closeModal = () =>{
+    this.setState({editModalIsOpen: false});
+  }
+
+  handleEdit = async (e) => {
+    const projectId = e.target.name;
+    const response = await axios.post(`${apiEndpointUrl}/deploymentDB/getOne`, {projectId: projectId});
+    const projectName = response.data.data.projectName;
+    const projectScript = response.data.data.script;
+    this.setState({editModalIsOpen: true, edit: {name: projectName, script: projectScript}});
   }
 
   render () {
@@ -329,23 +347,23 @@ export default class DeploymentScreen extends Component {
     let radioGroup;
     switch(this.state.numPipelines) {
       case 1:
-        radioGroup = <RadioGroup container="ul" childContainer="li" name="demo2" value = '1' onChange ={this.selectNumPipes}>
-                        <Radio value= '1' >1</Radio>
-                        <Radio value= '5' >5</Radio>
+        radioGroup = <RadioGroup name="demo2" value = '1' onChange ={this.selectNumPipes} style = {{display: 'flex',alignItems: 'center',justifyContent: 'center', }}>
+                        <Radio value= '1' >1{" |"}&nbsp;</Radio>
+                        <Radio value= '5' >5{" |"}&nbsp;</Radio>
                         <Radio value= '10'>10</Radio>
                     </RadioGroup>;
         break;
       case 5:
-        radioGroup = <RadioGroup container="ul" childContainer="li" name="demo2" value = '5' onChange ={this.selectNumPipes}>
-                        <Radio value= '1' >1</Radio>
-                        <Radio value= '5' >5</Radio>
+        radioGroup = <RadioGroup name="demo2" value = '5' onChange ={this.selectNumPipes} style = {{display: 'flex',alignItems: 'center',justifyContent: 'center', }}>
+                        <Radio value= '1' >1{" |"}&nbsp;</Radio>
+                        <Radio value= '5' >5{" |"}&nbsp;</Radio>
                         <Radio value= '10'>10</Radio>
                     </RadioGroup>;
         break;
       case 10:
-        radioGroup = <RadioGroup container="ul" childContainer="li" name="demo2" value = '10' onChange ={this.selectNumPipes}>
-                        <Radio value= '1' >1</Radio>
-                        <Radio value= '5' >5</Radio>
+        radioGroup = <RadioGroup name="demo2" value = '10' onChange ={this.selectNumPipes} style = {{display: 'flex',alignItems: 'center',justifyContent: 'center', }}>
+                        <Radio value= '1' >1{" |"}&nbsp;</Radio>
+                        <Radio value= '5' >5{" |"}&nbsp;</Radio>
                         <Radio value= '10'>10</Radio>
                     </RadioGroup>;
         break;
@@ -355,49 +373,40 @@ export default class DeploymentScreen extends Component {
         <div style={{height: '1300px', width: '1000px', margin: 'auto'}}>
           <div className = 'labels'>
             <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center', }}><h1>GitLab Deployment Util</h1></div>
-            <div>
-              <Grid>
-                <Cell col = {7} >
-                  <p><button onClick = {this.expandProjects}>Change Project</button> Loaded: {this.state.projectName}</p>
-                  <Expand open = {this.state.expand1}>
-                    <input
-                      type="text"
-                      placeholder="Search"
-                      value={this.state.searchTerm}
-                      onChange={this.handleProjectSearch} 
-                      style = {{marginTop: '10px'}}
-                    />                    
-                    <div className = 'table' style={{height:'400px'}}>
-                      <DataTable
-                            shadow={0}
-                            rows = {this.state.searchResults}
-                            style = {{marginTop: '10px'}}>
-                            <TableHeader name="name" tooltip="Project Name">Project Name</TableHeader>
-                            <TableHeader name="id" tooltip="Project ID">Project ID</TableHeader>
-                            <TableHeader name="pipelineId" tooltip="Currently deployed pipeline">Current Deployment</TableHeader>
-                            <TableHeader name="selectProjectButton" tooltip="Click to change the working project">Load Project</TableHeader>
-                      </DataTable> 
-                    </div>
-                  </Expand>
-                </Cell>
-                <Cell col = {5}>
-                  <button onClick = {this.expandScript}>Edit Script</button>
-                  <Expand open = {this.state.expand2}>
-                    <Card shadow={3} style={{width: '420px', height: '430px', margin: 'auto', marginTop: '3%'}}>
-                      <CardActions border>
-                        <Script submitHandler={this.handleScriptSubmit} formTitle={'Current Deployment Script For '+this.state.projectName+':'} height = {200} width = {300} script = {this.state.script}/>
-                        <CardText>Select the number of pipelines to display (default 5)</CardText>
-                        {radioGroup}
-                      </CardActions>
-                    </Card>
-                  </Expand>
-                </Cell>
-              </Grid>
+            <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center', }}>
+              <div className = 'table' style={{height:'400px'}}>
+                <input
+                  type="text"
+                  placeholder="Search"
+                  value={this.state.searchTerm}
+                  onChange={this.handleProjectSearch} 
+                  style = {{marginTop: '10px'}}
+                />                    
+                <DataTable
+                      shadow={0}
+                      rows = {this.state.searchResults}
+                      style = {{marginTop: '10px'}}>
+                      <TableHeader name="name" tooltip="Project Name">Project Name</TableHeader>
+                      <TableHeader name="id" tooltip="Project ID">Project ID</TableHeader>
+                      <TableHeader name="pipelineId" tooltip="Currently deployed pipeline">Current Deployment</TableHeader>
+                      <TableHeader name="selectProjectButton" tooltip="Click to change the working project">Load Project</TableHeader>
+                      <TableHeader name ="edit" tooltip="Edit project configurations">Edit</TableHeader>
+                </DataTable> 
+              </div>
+              <Modal isOpen={this.state.editModalIsOpen} style = {{overlay: {zIndex: 9999}}}>
+                <Card shadow={3} style={{width: '420px', height: '430px', margin: 'auto', marginTop: '3%'}}>
+                  <CardActions border>
+                    <Script submitHandler={this.handleScriptSubmit} formTitle={'Current Deployment Script For '+this.state.edit.name+':'} height = {200} width = {300} script = {this.state.edit.script}/>
+                    <button onClick = {this.closeModal} style = {{marginLeft: '20px'}}>Close</button>
+                    <CardText>Select the number of pipelines to display (default 5)</CardText>
+                  </CardActions>
+                </Card>                      
+              </Modal>
             </div>
           </div>
           <div className = 'labels'>
             <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
-              <h2>Pipeline Status For {this.state.projectName}</h2>
+              <h2>Pipeline Status For {this.state.projectName}<p>Select the number of pipelines to display (default 5)</p>{radioGroup}</h2>
             </div>
             <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
               <DataTable
