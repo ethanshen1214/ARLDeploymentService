@@ -5,6 +5,8 @@ const { getProjects, getProjectName } = require('../gitlabApiFunctions/projects.
 
 const router = express.Router();
 
+// see gitlabApiFunctions
+// routes to allow frontend to access necessary gitlab api functions
 router.post('/getPipelinesForProject', async (req, res) => {
     const pipelines = await getPipelinesForProject(req.body.projectId);
     res.json({ pipelines });

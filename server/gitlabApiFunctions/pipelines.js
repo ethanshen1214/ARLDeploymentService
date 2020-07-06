@@ -2,6 +2,12 @@ const https = require('https');
 const querystring = require('querystring');
 const fs = require('fs');
 
+// Code used is from Gitlab-Utils project
+
+// services https requests
+// INPUT: url of https request and data from https response
+// OUTPUT: success -- resolve promise and return data
+//         error -- reject promise
 const request = (url, data = '') => new Promise((resolve, reject) => {
     const req = https.request(url, (res) => {
       res.setEncoding('utf8');
@@ -29,7 +35,11 @@ const request = (url, data = '') => new Promise((resolve, reject) => {
     req.write(data, 'binary');
     req.end();
 });
-  
+
+// gitlab api call to retrieve a single pipeline
+// INPUT: projectId and pipelineId strings
+// OUTPUT: success -- resolve promise and return api response
+//         error -- reject promise  and return error
 const getPipeline = async (projectId, pipelineId) => {
     const config = JSON.parse(fs.readFileSync('./config.json'));
     const path = `${config.gitlabUrl}/projects/${projectId}/pipelines/${pipelineId}`;
@@ -40,7 +50,8 @@ const getPipeline = async (projectId, pipelineId) => {
       .then((res) => JSON.parse(res.body))
       .catch((err) => console.error('Failed to get pipeline ', err));
 };
-  
+
+// gitlab api call to retrieve a list of pipelines for a project
 exports.getPipelinesForProject = async (projectId) => {
     const config = JSON.parse(fs.readFileSync('./config.json'));
     const path = `${config.gitlabUrl}/projects/${projectId}/pipelines`;

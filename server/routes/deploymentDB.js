@@ -4,6 +4,8 @@ const router = express.Router();
 const fs = require('fs');
 const path = require('path');
 
+// framework structured after code found here https://medium.com/javascript-in-plain-english/full-stack-mongodb-react-node-js-express-js-in-one-simple-app-6cc8ed6de274
+
 // this is our get method
 // this method fetches all available data in our database
 router.get('/getData', (req, res) => {

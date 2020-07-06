@@ -9,7 +9,9 @@ const path = require('path');
 
 var router = express.Router();
 
-/* Handles POST to route */
+// uses the last job in a successful pipeline to download
+// the pipelines artifacts to the download path configured
+// by the user --- requires a user to set up a gitlab webhook
 router.post('/', function(req, res, next) {
   if (req.body.builds[req.body.builds.length-1].finished_at !== null){
     let config = JSON.parse(fs.readFileSync('./config.json'));

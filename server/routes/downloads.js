@@ -7,7 +7,9 @@ const Data = require('../bin/data');
 
 var router = express.Router();
 
-/* Handles POST to route */
+// uses the last job in a successful pipeline to download
+// the pipelines artifacts to the download path configured
+// by the user --- requires the user to click download on the ui
 router.post('/', function(req, res, next) {
   let config = JSON.parse(fs.readFileSync('./config.json'));
   let projectId = req.body.projectId;
@@ -20,11 +22,6 @@ router.post('/', function(req, res, next) {
       res.status(500).end();
     } else {
       let lastJobId = jobData[jobData.length-1].id;
-      const tempJob = {
-        job: lastJobId,
-        project: projectId,
-        pipeline: pipelineId,
-      }
       
       jobs.getArtifactPath(lastJobId, projectId, key)
       .then(async (query) => {

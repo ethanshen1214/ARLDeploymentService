@@ -22,6 +22,8 @@ db.on('error', () => {
   db.close();
 });
 
+// sets the mongodb url in config.json
+// connects to a new mongoDb database if the url provided is valid
 router.post('/setMongoURL', (req, res) => {
     const oldConfig = JSON.parse(fs.readFileSync('./config.json'));
     if (req.body.authKey !== '') {
