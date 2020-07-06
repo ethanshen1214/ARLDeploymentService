@@ -20,7 +20,6 @@ router.get('/getData', (req, res) => {
 });
 
 router.post('/getOne', (req, res) => {
-  console.log(req.body);
   Data.findOne({ projectId: req.body.projectId }, (err, project) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true, data: project })
