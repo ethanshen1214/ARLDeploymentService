@@ -31,8 +31,6 @@ class App extends Component {
             </Content>
         </Layout>
       </Router>
-
-
     );
   }
 }

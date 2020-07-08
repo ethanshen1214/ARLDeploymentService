@@ -38,7 +38,7 @@ router.post('/updateData', (req, res) => {
     }
 
     const { projectId, update } = req.body;
-    Data.findOneAndUpdate( {projectId: projectId}, update, (err) => {
+    Data.findOneAndUpdate({ projectId: projectId }, update, (err) => {
       if (err) return res.json({ success: false, error: err });
       return res.json({ success: true });
     });
@@ -59,7 +59,7 @@ router.delete('/deleteData', (req, res) => {
 router.post('/putData', (req, res) => {
   let data = new Data();
   const { projectId, pipelineId, script, projectName } = req.body;
-  Data.findOne( {projectId}, (err, project) => {
+  Data.findOne({ projectId }, (err, project) => {
     if (project === null) {
       data.script = script;
       data.projectId = projectId;

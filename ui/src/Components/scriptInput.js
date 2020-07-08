@@ -13,17 +13,17 @@ export default class Form extends React.Component { //component for an input for
     
     constructor(props) {
       super(props);
-      this.state = {value: props.script};
+      this.state = { value: props.script };
       this.handleChange = this.handleChange.bind(this);
     }
-    componentDidUpdate(prevProps, prevState) {
+    componentDidUpdate(prevProps) {
       if (prevProps.script !== this.props.script) {
-        this.setState({value: this.props.script});
+        this.setState({ value: this.props.script });
       }
     }
   
     handleChange(event) {
-      this.setState({value: event.target.value});
+      this.setState({ value: event.target.value });
     }
   
     handleSubmit = (e) => {
@@ -36,7 +36,7 @@ export default class Form extends React.Component { //component for an input for
   
     render() {
       return (
-        <form onSubmit={this.handleSubmit} style = {{marginBottom: '30px'}}>
+        <form onSubmit={this.handleSubmit} style = {{ marginBottom: '30px' }}>
           <div>
             <label>{this.props.formTitle}</label>
           </div>
@@ -45,7 +45,7 @@ export default class Form extends React.Component { //component for an input for
                 type="text" 
                 value={this.state.value} 
                 onChange={this.handleChange} 
-                style = {{ marginRight: '20px',marginBottom: '20px', height: this.props.height, width: this.props.width}}
+                style = {{ marginRight: '20px',marginBottom: '20px', height: this.props.height, width: this.props.width }}
                 />
           </div>
           <div>

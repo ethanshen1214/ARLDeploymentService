@@ -12,7 +12,7 @@ export default class HelpScreen extends Component {
     render() {  //help page
       if(this.state.activeTab === 0){
         return(
-          <div className='labels' style={{marginLeft: '80px', marginRight: '80px'}}>
+          <div className='labels' style={{ marginLeft: '80px', marginRight: '80px' }}>
           <h1>Help Page</h1>
             <Tabs activeTab={this.state.activeTab} onChange={(tabId) => this.setState({ activeTab: tabId })} ripple>
                 <Tab>Configurations</Tab>
@@ -50,7 +50,7 @@ export default class HelpScreen extends Component {
       }
       else if(this.state.activeTab === 1){
         return(
-          <div className='labels' style={{marginLeft: '80px', marginRight: '80px'}}>
+          <div className='labels' style={{ marginLeft: '80px', marginRight: '80px' }}>
             <h1>Help Page</h1>
             <Tabs activeTab={this.state.activeTab} onChange={(tabId) => this.setState({ activeTab: tabId })} ripple>
                 <Tab>Configurations</Tab>
@@ -67,7 +67,7 @@ export default class HelpScreen extends Component {
       }
       else if(this.state.activeTab === 2){
         return(
-          <div className='labels' style={{marginLeft: '80px', marginRight: '80px'}}>
+          <div className='labels' style={{ marginLeft: '80px', marginRight: '80px' }}>
             <h1>Help Page</h1>
             <Tabs activeTab={this.state.activeTab} onChange={(tabId) => this.setState({ activeTab: tabId })} ripple>
                 <Tab>Configurations</Tab>

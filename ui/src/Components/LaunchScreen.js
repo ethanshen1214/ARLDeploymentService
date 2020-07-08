@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import '../App.css';
-import { Link } from 'react-router-dom';
-import { DataTable, TableHeader, Card, CardTitle, CardActions, Grid, Cell, Chip, IconButton } from 'react-mdl';
+import { DataTable, TableHeader, Chip } from 'react-mdl';
 import axios from 'axios';
 import swal from 'sweetalert';
 import Modal from 'react-modal';
@@ -83,12 +82,12 @@ export default class LaunchScreen extends Component{
     //handles changes in the text fields for adding a project
     handleChange = (e) => {
         const {name, value} = e.target;
-        this.setState({[name]: value, launched: false});
+        this.setState({ [name]: value, launched: false });
     }
     //handles changes in the text fields for editing a project
     handleChangeEdit = (e) => {
         const {name, value} = e.target;
-        this.setState({edit: {[name]: value}});
+        this.setState({ edit: { [name]: value } });
     }
     //closes modal for add project
     closeAddModal = () => {
@@ -142,7 +141,7 @@ export default class LaunchScreen extends Component{
                 icon: "warning",
             });
         } else {
-            const result = await axios.post(`${apiEndpointUrl}/launchDB/updateData`, {projectName: projectName, update: this.state.edit});
+            const result = await axios.post(`${apiEndpointUrl}/launchDB/updateData`, { projectName: projectName, update: this.state.edit });
             if(!result.data.success){
                 if(result.data.type === 'filePath'){
                     swal({
@@ -159,7 +158,7 @@ export default class LaunchScreen extends Component{
                 });
             }
         }
-        this.setState({editModalIsOpen: false});
+        this.setState({ editModalIsOpen: false });
     }
 
     //makes api call to launch a project using the inputted start script
@@ -174,7 +173,7 @@ export default class LaunchScreen extends Component{
         })
         .then(async (newLaunch) => {
             if (newLaunch) {
-                const response = await axios.post(`${apiEndpointUrl}/launch/start`, {projectName: e.target.name});
+                await axios.post(`${apiEndpointUrl}/launch/start`, { projectName: e.target.name });
                 setTimeout(()=>this.loadData(), 2000);
             }
         })
@@ -191,7 +190,7 @@ export default class LaunchScreen extends Component{
         })
         .then(async (willStop) => {
             if (willStop) {
-                const response = await axios.post(`${apiEndpointUrl}/launch/stop`);
+                await axios.post(`${apiEndpointUrl}/launch/stop`);
                 setTimeout(()=>this.loadData(), 2000);
             }
         });
@@ -199,8 +198,8 @@ export default class LaunchScreen extends Component{
     //opens edit modal and loads appropriate data
     handleEdit = async (e) =>{
         const projectName = e.target.name;
-        const response = await axios.post(`${apiEndpointUrl}/launchDB/getOne`, {projectName: projectName});
-        this.setState({editModalIsOpen: true, edit: {name: projectName, startScript: response.data.data.startScript, stopScript: response.data.data.stopScript, path: response.data.data.path}})
+        const response = await axios.post(`${apiEndpointUrl}/launchDB/getOne`, { projectName: projectName });
+        this.setState({ editModalIsOpen: true, edit: { name: projectName, startScript: response.data.data.startScript, stopScript: response.data.data.stopScript, path: response.data.data.path } })
     }
 
     //makes an api call to the database and loads the data into state
@@ -221,7 +220,7 @@ export default class LaunchScreen extends Component{
                 let tempProject = {
                     projectName: responseArray[i].projectName,
                     editProjectButton: <button onClick = {this.handleEdit} name = {responseArray[i].projectName}>Edit</button>,
-                    launchProjectButton: <Chip style={{background: '#16d719'}}>Launched</Chip>,
+                    launchProjectButton: <Chip style={{ background: '#16d719' }}>Launched</Chip>,
                     deleteProjectButton: <button name={responseArray[i].projectName} onClick = {this.deleteHandler}>Delete</button>,
                     status: 'launched',
                 }
@@ -253,7 +252,7 @@ export default class LaunchScreen extends Component{
 
     //handles delete button and makes api call to DB for delete
     deleteHandler = async (e) => {
-        const res = axios.delete(`${apiEndpointUrl}/launchDB/deleteData`, {data: {projectName: e.target.name}});
+        await axios.delete(`${apiEndpointUrl}/launchDB/deleteData`, { data: { projectName: e.target.name } });
         setTimeout(()=>this.loadData(), 2000);
     }
 
@@ -271,9 +270,9 @@ export default class LaunchScreen extends Component{
 
     render() {
         return(
-        <div style={{height: '900px', width: '650px', margin: 'auto'}}>
+        <div style={{ height: '900px', width: '650px', margin: 'auto' }}>
           <div className = 'labels'>
-            <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center', }}><h1>GitLab Launch Util</h1></div>
+            <div style = {{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><h1>GitLab Launch Util</h1></div>
             <button onClick = {this.addProject}>Add Project</button>
             <div>
                 <input
@@ -281,14 +280,14 @@ export default class LaunchScreen extends Component{
                     placeholder="Search"
                     value={this.state.searchTerm}
                     onChange={this.handleProjectSearch} 
-                    style = {{marginTop: '10px'}}
+                    style = {{ marginTop: '10px' }}
                 />    
-                <button onClick={this.handleStop} style={{float:'right', marginRight: '33px'}}>Stop current project</button>           
-                <div className = 'table' style={{height:'650px'}}>
+                <button onClick={this.handleStop} style={{ float:'right', marginRight: '33px' }}>Stop current project</button>           
+                <div className = 'table' style={{ height:'650px' }}>
                     <DataTable
                         shadow={0}
                         rows = {this.state.searchResults}
-                        style = {{marginTop: '10px'}}>
+                        style = {{ marginTop: '10px' }}>
                         <TableHeader name="projectName" tooltip="Project Name">Project Name</TableHeader>
                         <TableHeader name="editProjectButton" tooltip="Edit Project">Edit Project</TableHeader>
                         <TableHeader name="launchProjectButton" tooltip="Launch Project">Launch Project</TableHeader>
@@ -298,17 +297,17 @@ export default class LaunchScreen extends Component{
                 </div>
                 <Modal 
                     isOpen = {this.state.addModalIsOpen} 
-                    style = {{overlay: {zIndex: 9999}, content: { display: 'flex',margin: 'auto', maxWidth: '400px' }}}
+                    style = {{ overlay: { zIndex: 9999 }, content: { display: 'flex',margin: 'auto', maxWidth: '400px' } }}
                     onRequestClose = {this.closeAddModal}
                     shouldCloseOnOverlayClick = {true}
                 >
                     <div className = 'labels'>
                         <h2>Add Project</h2>
-                        <form onSubmit={this.handleSubmit}  style = {{marginBottom: '30px'}}>
+                        <form onSubmit={this.handleSubmit}  style = {{ marginBottom: '30px' }}>
                             <div>
                                 <label>Project Name:</label>
                             </div>
-                            <div style = {{marginBottom: '20px'}}>
+                            <div style = {{ marginBottom: '20px' }}>
                                 <input
                                     type="text"
                                     name="name"
@@ -319,37 +318,37 @@ export default class LaunchScreen extends Component{
                             <div>
                                 <label>Launch Path:</label>
                             </div>
-                            <div style = {{marginBottom: '20px'}}>
+                            <div style = {{ marginBottom: '20px' }}>
                                 <input
                                     type="text"
                                     name="path"
                                     value={this.state.path}
                                     onChange={this.handleChange}
-                                    style = {{width: '300px'}}
+                                    style = {{ width: '300px' }}
                                 />
                             </div>
                             <div>
                                 <label>Start Script:</label>
                             </div>
-                            <div style = {{marginBottom: '20px'}}>
+                            <div style = {{ marginBottom: '20px' }}>
                                 <textarea
                                     type="text" 
                                     name="startScript"
                                     value={this.state.startScript} 
                                     onChange={this.handleChange} 
-                                    style = {{ marginRight: '20px', height: '200px', width: '300px'}}
+                                    style = {{ marginRight: '20px', height: '200px', width: '300px' }}
                                     />
                             </div>
                             <div>
                                 <label>Stop Script:</label>
                             </div>
-                            <div style = {{marginBottom: '20px'}}>
+                            <div style = {{ marginBottom: '20px' }}>
                                 <textarea
                                     type="text" 
                                     name="stopScript"
                                     value={this.state.stopScript} 
                                     onChange={this.handleChange} 
-                                    style = {{ marginRight: '20px', height: '200px', width: '300px'}}
+                                    style = {{ marginRight: '20px', height: '200px', width: '300px' }}
                                     />
                             </div>
                             <div>
@@ -362,47 +361,47 @@ export default class LaunchScreen extends Component{
                 </Modal>
                 <Modal 
                     isOpen = {this.state.editModalIsOpen} 
-                    style = {{overlay: {zIndex: 9999}, content: { display: 'flex',margin: 'auto', maxWidth: '400px' }}}
+                    style = {{ overlay: { zIndex: 9999 }, content: { display: 'flex',margin: 'auto', maxWidth: '400px' } }}
                     onRequestClose = {this.closeEditModal}
                     shouldCloseOnOverlayClick = {true}
                 >
                     <div className = 'labels'>
                         <h2>Editing: {this.state.edit.name}</h2>
-                        <form onSubmit={this.handleSubmitEdit} style = {{marginBottom: '30px'}}>
+                        <form onSubmit={this.handleSubmitEdit} style = {{ marginBottom: '30px' }}>
                             <div>
                                 <label>Launch Path:</label>
                             </div>
-                            <div style = {{marginBottom: '20px'}}>
+                            <div style = {{ marginBottom: '20px' }}>
                                 <input
                                     type="text"
                                     name="path" 
                                     value={this.state.edit.path}
                                     onChange={this.handleChangeEdit}
-                                    style = {{width: '300px'}}
+                                    style = {{ width: '300px' }}
                                 />
                             </div>
                             <div>
                                 <label>Start Script:</label>
                             </div>
-                            <div style = {{marginBottom: '20px'}}>
+                            <div style = {{ marginBottom: '20px' }}>
                                 <textarea
                                     type="text" 
                                     name="startScript"
                                     value={this.state.edit.startScript} 
                                     onChange={this.handleChangeEdit} 
-                                    style = {{ marginRight: '20px', height: '200px', width: '300px'}}
+                                    style = {{ marginRight: '20px', height: '200px', width: '300px' }}
                                     />
                             </div>
                             <div>
                                 <label>Stop Script:</label>
                             </div>
-                            <div style = {{marginBottom: '20px'}}>
+                            <div style = {{ marginBottom: '20px' }}>
                                 <textarea
                                     type="text" 
                                     name="stopScript"
                                     value={this.state.edit.stopScript} 
                                     onChange={this.handleChangeEdit} 
-                                    style = {{ marginRight: '20px', height: '200px', width: '300px'}}
+                                    style = {{ marginRight: '20px', height: '200px', width: '300px' }}
                                     />
                             </div>
                             <div>

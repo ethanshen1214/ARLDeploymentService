@@ -28,7 +28,7 @@ router.post('/', function(req, res, next) {
       return res.status(200).end();
     }
 
-    Data.findOneAndUpdate( {projectId: projectId}, { pipelineId } ).catch((err) => console.log('Failed to update database on hook.'));
+    Data.findOneAndUpdate({ projectId: projectId }, { pipelineId }).catch((err) => console.log('Failed to update database on hook.'));
     jobs.getJobsByPipeline(projectId, pipelineId, key, (err, jobData) => {
       if (err) {
         console.error(err);

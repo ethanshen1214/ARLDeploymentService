@@ -46,7 +46,9 @@ router.post('/start', async (req, res) => {
             } else {
                 await Data.findOneAndUpdate({ projectName: launchedProject.projectName }, { launched: false }).exec();
                 const newProject = await Data.findOne({ projectName }).exec();
-                if (newProject === null) { return res.status(200).end(); }
+                if (newProject === null) { 
+                    return res.status(200).end(); 
+                }
                 const { startScript, path } = newProject;
                 if(fs.existsSync(path)) {
                     const child = spawn('bash', [`-c`, `${startScript}`], { cwd: path });
@@ -68,7 +70,9 @@ router.post('/start', async (req, res) => {
         }
         else { // no previously running project --- starting new project
             const newProject = await Data.findOne({ projectName }).exec();
-            if (newProject === null) { return res.status(200).end(); }
+            if (newProject === null) {
+                return res.status(200).end(); 
+            }
             const { startScript, path } = newProject;
             if(fs.existsSync(path)) {
                 const child =  spawn('bash', [`-c`, `${startScript}`], { cwd: path });

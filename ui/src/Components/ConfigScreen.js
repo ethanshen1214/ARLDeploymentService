@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import '../App.css';
 import axios from 'axios';
 import swal from 'sweetalert';
@@ -37,11 +37,17 @@ export default class ConfigScreen extends Component {
         const result = await axios.post(`${apiEndpointUrl}/gitlabAPI/getProjects`);     //check for valid authentication key
         if(result.data.projects === false){
             this.setState({ 
-                savedAuthKey: 'Unauthenticated', savedGitlab: gitlabHost, savedMongoDb: url.data, savedDownloadPath: path.data });
+                savedAuthKey: 'Unauthenticated', 
+                savedGitlab: gitlabHost, 
+                savedMongoDb: url.data, 
+                savedDownloadPath: path.data });
         }
         else{
             this.setState({ 
-                savedAuthKey: 'Authenticated', savedGitlab: gitlabHost, savedMongoDb: url.data, savedDownloadPath: path.data });
+                savedAuthKey: 'Authenticated', 
+                savedGitlab: gitlabHost, 
+                savedMongoDb: url.data, 
+                savedDownloadPath: path.data });
         }
     }
 
@@ -97,28 +103,28 @@ export default class ConfigScreen extends Component {
 
     //handlers for changing state when characters are typed into the text fields
     handleChangeAuthKey = (e) => {
-        this.setState({authKey: e.target.value});
+        this.setState({ authKey: e.target.value });
     }
     handleChangeGitlab = (e) => {
-        this.setState({gitlab: e.target.value});
+        this.setState({ gitlab: e.target.value });
     }
 
     handleChangeMongoDB = (e) => {
-        this.setState({mongoDb: e.target.value});
+        this.setState({ mongoDb: e.target.value });
     }
     handleChangeDownloadPath = (e) => {
-        this.setState({downloadPath: e.target.value});
+        this.setState({ downloadPath: e.target.value });
     }
 
     render() {
       return (
-        <div className='labels' style={{marginLeft: '80px', marginRight: '80px'}}>
+        <div className='labels' style={{ marginLeft: '80px', marginRight: '80px' }}>
             <h1>Configurations</h1>
-            <form onSubmit={this.handleSubmitAuthKey} style = {{marginLeft: '20px', marginTop: '10px'}}>
-                <div style = {{marginBottom: '10px'}}>
+            <form onSubmit={this.handleSubmitAuthKey} style = {{ marginLeft: '20px', marginTop: '10px' }}>
+                <div style = {{ marginBottom: '10px' }}>
                     <label>Validation Status: <b>{this.state.savedAuthKey} for {this.state.savedGitlab}</b></label>
                 </div>
-                <div style = {{marginBottom: '30px'}}>
+                <div style = {{ marginBottom: '30px' }}>
                     <label>Authentication Key:</label>
                     <input
                         type="text" 
@@ -131,35 +137,34 @@ export default class ConfigScreen extends Component {
                         type="text" 
                         value={this.state.gitlab} 
                         onChange={this.handleChangeGitlab} 
-                        style={{ width: '300px', marginLeft: '134px', marginRight: '10px', marginBottom: '10px '}}
+                        style={{ width: '300px', marginLeft: '134px', marginRight: '10px', marginBottom: '10px' }}
                         />
-
                     <input type="submit" value="Save Changes" /><br/>
                     <p>Ex: gitlab.domain-name.com (do not include 'https://')</p>
                     <p>(Changes may take a couple seconds to save)</p>
                 </div>
             </form>
-            <form onSubmit={this.handleSubmitMongoDB} style = {{marginLeft: '20px', marginTop: '10px'}}>
-                <div style = {{marginBottom: '10px'}}>
+            <form onSubmit={this.handleSubmitMongoDB} style = {{ marginLeft: '20px', marginTop: '10px' }}>
+                <div style = {{ marginBottom: '10px' }}>
                     <label>Currently Saved MongoDB URL: <b>{this.state.savedMongoDb}</b></label>
                 </div>
-                <div style = {{marginBottom: '30px'}}>
+                <div style = {{ marginBottom: '30px' }}>
                     <label>MongoDB Endpoint URL: </label>
                     <input
                         type="text" 
                         value={this.state.mongoDb} 
                         onChange={this.handleChangeMongoDB} 
-                        style={{ width: '650px', marginLeft: '50px', marginRight: '10px', marginBottom: '10px '}}
+                        style={{ width: '650px', marginLeft: '50px', marginRight: '10px', marginBottom: '10px' }}
                         />
                     <input type="submit" value="Save Changes" />
                     <p>(Changes may take a couple seconds to save)</p>                    
                 </div>
             </form>
-            <form onSubmit={this.handleSubmitDownloadPath} style = {{marginLeft: '20px', marginTop: '10px'}}>
-                <div style = {{marginBottom: '10px'}}>
+            <form onSubmit={this.handleSubmitDownloadPath} style = {{ marginLeft: '20px', marginTop: '10px' }}>
+                <div style = {{ marginBottom: '10px' }}>
                     <label>Currently Saved Download Path For Deployments: <b>{this.state.savedDownloadPath}</b></label>
                 </div>
-                <div style = {{marginBottom: '30px'}}>
+                <div style = {{ marginBottom: '30px' }}>
                     <label>Download Path: </label>
                     <input
                         type="text" 

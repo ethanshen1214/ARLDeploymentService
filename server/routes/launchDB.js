@@ -21,7 +21,6 @@ router.get('/getData', (req, res) => {
 
   router.post('/getOne', (req, res) => {
       const { projectName } = req.body;
-      console.log(req.body);
     if(mongooseConnection) {
         Data.findOne({projectName}, (err, data) => {
           if (err) return res.json({ success: false, error: err });
@@ -37,7 +36,7 @@ router.get('/getData', (req, res) => {
   router.post('/updateData', (req, res) => {
       if(validateForm(req.body.update)){
         const { projectName, update } = req.body;
-        Data.findOneAndUpdate( {projectName: projectName}, update, (err) => {
+        Data.findOneAndUpdate({ projectName: projectName }, update, (err) => {
             if (err) return res.json({ success: false, error: err });
             return res.json({ success: true });
         });          
@@ -51,7 +50,7 @@ router.get('/getData', (req, res) => {
   // this method removes existing data in our database
   router.delete('/deleteData', (req, res) => {
       const { projectName } = req.body;
-      Data.findOneAndRemove({projectName}, (err) => {
+      Data.findOneAndRemove({ projectName }, (err) => {
         if (err) return res.send(err);
         return res.json({ success: true });
       });
@@ -63,7 +62,7 @@ router.get('/getData', (req, res) => {
     if(validateForm(req.body)){
         let data = new Data();
         const{ name, startScript, stopScript, path, launched } = req.body;
-        Data.findOne( {projectName: name}, (err, project) => {
+        Data.findOne({ projectName: name }, (err, project) => {
             if (project === null) {
                 data.projectName = name;
                 data.startScript = startScript;

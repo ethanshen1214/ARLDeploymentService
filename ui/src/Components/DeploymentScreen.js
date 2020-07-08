@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import '../App.css';
 import { Link } from 'react-router-dom';
-import { DataTable, TableHeader, Card, CardText, CardActions, RadioGroup, Radio, Spinner, Chip } from 'react-mdl';
+import { DataTable, TableHeader, RadioGroup, Radio, Spinner, Chip } from 'react-mdl';
 import Script from './scriptInput';
 import axios from 'axios';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
@@ -71,7 +71,7 @@ export default class DeploymentScreen extends Component {
             title: "Error",
             text: "File path does not exist",
             icon: "warning",
-        });
+          });
         }
       }
       this.loadData();
@@ -82,11 +82,11 @@ export default class DeploymentScreen extends Component {
     const { match: { params: { id } } } = this.props;
     if (prevId !== id) {
         if(id){
-            this.handleProjectSubmit();
-            this.loadData();
+          this.handleProjectSubmit();
+          this.loadData();
         }
         else{
-            this.loadData();
+          this.loadData();
         }
     }
   }
@@ -127,7 +127,7 @@ export default class DeploymentScreen extends Component {
             title: gitLabProjects[i].name,
             id: gitLabProjects[i].id,
             pipelineId: mappedPipeline,
-            selectProjectButton: <Chip style={{background: '#16d719', height: '20px'}}></Chip>,
+            selectProjectButton: <Chip style={{ background: '#16d719', height: '20px' }}></Chip>,
             edit: <button onClick = {this.handleEdit} name = {gitLabProjects[i].id}>Edit</button>,
           }
           currProjects.push(tempProject);        
@@ -138,7 +138,7 @@ export default class DeploymentScreen extends Component {
             title: gitLabProjects[i].name,
             id: gitLabProjects[i].id,
             pipelineId: 'no deployment',
-            selectProjectButton: <Chip style={{background: '#16d719', height: '20px'}}></Chip>,
+            selectProjectButton: <Chip style={{ background: '#16d719', height: '20px' }}></Chip>,
             edit: <button onClick = {this.handleEdit} name = {gitLabProjects[i].id}>Edit</button>,
           }
           currProjects.push(tempProject);  
@@ -185,7 +185,7 @@ export default class DeploymentScreen extends Component {
           currName = response.data.data[i].projectName;
         }
       }
-      this.setState({ pipelines: pipelines, currentDeployment: currDep, script: currScript, projectName: currName, searchResults: currProjects} );
+      this.setState({ pipelines: pipelines, currentDeployment: currDep, script: currScript, projectName: currName, searchResults: currProjects });
     } else{
       this.setState({ pipelines: [], searchResults: currProjects, projectName: '' });
     }
@@ -215,12 +215,12 @@ export default class DeploymentScreen extends Component {
   //handler for submitting a launch script
   handleScriptSubmit = (value) => {
     const { match } = this.props;
-    axios.post(`${apiEndpointUrl}/deploymentDB/updateData`, {projectId: parseInt(match.params.id), update: {script: value}});
-    this.setState({editModalIsOpen: false});
+    axios.post(`${apiEndpointUrl}/deploymentDB/updateData`, { projectId: parseInt(match.params.id), update: { script: value } });
+    this.setState({ editModalIsOpen: false });
   }
   //handler for selecting number of pipelines to display
   selectNumPipes = (e) => {  
-    this.setState({numPipelines: parseInt(e.target.value)});
+    this.setState({ numPipelines: parseInt(e.target.value) });
   }
 
   //handler for downloading project artifacts and deployment
@@ -228,7 +228,7 @@ export default class DeploymentScreen extends Component {
     const { match } = this.props;
     e.persist();
     //updates DB with new current deployment
-    const result = await axios.post(`${apiEndpointUrl}/deploymentDB/updateData`, {projectId: parseInt(match.params.id), update: {pipelineId: e.target.title}});
+    const result = await axios.post(`${apiEndpointUrl}/deploymentDB/updateData`, { projectId: parseInt(match.params.id), update: { pipelineId: e.target.title } });
     if (result.data.type) {
       swal({
         title: "Error",
@@ -253,12 +253,12 @@ export default class DeploymentScreen extends Component {
   }
   //closes edit project modal
   closeModal = () =>{
-    this.setState({editModalIsOpen: false});
+    this.setState({ editModalIsOpen: false });
   }
   //opens edit project modal and loads data from DB
   handleEdit = async (e) => {
     const projectId = e.target.name;
-    const response = await axios.post(`${apiEndpointUrl}/deploymentDB/getOne`, {projectId: projectId});
+    const response = await axios.post(`${apiEndpointUrl}/deploymentDB/getOne`, { projectId: projectId });
     if(response.data.data === null){
       swal({
         title: "Error",
@@ -269,36 +269,31 @@ export default class DeploymentScreen extends Component {
     else{
       const projectName = response.data.data.projectName;
       const projectScript = response.data.data.script;
-      this.setState({editModalIsOpen: true, edit: {name: projectName, script: projectScript}});      
+      this.setState({ editModalIsOpen: true, edit: { name: projectName, script: projectScript } });      
     }
   }
 
   render () {
     const parsedPipelines = [];
-
     let displayPipes = this.state.pipelines.length;
     if(this.state.pipelines.length >= this.state.numPipelines){ //if the number of pipelines passed in is less than the default/selected amount
       displayPipes = this.state.numPipelines
     }
 
-    for(let i = 0; i < displayPipes; i++)     //parse through all the pipelines and get the required info
-    {
-      if(this.state.pipelines[i].status !== 'success')
-      {
-        if(this.state.pipelines[i].status == 'failed')
-        {
+    for(let i = 0; i < displayPipes; i++){     //parse through all the pipelines and get the required info
+      if(this.state.pipelines[i].status !== 'success'){
+        if(this.state.pipelines[i].status == 'failed'){
           let date = new Date(this.state.pipelines[i].created_at);
           const tempPipeline = {
             sourceProject: <a href = {this.state.pipelines[i].web_url} target = "_blank" rel="noopener noreferrer">{this.state.pipelines[i].web_url}</a>,
             sourceCommit: this.state.pipelines[i].user.username,
             deploymentDate: date.toString(),
             successStatus: this.state.pipelines[i].status,
-            downloadButton: <Chip style={{background: '#d73016'}}>Failed</Chip>
+            downloadButton: <Chip style={{ background: '#d73016' }}>Failed</Chip>
           };     
           parsedPipelines.push(tempPipeline);   //add to pipelines array
         }
-        else
-        {
+        else{
           let date = new Date(this.state.pipelines[i].created_at);
           const tempPipeline = {
             sourceProject: <a href = {this.state.pipelines[i].web_url} target = "_blank" rel="noopener noreferrer">{this.state.pipelines[i].web_url}</a>,
@@ -310,22 +305,19 @@ export default class DeploymentScreen extends Component {
           parsedPipelines.push(tempPipeline);   //add to pipelines array  
         }
       }
-      else
-      {
-        if(this.state.currentDeployment === this.state.pipelines[i].id)
-        {
+      else{
+        if(this.state.currentDeployment === this.state.pipelines[i].id){
           let date = new Date(this.state.pipelines[i].created_at);
           const tempPipeline = {
             sourceProject: <a href = {this.state.pipelines[i].web_url} target = "_blank" rel="noopener noreferrer">{this.state.pipelines[i].web_url}</a>,
             sourceCommit: this.state.pipelines[i].user.username,
             deploymentDate: date.toString(),
             successStatus: this.state.pipelines[i].status,
-            downloadButton: <Chip style={{background: '#16d719'}}>Deployed</Chip>
+            downloadButton: <Chip style={{ background: '#16d719' }}>Deployed</Chip>
           };     
           parsedPipelines.push(tempPipeline);   //add to pipelines array
         }
-        else
-        {
+        else{
           let date = new Date(this.state.pipelines[i].created_at);
           const tempPipeline = {
             sourceProject: <a href = {this.state.pipelines[i].web_url} target = "_blank" rel="noopener noreferrer">{this.state.pipelines[i].web_url}</a>,
@@ -348,21 +340,21 @@ export default class DeploymentScreen extends Component {
     let radioGroup;
     switch(this.state.numPipelines) {   //handles changing the radio button display to reflect the number of pipelines displayed
       case 1:
-        radioGroup = <RadioGroup name="demo2" value = '1' onChange ={this.selectNumPipes} style = {{display: 'flex',alignItems: 'center',justifyContent: 'center', }}>
+        radioGroup = <RadioGroup name="demo2" value = '1' onChange ={this.selectNumPipes} style = {{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <Radio value= '1' >1{" |"}&nbsp;</Radio>
                         <Radio value= '5' >5{" |"}&nbsp;</Radio>
                         <Radio value= '10'>10</Radio>
                     </RadioGroup>;
         break;
       case 5:
-        radioGroup = <RadioGroup name="demo2" value = '5' onChange ={this.selectNumPipes} style = {{display: 'flex',alignItems: 'center',justifyContent: 'center', }}>
+        radioGroup = <RadioGroup name="demo2" value = '5' onChange ={this.selectNumPipes} style = {{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <Radio value= '1' >1{" |"}&nbsp;</Radio>
                         <Radio value= '5' >5{" |"}&nbsp;</Radio>
                         <Radio value= '10'>10</Radio>
                     </RadioGroup>;
         break;
       case 10:
-        radioGroup = <RadioGroup name="demo2" value = '10' onChange ={this.selectNumPipes} style = {{display: 'flex',alignItems: 'center',justifyContent: 'center', }}>
+        radioGroup = <RadioGroup name="demo2" value = '10' onChange ={this.selectNumPipes} style = {{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <Radio value= '1' >1{" |"}&nbsp;</Radio>
                         <Radio value= '5' >5{" |"}&nbsp;</Radio>
                         <Radio value= '10'>10</Radio>
@@ -373,20 +365,20 @@ export default class DeploymentScreen extends Component {
     return(
         <div style={{height: '1300px', width: '1000px', margin: 'auto'}}>
           <div className = 'labels'>
-            <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center', }}><h1>GitLab Deployment Util</h1></div>
-            <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center', }}>
-              <div className = 'table' style={{height:'400px'}}>
+            <div style = {{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><h1>GitLab Deployment Util</h1></div>
+            <div style = {{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div className = 'table' style={{ height:'400px' }}>
                 <input
                   type="text"
                   placeholder="Search"
                   value={this.state.searchTerm}
                   onChange={this.handleProjectSearch} 
-                  style = {{marginTop: '10px'}}
+                  style = {{ marginTop: '10px' }}
                 />                    
                 <DataTable
                       shadow={0}
                       rows = {this.state.searchResults}
-                      style = {{marginTop: '10px'}}>
+                      style = {{ marginTop: '10px' }}>
                       <TableHeader name="name" tooltip="Project Name">Project Name</TableHeader>
                       <TableHeader name="id" tooltip="Project ID">Project ID</TableHeader>
                       <TableHeader name="pipelineId" tooltip="Currently deployed pipeline">Current Deployment</TableHeader>
@@ -396,7 +388,7 @@ export default class DeploymentScreen extends Component {
               </div>
               <Modal 
                 isOpen={this.state.editModalIsOpen} 
-                style = {{overlay: {zIndex: 9999 }, content: { display: 'flex',margin: 'auto', maxWidth: '400px', maxHeight: '390px' }}}
+                style = {{ overlay: { zIndex: 9999 }, content: { display: 'flex',margin: 'auto', maxWidth: '400px', maxHeight: '390px' } }}
                 onRequestClose = {this.closeModal}
                 shouldCloseOnOverlayClick={true}
               >
@@ -413,10 +405,10 @@ export default class DeploymentScreen extends Component {
             </div>
           </div>
           <div className = 'labels'>
-            <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
+            <div style = {{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <h2>Pipeline Status For {this.state.projectName}<p>Select the number of pipelines to display (default 5)</p>{radioGroup}</h2>
             </div>
-            <div style = {{display: 'flex',alignItems: 'center',justifyContent: 'center',}}>
+            <div style = {{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <DataTable
                 shadow={0}
                 rows = {parsedPipelines}>
