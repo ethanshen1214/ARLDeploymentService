@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 export default class Form extends React.Component { //component for an input form
     static propTypes = {
         submitHandler: PropTypes.func,
+        onClose: PropTypes.func,
         formTitle: PropTypes.string,
         height: PropTypes.number,
         width: PropTypes.number,
@@ -16,7 +17,6 @@ export default class Form extends React.Component { //component for an input for
       this.handleChange = this.handleChange.bind(this);
     }
     componentDidUpdate(prevProps, prevState) {
-      
       if (prevProps.script !== this.props.script) {
         this.setState({value: this.props.script});
       }
@@ -30,10 +30,13 @@ export default class Form extends React.Component { //component for an input for
         e.preventDefault();
         this.props.submitHandler(this.state.value);
     }
+    closeEditModal = () => {
+      this.props.onClose();
+    }
   
     render() {
       return (
-        <form onSubmit={this.handleSubmit} style = {{marginLeft: '20px', marginTop: '10px'}}>
+        <form onSubmit={this.handleSubmit} style = {{marginBottom: '30px'}}>
           <div>
             <label>{this.props.formTitle}</label>
           </div>
@@ -42,11 +45,13 @@ export default class Form extends React.Component { //component for an input for
                 type="text" 
                 value={this.state.value} 
                 onChange={this.handleChange} 
-                style = {{ marginRight: '20px', height: this.props.height, width: this.props.width}}
+                style = {{ marginRight: '20px',marginBottom: '20px', height: this.props.height, width: this.props.width}}
                 />
           </div>
           <div>
             <input type="submit" value="Save Changes" />
+            {' | '}
+            <button onClick={this.closeEditModal}>Close</button>
           </div>
         </form>
       );

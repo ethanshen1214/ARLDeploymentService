@@ -296,11 +296,15 @@ export default class LaunchScreen extends Component{
                         <TableHeader name="status" tooltip="status">Launch Status</TableHeader>
                     </DataTable> 
                 </div>
-                <Modal isOpen = {this.state.addModalIsOpen} style = {{overlay: {zIndex: 9999}}}>
-                    <Card shadow={3} style={{width: '420px', height: '750px', margin: 'auto', marginTop: '3%'}}>
-                    <CardActions border>
-                        <CardTitle>Add Project</CardTitle>
-                        <form onSubmit={this.handleSubmit} style = {{marginLeft: '20px'}}>
+                <Modal 
+                    isOpen = {this.state.addModalIsOpen} 
+                    style = {{overlay: {zIndex: 9999}, content: { display: 'flex',margin: 'auto', maxWidth: '400px' }}}
+                    onRequestClose = {this.closeAddModal}
+                    shouldCloseOnOverlayClick = {true}
+                >
+                    <div className = 'labels'>
+                        <h2>Add Project</h2>
+                        <form onSubmit={this.handleSubmit}  style = {{marginBottom: '30px'}}>
                             <div>
                                 <label>Project Name:</label>
                             </div>
@@ -351,17 +355,20 @@ export default class LaunchScreen extends Component{
                             <div>
                                 <input type="submit" value="Add Project" />
                                 {' | '}
-                                <button onClick={this.closeAddModal}>Return</button>
+                                <button onClick={this.closeAddModal}>Close</button>
                             </div>
                         </form>
-                    </CardActions>
-                    </Card>                        
+                    </div>
                 </Modal>
-                <Modal isOpen = {this.state.editModalIsOpen} style = {{overlay: {zIndex: 9999}}}>
-                    <Card shadow={3} style={{width: '420px', height: '650px', margin: 'auto', marginTop: '3%'}}>
-                      <CardActions border>
-                          <CardTitle>Editing: {this.state.edit.name}</CardTitle>
-                        <form onSubmit={this.handleSubmitEdit} style = {{marginLeft: '20px'}}>
+                <Modal 
+                    isOpen = {this.state.editModalIsOpen} 
+                    style = {{overlay: {zIndex: 9999}, content: { display: 'flex',margin: 'auto', maxWidth: '400px' }}}
+                    onRequestClose = {this.closeEditModal}
+                    shouldCloseOnOverlayClick = {true}
+                >
+                    <div className = 'labels'>
+                        <h2>Editing: {this.state.edit.name}</h2>
+                        <form onSubmit={this.handleSubmitEdit} style = {{marginBottom: '30px'}}>
                             <div>
                                 <label>Launch Path:</label>
                             </div>
@@ -401,11 +408,10 @@ export default class LaunchScreen extends Component{
                             <div>
                                 <input type="submit" value="Save Changes" />
                                 {' | '}
-                                <button onClick={this.closeEditModal}>Return</button>
+                                <button onClick={this.closeEditModal}>Close</button>
                             </div>
                         </form>
-                      </CardActions>
-                    </Card>
+                    </div>
                 </Modal>
             </div>
           </div>

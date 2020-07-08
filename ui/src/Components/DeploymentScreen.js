@@ -394,14 +394,21 @@ export default class DeploymentScreen extends Component {
                       <TableHeader name ="edit" tooltip="Edit project configurations">Edit</TableHeader>
                 </DataTable> 
               </div>
-              <Modal isOpen={this.state.editModalIsOpen} style = {{overlay: {zIndex: 9999}}}>
-                <Card shadow={3} style={{width: '420px', height: '430px', margin: 'auto', marginTop: '3%'}}>
-                  <CardActions border>
-                    <Script submitHandler={this.handleScriptSubmit} formTitle={'Current Deployment Script For '+this.state.edit.name+':'} height = {200} width = {300} script = {this.state.edit.script}/>
-                    <button onClick = {this.closeModal} style = {{marginLeft: '20px'}}>Close</button>
-                    <CardText>Select the number of pipelines to display (default 5)</CardText>
-                  </CardActions>
-                </Card>                      
+              <Modal 
+                isOpen={this.state.editModalIsOpen} 
+                style = {{overlay: {zIndex: 9999 }, content: { display: 'flex',margin: 'auto', maxWidth: '400px', maxHeight: '390px' }}}
+                onRequestClose = {this.closeModal}
+                shouldCloseOnOverlayClick={true}
+              >
+                <div className = 'labels'>
+                  <h2>Editing: {this.state.edit.name}</h2>
+                  <Script submitHandler={this.handleScriptSubmit} 
+                  formTitle = 'Script:'
+                  height = {170} width = {300} 
+                  script = {this.state.edit.script}
+                  onClose = {this.closeModal}
+                  />
+                </div>  
               </Modal>
             </div>
           </div>
