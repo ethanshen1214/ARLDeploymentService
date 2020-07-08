@@ -5,7 +5,6 @@ const router = express.Router();
 const fs = require('fs');
 
 const { sendSocketData } = require('../bin/sockets');
-const { timeStamp } = require('console');
 
 // spawns a child process to stop the currently running project
 // INPUT: Name (ID) of currently running project
