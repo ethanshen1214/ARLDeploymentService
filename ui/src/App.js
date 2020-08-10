@@ -17,7 +17,7 @@ class App extends Component {
     return(
       <Router>
         <Layout>
-            <Header title="Hi Trevor :)" scroll>
+            <Header title="Deployment Services" scroll>
                 <Navigation>
                     <Link to='/'>Home</Link>
                     <Link to='/config'>Config</Link>
