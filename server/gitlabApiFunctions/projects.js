@@ -22,12 +22,12 @@ exports.getProjectName = async (projectId) => {
 // OUTPUT: success -- name of project (string)
 //         failure -- false
 exports.getProjects = async () => {
-  const config = JSON.parse(fs.readFileSync('./config.json'));
-  const path = `${config.gitlabUrl}/projects`;
-  const token = `?private_token=${config.authKey}&membership=true&simple=true`;
-  const query = path + token;
+    const config = JSON.parse(fs.readFileSync('./config.json'));
+    const path = `${config.gitlabUrl}/projects`;
+    const token = `?private_token=${config.authKey}&membership=true&simple=true`;
+    const query = path + token;
 
-  let response = await axios.get(query).catch(err => {})
-  if(response) return response.data;
-  return false;
+    let response = await axios.get(query).catch(err => {})
+    if(response) return response.data;
+    return false;
 }

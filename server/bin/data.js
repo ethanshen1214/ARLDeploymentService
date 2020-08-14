@@ -3,13 +3,13 @@ const Schema = mongoose.Schema;
 
 // database structure for deployment database
 const DataSchema = new Schema(
-  {
-    projectName: String,
-    projectId: Number,
-    pipelineId: Number,
-    script: String,
-  },
-  { timestamps: true }
+    {
+        projectName: String,
+        projectId: Number,
+        pipelineId: Number,
+        script: String,
+    },
+    { timestamps: true }
 );
 
 DataSchema.index({"projectId": 1}, {unique: true});

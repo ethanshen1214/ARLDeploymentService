@@ -13,13 +13,13 @@ mongoose.connect(dbRoute, { useNewUrlParser: true }).catch(error => console.log(
 mongoose.set('useFindAndModify', false)
 let db = mongoose.connection;
 db.once('open', () => {
-  mongooseConnection = 1;
-  console.log('connected to the database')
+    mongooseConnection = 1;
+    console.log('connected to the database')
 });
 db.on('error', () => {
-  mongooseConnection = 0;
-  db.removeAllListeners();
-  db.close();
+    mongooseConnection = 0;
+    db.removeAllListeners();
+    db.close();
 });
 
 // sets the mongodb url in config.json
@@ -69,10 +69,10 @@ router.post('/setAuthKey', (req, res) => {
 
 router.post('/setDownloadPath', (req, res) => {
     if (!path.isAbsolute(`${req.body.downloadPath}`)){
-      return res.json({ type: 'notAbs' }).end();
+        return res.json({ type: 'notAbs' }).end();
     }
     else if (!fs.existsSync(`${req.body.downloadPath}`)){
-      return res.json({ type: 'notEx' }).end();
+        return res.json({ type: 'notEx' }).end();
     }
     else if (req.body.downloadPath !== '') {
         const oldConfig = JSON.parse(fs.readFileSync('./config.json'));
@@ -94,8 +94,5 @@ router.post('/getGitlabUrl', (req, res) => {
     res.send(JSON.parse(fs.readFileSync('./config.json')).gitlabUrl);
     res.status(200).end();
 })
-
-
-
 
 module.exports = router;

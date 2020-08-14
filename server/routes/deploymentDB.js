@@ -9,21 +9,21 @@ const path = require('path');
 // this is our get method
 // this method fetches all available data in our database
 router.get('/getData', (req, res) => {
-  if(mongooseConnection) {
-    Data.find((err, data) => {
-      if (err) return res.json({ success: false, error: err });
-      return res.json({ success: true, data: data });
-    });
-  } else {
-    return res.json({ success: false, data: 'noDbUrl' });
-  }
+    if(mongooseConnection) {
+        Data.find((err, data) => {
+        if (err) return res.json({ success: false, error: err });
+            return res.json({ success: true, data: data });
+        });
+    } else {
+        return res.json({ success: false, data: 'noDbUrl' });
+    }
 });
 
 router.post('/getOne', (req, res) => {
-  Data.findOne({ projectId: req.body.projectId }, (err, project) => {
-    if (err) return res.json({ success: false, error: err });
-    return res.json({ success: true, data: project })
-  })
+    Data.findOne({ projectId: req.body.projectId }, (err, project) => {
+        if (err) return res.json({ success: false, error: err });
+        return res.json({ success: true, data: project })
+    })
 });
   
 // this is our update method
@@ -31,16 +31,16 @@ router.post('/getOne', (req, res) => {
 router.post('/updateData', (req, res) => {
     let config = JSON.parse(fs.readFileSync('./config.json'));
     if(!path.isAbsolute(`${config.downloadPath}`)){
-      return res.json({ type: 'notAbs' }).end();
+        return res.json({ type: 'notAbs' }).end();
     }
     if(!fs.existsSync(`${config.downloadPath}`)){
-      return res.json({ type: 'notEx' }).end();
+        return res.json({ type: 'notEx' }).end();
     }
 
     const { projectId, update } = req.body;
     Data.findOneAndUpdate({ projectId: projectId }, update, (err) => {
-      if (err) return res.json({ success: false, error: err });
-      return res.json({ success: true });
+        if (err) return res.json({ success: false, error: err });
+        return res.json({ success: true });
     });
 });
   
@@ -49,28 +49,28 @@ router.post('/updateData', (req, res) => {
 router.delete('/deleteData', (req, res) => {
     const { projectId } = req.body;
     Data.findByIdAndRemove(projectId, (err) => {
-      if (err) return res.send(err);
-      return res.json({ success: true });
+        if (err) return res.send(err);
+        return res.json({ success: true });
     });
 });
   
 // this is our create method
 // this method adds new data in our database
 router.post('/putData', (req, res) => {
-  let data = new Data();
-  const { projectId, pipelineId, script, projectName } = req.body;
-  Data.findOne({ projectId }, (err, project) => {
-    if (project === null) {
-      data.script = script;
-      data.projectId = projectId;
-      data.pipelineId = pipelineId;
-      data.projectName = projectName;
-      data.save();
-      return res.json({ success: true });
-    } else {
-      return res.json({ success: false });
-    }
-  });
+    let data = new Data();
+    const { projectId, pipelineId, script, projectName } = req.body;
+    Data.findOne({ projectId }, (err, project) => {
+        if (project === null) {
+            data.script = script;
+            data.projectId = projectId;
+            data.pipelineId = pipelineId;
+            data.projectName = projectName;
+            data.save();
+            return res.json({ success: true });
+        } else {
+            return res.json({ success: false });
+        }
+    });
 });
 
 module.exports = router;
