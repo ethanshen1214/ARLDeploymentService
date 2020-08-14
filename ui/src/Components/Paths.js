@@ -17,5 +17,4 @@ export default function Paths() {
             <Route path="/" component={HomeScreen} />
         </Switch>
     )
-
 }

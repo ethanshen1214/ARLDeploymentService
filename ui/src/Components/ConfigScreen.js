@@ -61,7 +61,8 @@ export default class ConfigScreen extends Component {
                 text: "The authentication key or gitlab host url entered is invalid.\nPlease try entering another authentication key or url.\nUsing previously validated authentication key instead.",
                 icon: "warning",
             });
-        } else {
+        } 
+        else {
             await axios.post(`${apiEndpointUrl}/configData/setAuthKey`, { authKey: this.state.authKey });
             await axios.post(`${apiEndpointUrl}/configData/setGitlabUrl`, { gitlabUrl: `https://${this.state.gitlab}/api/v4` });
         }
@@ -117,66 +118,66 @@ export default class ConfigScreen extends Component {
     }
 
     render() {
-      return (
-        <div className='labels' style={{ marginLeft: '80px', marginRight: '80px' }}>
-            <h1>Configurations</h1>
-            <form onSubmit={this.handleSubmitAuthKey} style = {{ marginLeft: '20px', marginTop: '10px' }}>
-                <div style = {{ marginBottom: '10px' }}>
-                    <label>Validation Status: <b>{this.state.savedAuthKey} for {this.state.savedGitlab}</b></label>
-                </div>
-                <div style = {{ marginBottom: '30px' }}>
-                    <label>Authentication Key:</label>
-                    <input
-                        type="text" 
-                        value={this.state.authKey} 
-                        onChange={this.handleChangeAuthKey} 
-                        style={{ marginLeft: '90px', marginRight: '20px', marginBottom: '10px' }}
-                        /><br/>
-                    <label>Gitlab URL: </label>
-                    <input
-                        type="text" 
-                        value={this.state.gitlab} 
-                        onChange={this.handleChangeGitlab} 
-                        style={{ width: '300px', marginLeft: '134px', marginRight: '10px', marginBottom: '10px' }}
-                        />
-                    <input type="submit" value="Save Changes" /><br/>
-                    <p>Ex: gitlab.domain-name.com (do not include 'https://')</p>
-                    <p>(Changes may take a couple seconds to save)</p>
-                </div>
-            </form>
-            <form onSubmit={this.handleSubmitMongoDB} style = {{ marginLeft: '20px', marginTop: '10px' }}>
-                <div style = {{ marginBottom: '10px' }}>
-                    <label>Currently Saved MongoDB URL: <b>{this.state.savedMongoDb}</b></label>
-                </div>
-                <div style = {{ marginBottom: '30px' }}>
-                    <label>MongoDB Endpoint URL: </label>
-                    <input
-                        type="text" 
-                        value={this.state.mongoDb} 
-                        onChange={this.handleChangeMongoDB} 
-                        style={{ width: '650px', marginLeft: '50px', marginRight: '10px', marginBottom: '10px' }}
-                        />
-                    <input type="submit" value="Save Changes" />
-                    <p>(Changes may take a couple seconds to save)</p>                    
-                </div>
-            </form>
-            <form onSubmit={this.handleSubmitDownloadPath} style = {{ marginLeft: '20px', marginTop: '10px' }}>
-                <div style = {{ marginBottom: '10px' }}>
-                    <label>Currently Saved Download Path For Deployments: <b>{this.state.savedDownloadPath}</b></label>
-                </div>
-                <div style = {{ marginBottom: '30px' }}>
-                    <label>Download Path: </label>
-                    <input
-                        type="text" 
-                        value={this.state.downloadPath} 
-                        onChange={this.handleChangeDownloadPath} 
-                        style={{ width: '650px', marginLeft: '107px', marginRight: '10px', marginBottom: '10px' }}
-                        />
-                    <input type="submit" value="Save Changes" />
-                    <p>(Changes may take a couple seconds to save)</p>                    
-                </div>
-            </form>
-        </div>
-      );
+        return (
+            <div className='labels' style={{ marginLeft: '80px', marginRight: '80px' }}>
+                <h1>Configurations</h1>
+                <form onSubmit={this.handleSubmitAuthKey} style = {{ marginLeft: '20px', marginTop: '10px' }}>
+                    <div style = {{ marginBottom: '10px' }}>
+                        <label>Validation Status: <b>{this.state.savedAuthKey} for {this.state.savedGitlab}</b></label>
+                    </div>
+                    <div style = {{ marginBottom: '30px' }}>
+                        <label>Authentication Key:</label>
+                        <input
+                            type="text" 
+                            value={this.state.authKey} 
+                            onChange={this.handleChangeAuthKey} 
+                            style={{ marginLeft: '90px', marginRight: '20px', marginBottom: '10px' }}
+                            /><br/>
+                        <label>Gitlab URL: </label>
+                        <input
+                            type="text" 
+                            value={this.state.gitlab} 
+                            onChange={this.handleChangeGitlab} 
+                            style={{ width: '300px', marginLeft: '134px', marginRight: '10px', marginBottom: '10px' }}
+                            />
+                        <input type="submit" value="Save Changes" /><br/>
+                        <p>Ex: gitlab.domain-name.com (do not include 'https://')</p>
+                        <p>(Changes may take a couple seconds to save)</p>
+                    </div>
+                </form>
+                <form onSubmit={this.handleSubmitMongoDB} style = {{ marginLeft: '20px', marginTop: '10px' }}>
+                    <div style = {{ marginBottom: '10px' }}>
+                        <label>Currently Saved MongoDB URL: <b>{this.state.savedMongoDb}</b></label>
+                    </div>
+                    <div style = {{ marginBottom: '30px' }}>
+                        <label>MongoDB Endpoint URL: </label>
+                        <input
+                            type="text" 
+                            value={this.state.mongoDb} 
+                            onChange={this.handleChangeMongoDB} 
+                            style={{ width: '650px', marginLeft: '50px', marginRight: '10px', marginBottom: '10px' }}
+                            />
+                        <input type="submit" value="Save Changes" />
+                        <p>(Changes may take a couple seconds to save)</p>                    
+                    </div>
+                </form>
+                <form onSubmit={this.handleSubmitDownloadPath} style = {{ marginLeft: '20px', marginTop: '10px' }}>
+                    <div style = {{ marginBottom: '10px' }}>
+                        <label>Currently Saved Download Path For Deployments: <b>{this.state.savedDownloadPath}</b></label>
+                    </div>
+                    <div style = {{ marginBottom: '30px' }}>
+                        <label>Download Path: </label>
+                        <input
+                            type="text" 
+                            value={this.state.downloadPath} 
+                            onChange={this.handleChangeDownloadPath} 
+                            style={{ width: '650px', marginLeft: '107px', marginRight: '10px', marginBottom: '10px' }}
+                            />
+                        <input type="submit" value="Save Changes" />
+                        <p>(Changes may take a couple seconds to save)</p>                    
+                    </div>
+                </form>
+            </div>
+        );
     }
-  }
+}

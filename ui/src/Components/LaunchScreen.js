@@ -11,6 +11,7 @@ const webSocketUrl = process.env.REACT_APP_WEBSOCKET_ENDPOINT_URL || 'ws://local
 
 const socket = new W3CWebSocket(webSocketUrl);
 
+//code for launch service front end
 export default class LaunchScreen extends Component{
     constructor(props){
         super(props);
@@ -76,7 +77,6 @@ export default class LaunchScreen extends Component{
             }
             setTimeout(()=>this.loadData(), 2000);
         }
-
         this.loadData();
     }
     //handles changes in the text fields for adding a project
@@ -107,7 +107,8 @@ export default class LaunchScreen extends Component{
                 text: "Project not added to the database. Start script and stop script cannot be empty.",
                 icon: "warning",
             });
-        } else {
+        } 
+        else {
             const result = await axios.post(`${apiEndpointUrl}/launchDB/putData`, this.state);
             if(!result.data.success){
                 if(result.data.type === 'filePath'){
@@ -129,7 +130,7 @@ export default class LaunchScreen extends Component{
         }
         setTimeout(()=>this.loadData(), 2000);
     }
-
+    
     //makes api call to update a project in DB
     handleSubmitEdit = async (e) => {
         const projectName = this.state.edit.name;
@@ -140,7 +141,8 @@ export default class LaunchScreen extends Component{
                 text: "Project not updated. Start script and stop script cannot be empty.",
                 icon: "warning",
             });
-        } else {
+        } 
+        else {
             const result = await axios.post(`${apiEndpointUrl}/launchDB/updateData`, { projectName: projectName, update: this.state.edit });
             if(!result.data.success){
                 if(result.data.type === 'filePath'){
@@ -259,7 +261,7 @@ export default class LaunchScreen extends Component{
     //handler for project search filter
     handleProjectSearch = (e) => {
         const results = this.state.projects.filter(project =>
-          project.projectName.toLowerCase().includes(e.target.value.toLowerCase())
+            project.projectName.toLowerCase().includes(e.target.value.toLowerCase())
         );
         this.setState({ searchTerm: e.target.value, searchResults: results });
     }
@@ -270,151 +272,149 @@ export default class LaunchScreen extends Component{
 
     render() {
         return(
-        <div style={{ height: '900px', width: '650px', margin: 'auto' }}>
-          <div className = 'labels'>
-            <div style = {{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><h1>GitLab Launch Util</h1></div>
-            <button onClick = {this.addProject}>Add Project</button>
-            <div>
-                <input
-                    type="text"
-                    placeholder="Search"
-                    value={this.state.searchTerm}
-                    onChange={this.handleProjectSearch} 
-                    style = {{ marginTop: '10px' }}
-                />    
-                <button onClick={this.handleStop} style={{ float:'right', marginRight: '33px' }}>Stop current project</button>           
-                <div className = 'table' style={{ height:'650px' }}>
-                    <DataTable
-                        shadow={0}
-                        rows = {this.state.searchResults}
-                        style = {{ marginTop: '10px' }}>
-                        <TableHeader name="projectName" tooltip="Project Name">Project Name</TableHeader>
-                        <TableHeader name="editProjectButton" tooltip="Edit Project">Edit Project</TableHeader>
-                        <TableHeader name="launchProjectButton" tooltip="Launch Project">Launch Project</TableHeader>
-                        <TableHeader name="deleteProjectButton" tooltip="Delete Project">Delete Project</TableHeader>
-                        <TableHeader name="status" tooltip="status">Launch Status</TableHeader>
-                    </DataTable> 
+            <div style={{ height: '900px', width: '650px', margin: 'auto' }}>
+                <div className = 'labels'>
+                    <div style = {{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><h1>GitLab Launch Util</h1></div>
+                    <button onClick = {this.addProject}>Add Project</button>
+                    <div>
+                        <input
+                            type="text"
+                            placeholder="Search"
+                            value={this.state.searchTerm}
+                            onChange={this.handleProjectSearch} 
+                            style = {{ marginTop: '10px' }}
+                        />    
+                        <button onClick={this.handleStop} style={{ float:'right', marginRight: '33px' }}>Stop current project</button>           
+                        <div className = 'table' style={{ height:'650px' }}>
+                            <DataTable
+                                shadow={0}
+                                rows = {this.state.searchResults}
+                                style = {{ marginTop: '10px' }}>
+                                <TableHeader name="projectName" tooltip="Project Name">Project Name</TableHeader>
+                                <TableHeader name="editProjectButton" tooltip="Edit Project">Edit Project</TableHeader>
+                                <TableHeader name="launchProjectButton" tooltip="Launch Project">Launch Project</TableHeader>
+                                <TableHeader name="deleteProjectButton" tooltip="Delete Project">Delete Project</TableHeader>
+                                <TableHeader name="status" tooltip="status">Launch Status</TableHeader>
+                            </DataTable> 
+                        </div>
+                        <Modal 
+                            isOpen = {this.state.addModalIsOpen} 
+                            style = {{ overlay: { zIndex: 9999 }, content: { display: 'flex',margin: 'auto', maxWidth: '400px' } }}
+                            onRequestClose = {this.closeAddModal}
+                            shouldCloseOnOverlayClick = {true}>
+                            <div className = 'labels'>
+                                <h2>Add Project</h2>
+                                <form onSubmit={this.handleSubmit}  style = {{ marginBottom: '30px' }}>
+                                    <div>
+                                        <label>Project Name:</label>
+                                    </div>
+                                    <div style = {{ marginBottom: '20px' }}>
+                                        <input
+                                            type="text"
+                                            name="name"
+                                            value={this.state.name}
+                                            onChange={this.handleChange}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label>Launch Path:</label>
+                                    </div>
+                                    <div style = {{ marginBottom: '20px' }}>
+                                        <input
+                                            type="text"
+                                            name="path"
+                                            value={this.state.path}
+                                            onChange={this.handleChange}
+                                            style = {{ width: '300px' }}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label>Start Script:</label>
+                                    </div>
+                                    <div style = {{ marginBottom: '20px' }}>
+                                        <textarea
+                                            type="text" 
+                                            name="startScript"
+                                            value={this.state.startScript} 
+                                            onChange={this.handleChange} 
+                                            style = {{ marginRight: '20px', height: '200px', width: '300px' }}
+                                            />
+                                    </div>
+                                    <div>
+                                        <label>Stop Script:</label>
+                                    </div>
+                                    <div style = {{ marginBottom: '20px' }}>
+                                        <textarea
+                                            type="text" 
+                                            name="stopScript"
+                                            value={this.state.stopScript} 
+                                            onChange={this.handleChange} 
+                                            style = {{ marginRight: '20px', height: '200px', width: '300px' }}
+                                        />
+                                    </div>
+                                    <div>
+                                        <input type="submit" value="Add Project" />
+                                        {' | '}
+                                        <button onClick={this.closeAddModal}>Close</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </Modal>
+                        <Modal 
+                            isOpen = {this.state.editModalIsOpen} 
+                            style = {{ overlay: { zIndex: 9999 }, content: { display: 'flex',margin: 'auto', maxWidth: '400px' } }}
+                            onRequestClose = {this.closeEditModal}
+                            shouldCloseOnOverlayClick = {true}>
+                            <div className = 'labels'>
+                                <h2>Editing: {this.state.edit.name}</h2>
+                                <form onSubmit={this.handleSubmitEdit} style = {{ marginBottom: '30px' }}>
+                                    <div>
+                                        <label>Launch Path:</label>
+                                    </div>
+                                    <div style = {{ marginBottom: '20px' }}>
+                                        <input
+                                            type="text"
+                                            name="path" 
+                                            value={this.state.edit.path}
+                                            onChange={this.handleChangeEdit}
+                                            style = {{ width: '300px' }}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label>Start Script:</label>
+                                    </div>
+                                    <div style = {{ marginBottom: '20px' }}>
+                                        <textarea
+                                            type="text" 
+                                            name="startScript"
+                                            value={this.state.edit.startScript} 
+                                            onChange={this.handleChangeEdit} 
+                                            style = {{ marginRight: '20px', height: '200px', width: '300px' }}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label>Stop Script:</label>
+                                    </div>
+                                    <div style = {{ marginBottom: '20px' }}>
+                                        <textarea
+                                            type="text" 
+                                            name="stopScript"
+                                            value={this.state.edit.stopScript} 
+                                            onChange={this.handleChangeEdit} 
+                                            style = {{ marginRight: '20px', height: '200px', width: '300px' }}
+                                        />
+                                    </div>
+                                    <div>
+                                        <input type="submit" value="Save Changes" />
+                                        {' | '}
+                                        <button onClick={this.closeEditModal}>Close</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </Modal>
+                    </div>
                 </div>
-                <Modal 
-                    isOpen = {this.state.addModalIsOpen} 
-                    style = {{ overlay: { zIndex: 9999 }, content: { display: 'flex',margin: 'auto', maxWidth: '400px' } }}
-                    onRequestClose = {this.closeAddModal}
-                    shouldCloseOnOverlayClick = {true}
-                >
-                    <div className = 'labels'>
-                        <h2>Add Project</h2>
-                        <form onSubmit={this.handleSubmit}  style = {{ marginBottom: '30px' }}>
-                            <div>
-                                <label>Project Name:</label>
-                            </div>
-                            <div style = {{ marginBottom: '20px' }}>
-                                <input
-                                    type="text"
-                                    name="name"
-                                    value={this.state.name}
-                                    onChange={this.handleChange}
-                                />
-                            </div>
-                            <div>
-                                <label>Launch Path:</label>
-                            </div>
-                            <div style = {{ marginBottom: '20px' }}>
-                                <input
-                                    type="text"
-                                    name="path"
-                                    value={this.state.path}
-                                    onChange={this.handleChange}
-                                    style = {{ width: '300px' }}
-                                />
-                            </div>
-                            <div>
-                                <label>Start Script:</label>
-                            </div>
-                            <div style = {{ marginBottom: '20px' }}>
-                                <textarea
-                                    type="text" 
-                                    name="startScript"
-                                    value={this.state.startScript} 
-                                    onChange={this.handleChange} 
-                                    style = {{ marginRight: '20px', height: '200px', width: '300px' }}
-                                    />
-                            </div>
-                            <div>
-                                <label>Stop Script:</label>
-                            </div>
-                            <div style = {{ marginBottom: '20px' }}>
-                                <textarea
-                                    type="text" 
-                                    name="stopScript"
-                                    value={this.state.stopScript} 
-                                    onChange={this.handleChange} 
-                                    style = {{ marginRight: '20px', height: '200px', width: '300px' }}
-                                    />
-                            </div>
-                            <div>
-                                <input type="submit" value="Add Project" />
-                                {' | '}
-                                <button onClick={this.closeAddModal}>Close</button>
-                            </div>
-                        </form>
-                    </div>
-                </Modal>
-                <Modal 
-                    isOpen = {this.state.editModalIsOpen} 
-                    style = {{ overlay: { zIndex: 9999 }, content: { display: 'flex',margin: 'auto', maxWidth: '400px' } }}
-                    onRequestClose = {this.closeEditModal}
-                    shouldCloseOnOverlayClick = {true}
-                >
-                    <div className = 'labels'>
-                        <h2>Editing: {this.state.edit.name}</h2>
-                        <form onSubmit={this.handleSubmitEdit} style = {{ marginBottom: '30px' }}>
-                            <div>
-                                <label>Launch Path:</label>
-                            </div>
-                            <div style = {{ marginBottom: '20px' }}>
-                                <input
-                                    type="text"
-                                    name="path" 
-                                    value={this.state.edit.path}
-                                    onChange={this.handleChangeEdit}
-                                    style = {{ width: '300px' }}
-                                />
-                            </div>
-                            <div>
-                                <label>Start Script:</label>
-                            </div>
-                            <div style = {{ marginBottom: '20px' }}>
-                                <textarea
-                                    type="text" 
-                                    name="startScript"
-                                    value={this.state.edit.startScript} 
-                                    onChange={this.handleChangeEdit} 
-                                    style = {{ marginRight: '20px', height: '200px', width: '300px' }}
-                                    />
-                            </div>
-                            <div>
-                                <label>Stop Script:</label>
-                            </div>
-                            <div style = {{ marginBottom: '20px' }}>
-                                <textarea
-                                    type="text" 
-                                    name="stopScript"
-                                    value={this.state.edit.stopScript} 
-                                    onChange={this.handleChangeEdit} 
-                                    style = {{ marginRight: '20px', height: '200px', width: '300px' }}
-                                    />
-                            </div>
-                            <div>
-                                <input type="submit" value="Save Changes" />
-                                {' | '}
-                                <button onClick={this.closeEditModal}>Close</button>
-                            </div>
-                        </form>
-                    </div>
-                </Modal>
             </div>
-          </div>
-        </div>
         );
     }
 }

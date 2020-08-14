@@ -1,25 +1,25 @@
 .labels {
-  margin: 0 auto;
+    margin: 0 auto;
 }
 .labels h1 {
-  font-family: 'Courier', sans-serif;
-  font-size: 30px;
-  font-weight: bold;
-  text-align: 'center';
-  color: #000000;
+    font-family: 'Courier', sans-serif;
+    font-size: 30px;
+    font-weight: bold;
+    text-align: 'center';
+    color: #000000;
 }
 .labels h2 {
-  font-family: 'Courier', sans-serif;
-  font-size: 20px;
-  font-weight: bold;
-  color: #000000;
+    font-family: 'Courier', sans-serif;
+    font-size: 20px;
+    font-weight: bold;
+    color: #000000;
 }
 .labels p {
-  font-family: 'Courier', sans-serif;
-  font-size: 15px;
-  color: #000000;
+    font-family: 'Courier', sans-serif;
+    font-size: 15px;
+    color: #000000;
 }
 .table {
-  overflow-y: scroll;
-  overflow-x: hidden;
+    overflow-y: scroll;
+    overflow-x: hidden;
 }
